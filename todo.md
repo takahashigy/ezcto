@@ -138,3 +138,6 @@
 - [x] 在Stripe中创建deployment产品（$299）
 - [x] 添加STRIPE_PRICE_DEPLOYMENT环境变量
 - [x] 测试付费墙和checkout流程
+
+## UI优化 - Coming Soon状态
+- [x] 将IP实体化供应链按钮改为"Coming Q3 2026"灰色禁用状态

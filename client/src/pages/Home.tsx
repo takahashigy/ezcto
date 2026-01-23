@@ -308,14 +308,14 @@ export default function Home() {
             </div>
 
             {/* Module 3: IP Merchandise Supply Chain */}
-            <div className="module-card group">
+            <div className="module-card opacity-75">
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Package className="w-8 h-8 text-primary" />
+                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <Package className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold mb-2">IP实体化供应链</h3>
-                  <div className="text-sm text-primary font-mono">PRO VERSION</div>
+                  <span className="coming-soon-badge">Coming Soon</span>
                 </div>
               </div>
               
@@ -324,35 +324,23 @@ export default function Home() {
               </p>
               
               <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1 h-1 bg-primary"></div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
                   <span>C2M对接全球供应链</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1 h-1 bg-primary"></div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
                   <span>AI效果图生成</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1 h-1 bg-primary"></div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
                   <span>从设计到全球配送</span>
                 </div>
               </div>
               
-              {isAuthenticated ? (
-                <Link href="/merch">
-                  <Button className="w-full font-mono retro-border">
-                    Design Merch
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              ) : (
-                <a href={getLoginUrl()} className="block">
-                  <Button className="w-full font-mono retro-border">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
-              )}
+              <Button className="w-full font-mono" variant="outline" disabled>
+                Coming Q3 2026
+              </Button>
             </div>
 
             {/* Module 4: Official Meme Marketplace */}

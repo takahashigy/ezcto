@@ -21,7 +21,7 @@ export default function Home() {
           <div className="flex items-center gap-6">
             <Link href="/templates">
               <Button variant="ghost" className="font-mono">
-                模版
+                Templates
               </Button>
             </Link>
             {isAuthenticated ? (
@@ -96,10 +96,12 @@ export default function Home() {
                     </Button>
                   </a>
                 )}
-                <Button size="lg" variant="outline" className="font-mono text-lg w-full sm:w-auto">
-                  View Demo
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                <Link href="/templates">
+                  <Button size="lg" variant="outline" className="font-mono text-lg w-full sm:w-auto">
+                    View Demo
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
               </div>
               
               <div className="flex items-center gap-8 pt-4">

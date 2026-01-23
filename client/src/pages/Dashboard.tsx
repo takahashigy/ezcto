@@ -3,12 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
-import { Rocket, Package, FileText, Download, Loader2, Plus, ArrowLeft } from "lucide-react";
+import { Rocket, Package, FileText, Download, Loader2, Plus, ArrowLeft, Globe } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { DeploymentPaywall } from "@/components/DeploymentPaywall";
+import { useState } from "react";
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const [deploymentPaywallOpen, setDeploymentPaywallOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<{ id: number; name: string } | null>(null);
 
   const { data: projects, isLoading: projectsLoading } = trpc.projects.list.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -173,10 +177,23 @@ export default function Dashboard() {
                         </Button>
                       </Link>
                       {project.status === 'completed' && (
-                        <Button variant="outline" className="font-mono">
-                          <Download className="mr-2 h-4 w-4" />
-                          Download Assets
-                        </Button>
+                        <>
+                          <Button
+                            variant="default"
+                            className="font-mono"
+                            onClick={() => {
+                              setSelectedProject({ id: project.id, name: project.name });
+                              setDeploymentPaywallOpen(true);
+                            }}
+                          >
+                            <Globe className="mr-2 h-4 w-4" />
+                            Deploy Website
+                          </Button>
+                          <Button variant="outline" className="font-mono">
+                            <Download className="mr-2 h-4 w-4" />
+                            Download Assets
+                          </Button>
+                        </>
                       )}
                     </div>
                   </CardContent>
@@ -186,6 +203,16 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Deployment Paywall */}
+      {selectedProject && (
+        <DeploymentPaywall
+          open={deploymentPaywallOpen}
+          onOpenChange={setDeploymentPaywallOpen}
+          projectId={selectedProject.id}
+          projectName={selectedProject.name}
+        />
+      )}
     </div>
   );
 }

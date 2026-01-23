@@ -269,6 +269,40 @@ export const appRouter = router({
 
         return { checkoutUrl: session.url };
       }),
+
+    createDeploymentCheckout: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+
+        const origin = ctx.req.headers.origin || 'http://localhost:3000';
+        
+        // 使用固定价格：$29 USD
+        const deploymentProduct = ALL_PRODUCTS.find(p => p.id === 'deployment');
+        if (!deploymentProduct) {
+          throw new Error("Deployment product not configured");
+        }
+
+        const session = await createCheckoutSession({
+          userId: ctx.user.id,
+          userEmail: ctx.user.email || '',
+          userName: ctx.user.name || undefined,
+          priceId: deploymentProduct.priceId,
+          projectId: input.projectId,
+          successUrl: `${origin}/dashboard?deployment=success&projectId=${input.projectId}`,
+          cancelUrl: `${origin}/dashboard?deployment=cancelled`,
+        });
+
+        return { url: session.url };
+      }),
   }),
 });
 

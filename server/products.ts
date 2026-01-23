@@ -51,6 +51,19 @@ export const MERCH_DESIGN: Product = {
 };
 
 /**
+ * 部署服务
+ */
+export const DEPLOYMENT: Product = {
+  id: "deployment",
+  name: "Website Deployment",
+  description: "一键部署到生产环境 + 下载所有资产 + 终身访问",
+  priceId: process.env.STRIPE_PRICE_DEPLOYMENT || "price_deployment",
+  price: 29,
+  currency: "USD",
+  type: "one_time",
+};
+
+/**
  * 订阅计划
  */
 export const SUBSCRIPTION_STANDARD: Product = {
@@ -82,6 +95,7 @@ export const ALL_PRODUCTS: Product[] = [
   LAUNCH_STANDARD,
   LAUNCH_PRO,
   MERCH_DESIGN,
+  DEPLOYMENT,
   SUBSCRIPTION_STANDARD,
   SUBSCRIPTION_PRO,
 ];

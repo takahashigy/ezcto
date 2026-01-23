@@ -30,6 +30,8 @@ export const projects = mysqlTable("projects", {
   website: varchar("website", { length: 500 }),
   status: mysqlEnum("status", ["draft", "generating", "completed", "failed"]).default("draft").notNull(),
   styleTemplate: varchar("styleTemplate", { length: 100 }),
+  deploymentUrl: varchar("deploymentUrl", { length: 1000 }),
+  deploymentStatus: mysqlEnum("deploymentStatus", ["not_deployed", "deployed", "failed"]).default("not_deployed"),
   metadata: json("metadata").$type<Record<string, unknown>>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

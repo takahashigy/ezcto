@@ -172,6 +172,18 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   });
 
   console.log(`[Webhook] Order created for user ${userId}`);
+
+  // 如果是部署产品，自动触发部署
+  if (product?.id === "deployment" && projectId) {
+    console.log(`[Webhook] Triggering deployment for project ${projectId}`);
+    const { deployWebsite } = await import("./deployment");
+    const result = await deployWebsite({ projectId, userId });
+    if (result.success) {
+      console.log(`[Webhook] Deployment successful: ${result.url}`);
+    } else {
+      console.error(`[Webhook] Deployment failed: ${result.error}`);
+    }
+  }
 }
 
 /**

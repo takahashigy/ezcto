@@ -133,6 +133,13 @@ export async function updateProjectStatus(projectId: number, status: "draft" | "
   await db.update(projects).set({ status, updatedAt: new Date() }).where(eq(projects.id, projectId));
 }
 
+export async function updateProject(projectId: number, updates: Partial<Omit<InsertProject, 'id' | 'userId' | 'createdAt'>>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(projects).set({ ...updates, updatedAt: new Date() }).where(eq(projects.id, projectId));
+}
+
 export async function getAllProjects() {
   const db = await getDb();
   if (!db) return [];

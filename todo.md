@@ -100,6 +100,6 @@
 - [x] 修复Cyberpunk模版显示（占位符改为示例内容）
 - [ ] 为所有模版添加占位符标记（便于AI替换）
 - [x] 集成AI生成功能（Logo+Banner 1500x500+网站内容）
-- [ ] 实现付费墙（点击部署按钮弹出付费提示）
-- [ ] 实现一键部署功能（S3+CDN）
-- [ ] 生成的网站自动分配独立URL（projectname.ezcto.manus.space）
+- [x] 实现付费墙（点击部署按钮弹出付费提示）
+- [x] 实现一键部署功能（S3+CDN）
+- [x] 生成的网站自动分配独立URL（projectname.ezcto.manus.space）

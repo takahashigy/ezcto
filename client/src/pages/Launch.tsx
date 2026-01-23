@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
 import { Rocket, Loader2, ArrowLeft, Sparkles } from "lucide-react";
@@ -20,7 +21,7 @@ export default function Launch() {
     name: "",
     description: "",
     ticker: "",
-    styleTemplate: "pixel_punk",
+    styleTemplate: "retro_gaming",
   });
 
   const triggerLaunchMutation = trpc.launch.trigger.useMutation();
@@ -179,29 +180,42 @@ export default function Launch() {
                 <Label htmlFor="styleTemplate" className="text-base font-bold">
                   Visual Style Template
                 </Label>
-                <div className="grid md:grid-cols-3 gap-4">
-                  {[
-                    { id: "pixel_punk", name: "Pixel Punk", desc: "像素朋克风格" },
-                    { id: "minimal_power", name: "Minimal Power", desc: "简洁力量风格" },
-                    { id: "cartoon_chaos", name: "Cartoon Chaos", desc: "卡通狂热风格" },
-                  ].map((style) => (
-                    <button
-                      key={style.id}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, styleTemplate: style.id })}
-                      className={`p-4 border-2 transition-all ${
-                        formData.styleTemplate === style.id
-                          ? "border-primary bg-primary/10"
-                          : "border-border bg-card hover:border-primary/50"
-                      }`}
-                    >
-                      <div className="font-bold mb-1">{style.name}</div>
-                      <div className="text-sm text-muted-foreground">{style.desc}</div>
-                    </button>
-                  ))}
-                </div>
+                <Select
+                  value={formData.styleTemplate}
+                  onValueChange={(value) => setFormData({ ...formData, styleTemplate: value })}
+                >
+                  <SelectTrigger className="text-lg font-mono retro-border">
+                    <SelectValue placeholder="Select a style template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="retro_gaming">
+                      <div className="flex flex-col">
+                        <span className="font-bold">Retro Gaming</span>
+                        <span className="text-xs text-muted-foreground">8-bit pixel art, neon colors, arcade vibes</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="cyberpunk">
+                      <div className="flex flex-col">
+                        <span className="font-bold">Cyberpunk</span>
+                        <span className="text-xs text-muted-foreground">Red & black, futuristic tech, neon aesthetics</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="minimalist">
+                      <div className="flex flex-col">
+                        <span className="font-bold">Minimalist</span>
+                        <span className="text-xs text-muted-foreground">Clean lines, monochrome, modern simplicity</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="internet_meme">
+                      <div className="flex flex-col">
+                        <span className="font-bold">Internet Meme</span>
+                        <span className="text-xs text-muted-foreground">Hand-drawn style, cartoon characters, playful</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
                 <p className="text-sm text-muted-foreground">
-                  Choose a visual style for your brand assets
+                  Choose a visual style for your brand assets (affects logo, website, and all visual elements)
                 </p>
               </div>
 

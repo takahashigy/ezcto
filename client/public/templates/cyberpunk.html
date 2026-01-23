@@ -1,549 +1,623 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>$CYBER - Cyberpunk Meme Token</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEONVERSE - Cyberpunk Meme Token</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Share Tech Mono', monospace;
-            background: #0A0E27;
-            color: #E0E0E0;
-            overflow-x: hidden;
-            position: relative;
-        }
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: #f5f1e8;
+      color: #1a1a1a;
+      overflow-x: hidden;
+    }
 
-        /* Animated Background */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(90deg, transparent 0%, rgba(0, 240, 255, 0.05) 50%, transparent 100%),
-                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 240, 255, 0.03) 2px, rgba(0, 240, 255, 0.03) 4px);
-            animation: scan 8s linear infinite;
-            pointer-events: none;
-            z-index: 1;
-        }
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem 2rem;
+      background: rgba(245, 241, 232, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid #1a1a1a;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #dc143c;
+      letter-spacing: 0.1em;
+    }
 
-        /* Hexagon Pattern */
-        .hex-bg {
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.1) 1px, transparent 1px),
-                radial-gradient(circle at 0% 100%, rgba(255, 0, 110, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            background-position: 0 0, 25px 25px;
-        }
+    nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            position: relative;
-            z-index: 10;
-        }
+    nav a {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1a1a1a;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: color 0.3s;
+    }
 
-        /* Header */
-        header {
-            padding: 20px 0;
-            border-bottom: 2px solid #00F0FF;
-            background: rgba(10, 14, 39, 0.95);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
-        }
+    nav a:hover {
+      color: #dc143c;
+    }
 
-        .logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
-            font-weight: 900;
-            color: #00F0FF;
-            text-shadow: 0 0 10px #00F0FF, 0 0 20px #00F0FF;
-            letter-spacing: 4px;
-        }
+    .cta-button {
+      padding: 0.8rem 2rem;
+      background: #1a1a1a;
+      color: #f5f1e8;
+      border: none;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
 
-        /* Hero Section */
-        .hero {
-            padding: 100px 0;
-            text-align: center;
-            position: relative;
-        }
+    .cta-button:hover {
+      background: #dc143c;
+      transform: translateY(-2px);
+    }
 
-        .hero::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0, 240, 255, 0.2) 0%, transparent 70%);
-            animation: pulse 4s ease-in-out infinite;
-        }
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+      background: #f5f1e8;
+    }
 
-        @keyframes pulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
-        }
+    .hero-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
 
-        .hero h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 72px;
-            font-weight: 900;
-            color: #00F0FF;
-            text-shadow: 0 0 20px #00F0FF, 0 0 40px #FF006E;
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 10;
-            animation: glitch 5s infinite;
-        }
+    .hero-text {
+      position: relative;
+      z-index: 10;
+    }
 
-        @keyframes glitch {
-            0%, 90%, 100% { 
-                transform: translate(0);
-                text-shadow: 0 0 20px #00F0FF, 0 0 40px #FF006E;
-            }
-            92% { 
-                transform: translate(-3px, 3px);
-                text-shadow: 3px 0 #FF006E, -3px 0 #00F0FF;
-            }
-            94% { 
-                transform: translate(3px, -3px);
-                text-shadow: -3px 0 #FF006E, 3px 0 #00F0FF;
-            }
-        }
+    .hero-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #dc143c;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 1rem;
+    }
 
-        .hero p {
-            font-size: 24px;
-            color: #00FF41;
-            margin-bottom: 50px;
-            position: relative;
-            z-index: 10;
-            text-shadow: 0 0 10px #00FF41;
-        }
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 6rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      line-height: 1;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
 
-        .cyber-frame {
-            display: inline-block;
-            padding: 60px;
-            border: 2px solid #00F0FF;
-            background: rgba(0, 240, 255, 0.05);
-            box-shadow: 
-                0 0 20px rgba(0, 240, 255, 0.5),
-                inset 0 0 20px rgba(0, 240, 255, 0.1);
-            clip-path: polygon(
-                0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px,
-                100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px)
-            );
-            margin: 30px 0;
-            position: relative;
-            z-index: 10;
-        }
+    .hero-title .cyber {
+      display: block;
+      font-style: italic;
+      color: #1a1a1a;
+    }
 
-        .cyber-logo {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, #00F0FF, #FF006E, #8338EC);
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            box-shadow: 0 0 40px rgba(0, 240, 255, 0.8);
-            animation: rotate 20s linear infinite;
-        }
+    .hero-title .punk {
+      display: block;
+      color: #dc143c;
+      font-size: 8rem;
+      letter-spacing: 0.05em;
+    }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+    .level-tag {
+      display: inline-block;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+    }
 
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            padding: 15px 40px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            text-decoration: none;
-            color: #0A0E27;
-            background: #00F0FF;
-            border: 2px solid #00F0FF;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
-            transition: all 0.3s;
-            margin: 10px;
-            position: relative;
-            z-index: 10;
-        }
+    .character-info {
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid #1a1a1a;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
 
-        .btn:hover {
-            background: transparent;
-            color: #00F0FF;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.8);
-        }
+    .character-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
 
-        .btn-secondary {
-            background: transparent;
-            color: #FF006E;
-            border-color: #FF006E;
-            box-shadow: 0 0 20px rgba(255, 0, 110, 0.5);
-        }
+    .character-desc {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: #4a4a4a;
+      line-height: 1.6;
+    }
 
-        .btn-secondary:hover {
-            background: #FF006E;
-            color: #0A0E27;
-            box-shadow: 0 0 30px rgba(255, 0, 110, 0.8);
-        }
+    .hero-quote {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
 
-        /* Features Section */
-        .features {
-            padding: 100px 0;
-            background: rgba(0, 0, 0, 0.5);
-        }
+    .hero-quote-ja {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 2rem;
+    }
 
-        .section-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 48px;
-            font-weight: 900;
-            text-align: center;
-            color: #00F0FF;
-            margin-bottom: 60px;
-            text-shadow: 0 0 20px #00F0FF;
-        }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
 
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-        }
+    .btn-primary {
+      padding: 1.2rem 3rem;
+      background: #dc143c;
+      color: #fff;
+      border: 2px solid #dc143c;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
 
-        .feature-card {
-            padding: 40px;
-            border: 2px solid #8338EC;
-            background: rgba(131, 56, 236, 0.05);
-            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
-            transition: all 0.3s;
-        }
+    .btn-primary:hover {
+      background: transparent;
+      color: #dc143c;
+    }
 
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 40px rgba(0, 240, 255, 0.5);
-            border-color: #00F0FF;
-        }
+    .btn-secondary {
+      padding: 1.2rem 3rem;
+      background: transparent;
+      color: #1a1a1a;
+      border: 2px solid #1a1a1a;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
 
-        .feature-card h3 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #00FF41;
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px #00FF41;
-        }
+    .btn-secondary:hover {
+      background: #1a1a1a;
+      color: #f5f1e8;
+    }
 
-        .feature-card p {
-            font-size: 18px;
-            line-height: 1.8;
-            color: #E0E0E0;
-        }
+    /* Character Illustration */
+    .hero-character {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        /* Tokenomics */
-        .tokenomics {
-            padding: 100px 0;
-        }
+    .character-frame {
+      width: 500px;
+      height: 600px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      border: 3px solid #dc143c;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(220, 20, 60, 0.3);
+    }
 
-        .token-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 30px;
-            margin-top: 60px;
-        }
+    .character-silhouette {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      height: 90%;
+      background: linear-gradient(180deg, 
+        rgba(220, 20, 60, 0.8) 0%,
+        rgba(220, 20, 60, 0.6) 30%,
+        rgba(26, 26, 26, 0.9) 70%,
+        rgba(26, 26, 26, 1) 100%
+      );
+      clip-path: polygon(
+        30% 15%, 35% 10%, 40% 8%, 45% 7%, 50% 7%, 55% 7%, 60% 8%, 65% 10%, 70% 15%,
+        75% 20%, 78% 25%, 80% 30%, 82% 40%, 83% 50%, 85% 60%, 88% 70%, 90% 80%, 92% 90%, 93% 100%,
+        7% 100%, 8% 90%, 10% 80%, 12% 70%, 15% 60%, 17% 50%, 18% 40%, 20% 30%, 22% 25%, 25% 20%
+      );
+    }
 
-        .token-stat {
-            padding: 40px;
-            border: 2px solid #FF006E;
-            background: rgba(255, 0, 110, 0.05);
-            text-align: center;
-            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
-            transition: all 0.3s;
-        }
+    /* Decorative elements */
+    .tech-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.3;
+    }
 
-        .token-stat:hover {
-            box-shadow: 0 0 30px rgba(255, 0, 110, 0.5);
-        }
+    .tech-line {
+      position: absolute;
+      background: #dc143c;
+      animation: scan 3s linear infinite;
+    }
 
-        .token-stat .number {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 48px;
-            font-weight: 900;
-            color: #00F0FF;
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px #00F0FF;
-        }
+    .tech-line:nth-child(1) {
+      width: 2px;
+      height: 100%;
+      left: 20%;
+      animation-delay: 0s;
+    }
 
-        .token-stat .label {
-            font-size: 18px;
-            color: #00FF41;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+    .tech-line:nth-child(2) {
+      width: 100%;
+      height: 2px;
+      top: 30%;
+      animation-delay: 1s;
+    }
 
-        /* Roadmap */
-        .roadmap {
-            padding: 100px 0;
-            background: rgba(0, 0, 0, 0.5);
-        }
+    .tech-line:nth-child(3) {
+      width: 2px;
+      height: 100%;
+      right: 20%;
+      animation-delay: 2s;
+    }
 
-        .roadmap-item {
-            padding: 40px;
-            border-left: 4px solid #00F0FF;
-            background: rgba(0, 240, 255, 0.05);
-            margin-bottom: 30px;
-            position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
-        }
+    @keyframes scan {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.5; }
+    }
 
-        .roadmap-item::before {
-            content: "";
-            position: absolute;
-            left: -10px;
-            top: 40px;
-            width: 16px;
-            height: 16px;
-            background: #00F0FF;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            box-shadow: 0 0 10px #00F0FF;
-        }
+    /* Features Section */
+    .features {
+      padding: 6rem 2rem;
+      background: #fff;
+      border-top: 2px solid #1a1a1a;
+      border-bottom: 2px solid #1a1a1a;
+    }
 
-        .roadmap-item h3 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: #00F0FF;
-            margin-bottom: 15px;
-        }
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 4rem;
+    }
 
-        .roadmap-item p {
-            font-size: 18px;
-            color: #E0E0E0;
-            line-height: 1.8;
-        }
+    .feature-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
 
-        .phase-tag {
-            display: inline-block;
-            padding: 8px 20px;
-            background: #FF006E;
-            color: #0A0E27;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
-        }
+    .feature-card {
+      padding: 2rem;
+      border: 2px solid #1a1a1a;
+      background: #f5f1e8;
+      transition: all 0.3s;
+    }
 
-        /* Community */
-        .community {
-            padding: 100px 0;
-            text-align: center;
-        }
+    .feature-card:hover {
+      border-color: #dc143c;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(220, 20, 60, 0.2);
+    }
 
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 60px;
-            flex-wrap: wrap;
-        }
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
 
-        .social-btn {
-            width: 100px;
-            height: 100px;
-            border: 2px solid #00F0FF;
-            background: rgba(0, 240, 255, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            color: #00F0FF;
-            text-decoration: none;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            transition: all 0.3s;
-        }
+    .feature-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
 
-        .social-btn:hover {
-            background: #00F0FF;
-            color: #0A0E27;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.8);
-            transform: scale(1.1);
-        }
+    .feature-card p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      color: #4a4a4a;
+      line-height: 1.6;
+    }
 
-        /* Footer */
-        footer {
-            padding: 40px 0;
-            border-top: 2px solid #00F0FF;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-        }
+    /* Tokenomics */
+    .tokenomics {
+      padding: 6rem 2rem;
+      background: #1a1a1a;
+      color: #f5f1e8;
+    }
 
-        footer p {
-            font-size: 16px;
-            color: #8338EC;
-            letter-spacing: 2px;
-        }
+    .tokenomics .section-title {
+      color: #f5f1e8;
+    }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 42px;
-            }
+    .tokenomics-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
 
-            .hero p {
-                font-size: 18px;
-            }
+    .tokenomics-card {
+      padding: 2rem;
+      border: 2px solid #dc143c;
+      background: rgba(220, 20, 60, 0.1);
+      text-align: center;
+    }
 
-            .section-title {
-                font-size: 32px;
-            }
+    .tokenomics-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #dc143c;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
 
-            .cyber-frame {
-                padding: 30px;
-            }
+    .tokenomics-card p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #f5f1e8;
+    }
 
-            .cyber-logo {
-                width: 150px;
-                height: 150px;
-            }
-        }
-    </style>
+    /* Footer */
+    footer {
+      padding: 4rem 2rem;
+      background: #f5f1e8;
+      border-top: 2px solid #1a1a1a;
+      text-align: center;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-link {
+      width: 60px;
+      height: 60px;
+      border: 2px solid #1a1a1a;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #1a1a1a;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .social-link:hover {
+      background: #dc143c;
+      border-color: #dc143c;
+      color: #fff;
+      transform: translateY(-5px);
+    }
+
+    footer p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      color: #4a4a4a;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    @media (max-width: 968px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero-title {
+        font-size: 4rem;
+      }
+
+      .hero-title .punk {
+        font-size: 5rem;
+      }
+
+      .character-frame {
+        width: 400px;
+        height: 500px;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-title {
+        font-size: 3rem;
+      }
+
+      .hero-title .punk {
+        font-size: 4rem;
+      }
+
+      .character-frame {
+        width: 300px;
+        height: 400px;
+      }
+    }
+  </style>
 </head>
-<body class="hex-bg">
-    <header>
-        <div class="container">
-            <div class="logo">$CYBER</div>
-        </div>
-    </header>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">NEONVERSE</div>
+    <nav>
+      <a href="#">HOME</a>
+      <a href="#">CHARACTERS</a>
+      <a href="#">NEON SHOP</a>
+      <a href="#">COMMUNITY</a>
+      <button class="cta-button">Join the Network</button>
+    </nav>
+  </header>
 
-    <section class="hero">
-        <div class="container">
-            <h1>CYBERPUNK 2084</h1>
-            <div class="cyber-frame">
-                <div class="cyber-logo"></div>
-            </div>
-            <p>// ENTER THE NEON FUTURE //</p>
-            <div>
-                <a href="#" class="btn">CONNECT WALLET</a>
-                <a href="#" class="btn btn-secondary">READ WHITEPAPER</a>
-            </div>
-        </div>
-    </section>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-subtitle">NEONVERSE</div>
+        <h1 class="hero-title">
+          <span class="cyber">Kira</span>
+          <span class="punk">CYBER</span>
+        </h1>
+        <div class="level-tag">LVL-20</div>
 
-    <section class="features">
-        <div class="container">
-            <h2 class="section-title">SYSTEM FEATURES</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h3>DECENTRALIZED</h3>
-                    <p>Built on cutting-edge blockchain technology with full transparency and community governance</p>
-                </div>
-                <div class="feature-card">
-                    <h3>SECURE PROTOCOL</h3>
-                    <p>Military-grade encryption and audited smart contracts ensure your assets are always protected</p>
-                </div>
-                <div class="feature-card">
-                    <h3>NEURAL NETWORK</h3>
-                    <p>AI-powered ecosystem that adapts and evolves with the community's needs</p>
-                </div>
-                <div class="feature-card">
-                    <h3>QUANTUM SPEED</h3>
-                    <p>Lightning-fast transactions with minimal fees on next-gen infrastructure</p>
-                </div>
-            </div>
+        <div class="character-info">
+          <div class="character-name">Kira.exe</div>
+          <div class="character-desc">Hacker, street-runner, guide to the neonunderworld.</div>
         </div>
-    </section>
 
-    <section class="tokenomics">
-        <div class="container">
-            <h2 class="section-title">TOKENOMICS</h2>
-            <div class="token-grid">
-                <div class="token-stat">
-                    <div class="number">100M</div>
-                    <div class="label">Total Supply</div>
-                </div>
-                <div class="token-stat">
-                    <div class="number">70%</div>
-                    <div class="label">Liquidity Pool</div>
-                </div>
-                <div class="token-stat">
-                    <div class="number">15%</div>
-                    <div class="label">Development</div>
-                </div>
-                <div class="token-stat">
-                    <div class="number">15%</div>
-                    <div class="label">Marketing</div>
-                </div>
-            </div>
+        <div class="hero-quote">
+          "THE SYSTEM IS BROKEN. I'LL SHOW YOU THE BACKDOOR..."
         </div>
-    </section>
+        <div class="hero-quote-ja">未来はコードで書き換えられる。</div>
 
-    <section class="roadmap">
-        <div class="container">
-            <h2 class="section-title">MISSION ROADMAP</h2>
-            <div class="roadmap-item">
-                <span class="phase-tag">Q1 2024</span>
-                <h3>INITIALIZATION</h3>
-                <p>Token deployment, smart contract audit, initial liquidity provision, and community launch</p>
-            </div>
-            <div class="roadmap-item">
-                <span class="phase-tag">Q2 2024</span>
-                <h3>EXPANSION</h3>
-                <p>Major CEX listings, strategic partnerships, marketing campaigns, and ecosystem development</p>
-            </div>
-            <div class="roadmap-item">
-                <span class="phase-tag">Q3 2024</span>
-                <h3>INTEGRATION</h3>
-                <p>DeFi protocol integration, NFT marketplace launch, metaverse presence, and DAO governance</p>
-            </div>
-            <div class="roadmap-item">
-                <span class="phase-tag">Q4 2024</span>
-                <h3>DOMINATION</h3>
-                <p>Global adoption, cross-chain bridges, enterprise partnerships, and ecosystem maturity</p>
-            </div>
+        <div class="hero-actions">
+          <a href="#" class="btn-primary">ENTER THE GRID</a>
+          <a href="#" class="btn-secondary">LEARN MORE</a>
         </div>
-    </section>
+      </div>
 
-    <section class="community">
-        <div class="container">
-            <h2 class="section-title">JOIN THE NETWORK</h2>
-            <p style="font-size: 20px; margin-bottom: 20px;">// CONNECT WITH THE COLLECTIVE //</p>
-            <div class="social-links">
-                <a href="#" class="social-btn">X</a>
-                <a href="#" class="social-btn">TG</a>
-                <a href="#" class="social-btn">DC</a>
-                <a href="#" class="social-btn">DEXS</a>
-            </div>
+      <div class="hero-character">
+        <div class="character-frame">
+          <div class="tech-lines">
+            <div class="tech-line"></div>
+            <div class="tech-line"></div>
+            <div class="tech-line"></div>
+          </div>
+          <div class="character-silhouette"></div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <footer>
-        <div class="container">
-            <p>© 2024 $CYBER - POWERED BY EZCTO</p>
-        </div>
-    </footer>
+  <!-- Features Section -->
+  <section class="features">
+    <h2 class="section-title">System Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Decentralized</h3>
+        <p>No central authority. The network is owned by the community.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Lightning Fast</h3>
+        <p>Transactions processed at the speed of light on the blockchain.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Secure Protocol</h3>
+        <p>Military-grade encryption protects your digital assets.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Global Network</h3>
+        <p>Connect with hackers and runners from across the metaverse.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tokenomics -->
+  <section class="tokenomics">
+    <h2 class="section-title">Tokenomics</h2>
+    <div class="tokenomics-grid">
+      <div class="tokenomics-card">
+        <h3>Total Supply</h3>
+        <p>100,000,000</p>
+      </div>
+      <div class="tokenomics-card">
+        <h3>Liquidity Pool</h3>
+        <p>70% Locked</p>
+      </div>
+      <div class="tokenomics-card">
+        <h3>Community Rewards</h3>
+        <p>20%</p>
+      </div>
+      <div class="tokenomics-card">
+        <h3>Development</h3>
+        <p>10%</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="social-links">
+      <a href="#" class="social-link">X</a>
+      <a href="#" class="social-link">TG</a>
+      <a href="#" class="social-link">DC</a>
+      <a href="#" class="social-link">DEXS</a>
+    </div>
+    <p>© 2024 NEONVERSE - POWERED BY EZCTO</p>
+  </footer>
 </body>
 </html>

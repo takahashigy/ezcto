@@ -128,3 +128,7 @@
 - [x] 增强水印显示（增大字体、增加不透明度、对角线重复、阴影效果）
 - [x] 修复Download All Assets按钮的付费墙检查（未付费时弹出付费墙）
 - [x] 添加网站发布状态按钮（未付费显示"Publish Website"，已发布显示"Visit Website"）
+
+## tRPC API错误修复
+- [x] 诊断tRPC API返回HTML而不是JSON的错误原因
+- [x] 修复服务器路由配置或错误处理

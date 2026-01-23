@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{PROJECT_NAME}} - Brutalist Minimal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: {{BACKGROUND_COLOR}};
+      color: {{TEXT_COLOR}};
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    /* Geometric Background */
+    .bg-shapes {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      opacity: 0.1;
+    }
+
+    .shape-1 {
+      width: 300px;
+      height: 300px;
+      border: 20px solid {{ACCENT_COLOR}};
+      top: 10%;
+      right: 10%;
+      transform: rotate(45deg);
+    }
+
+    .shape-2 {
+      width: 200px;
+      height: 200px;
+      background: {{ACCENT_COLOR}};
+      bottom: 20%;
+      left: 5%;
+      border-radius: 50%;
+    }
+
+    .shape-3 {
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-bottom: 260px solid {{ACCENT_COLOR}};
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4rem;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: {{TEXT_COLOR}};
+      text-decoration: none;
+      letter-spacing: 0.1em;
+    }
+
+    .contract-mini {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: {{ACCENT_COLOR}};
+      color: {{BACKGROUND_COLOR}};
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .contract-mini:hover {
+      opacity: 0.8;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Project Name - Ultra Large */
+    .project-name {
+      font-size: clamp(4rem, 15vw, 12rem);
+      font-weight: 700;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      word-break: break-word;
+      max-width: 100%;
+    }
+
+    /* Tagline */
+    .tagline {
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 700;
+      color: {{ACCENT_COLOR}};
+      letter-spacing: 0.1em;
+      margin-bottom: 3rem;
+      text-transform: uppercase;
+    }
+
+    /* Stats Grid */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 3rem;
+    }
+
+    .stat-box {
+      padding: 2rem;
+      border: 3px solid {{TEXT_COLOR}};
+      background: transparent;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+      opacity: 0.7;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    /* Action Buttons */
+    .actions {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+
+    .action-btn {
+      padding: 1.5rem 3rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 3px solid {{TEXT_COLOR}};
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: {{ACCENT_COLOR}};
+      color: {{BACKGROUND_COLOR}};
+      border-color: {{ACCENT_COLOR}};
+    }
+
+    .btn-primary:hover {
+      background: transparent;
+      color: {{ACCENT_COLOR}};
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: {{TEXT_COLOR}};
+    }
+
+    .btn-secondary:hover {
+      background: {{TEXT_COLOR}};
+      color: {{BACKGROUND_COLOR}};
+    }
+
+    /* Contract Section */
+    .contract-section {
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem;
+      border: 3px solid {{TEXT_COLOR}};
+      background: transparent;
+      margin-bottom: 2rem;
+    }
+
+    .contract-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
+    .contract-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .contract-address {
+      font-family: monospace;
+      font-size: 1rem;
+      word-break: break-all;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .copy-btn {
+      padding: 0.75rem 1.5rem;
+      background: {{TEXT_COLOR}};
+      color: {{BACKGROUND_COLOR}};
+      border: none;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .copy-btn:hover {
+      opacity: 0.8;
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 3px solid {{TEXT_COLOR}};
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .social-link {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: {{TEXT_COLOR}};
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: all 0.3s;
+    }
+
+    .social-link:hover {
+      color: {{ACCENT_COLOR}};
+    }
+
+    .copyright {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem 1rem;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .action-btn {
+        width: 100%;
+      }
+
+      .contract-display {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .copy-btn {
+        width: 100%;
+      }
+
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .social-links {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Geometric Background -->
+  <div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <!-- Container -->
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">{{PROJECT_NAME}}</div>
+      <div class="contract-mini" onclick="scrollToContract()">
+        CONTRACT ↓
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Project Name -->
+      <h1 class="project-name">{{PROJECT_NAME}}</h1>
+
+      <!-- Tagline -->
+      <div class="tagline">{{TAGLINE}}</div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-label">MARKET CAP</div>
+          <div class="stat-value">{{MARKET_CAP}}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">PRICE</div>
+          <div class="stat-value">{{PRICE}}</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <a href="{{BUY_LINK}}" class="action-btn btn-primary" target="_blank">BUY NOW</a>
+        <a href="{{CHART_LINK}}" class="action-btn btn-secondary" target="_blank">CHART</a>
+      </div>
+
+      <!-- Contract Section -->
+      <div class="contract-section" id="contractSection">
+        <div class="contract-label">CONTRACT ADDRESS</div>
+        <div class="contract-display">
+          <div class="contract-address" id="contractAddress">{{CONTRACT_ADDRESS}}</div>
+          <button class="copy-btn" onclick="copyContract()">COPY</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="social-links">
+        <a href="{{X_LINK}}" class="social-link" target="_blank">X</a>
+        <a href="{{TELEGRAM_LINK}}" class="social-link" target="_blank">TG</a>
+      </div>
+      <div class="copyright">© 2024 {{PROJECT_NAME}}</div>
+    </footer>
+  </div>
+
+  <script>
+    // Copy contract address
+    function copyContract() {
+      const address = document.getElementById('contractAddress').textContent;
+      navigator.clipboard.writeText(address).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'COPIED!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+
+    // Scroll to contract section
+    function scrollToContract() {
+      document.getElementById('contractSection').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  </script>
+</body>
+</html>

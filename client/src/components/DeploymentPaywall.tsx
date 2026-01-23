@@ -60,7 +60,7 @@ export function DeploymentPaywall({
           <Card className="border-2 border-primary">
             <CardContent className="pt-6">
               <div className="text-center mb-6">
-                <div className="text-4xl font-bold mb-2">$29</div>
+                <div className="text-4xl font-bold mb-2">$299</div>
                 <div className="text-sm text-muted-foreground">One-time payment</div>
               </div>
 
@@ -130,7 +130,7 @@ export function DeploymentPaywall({
                 ) : (
                   <>
                     <Rocket className="mr-2 h-5 w-5" />
-                    Deploy Now - $29
+                    Deploy Now - $299
                   </>
                 )}
               </Button>

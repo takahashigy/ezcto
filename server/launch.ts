@@ -218,8 +218,11 @@ Return as a JSON array of strings.`,
     },
   });
 
-  const content = response.choices[0]?.message?.content;
-  if (!content || typeof content !== 'string') return [];
+  const content = response?.choices?.[0]?.message?.content;
+  if (!content || typeof content !== 'string') {
+    console.warn('[generateTweets] No valid content returned from LLM');
+    return [];
+  }
 
   try {
     const parsed = JSON.parse(content);
@@ -313,8 +316,9 @@ Return as JSON.`,
       },
     });
 
-    const content = response.choices[0]?.message?.content;
+    const content = response?.choices?.[0]?.message?.content;
     if (!content || typeof content !== 'string') {
+      console.warn('[generateWebsite] No valid content returned from LLM, using template as-is');
       return template; // 返回原始模版作为fallback
     }
 

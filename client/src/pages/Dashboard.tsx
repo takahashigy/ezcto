@@ -6,17 +6,48 @@ import { Link, useLocation } from "wouter";
 import { Rocket, Package, FileText, Download, Loader2, Plus, ArrowLeft, Globe } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { DeploymentPaywall } from "@/components/DeploymentPaywall";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
+import { playSuccessSound } from "@/utils/notificationSound";
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [deploymentPaywallOpen, setDeploymentPaywallOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<{ id: number; name: string } | null>(null);
+  const previousProjectsRef = useRef<typeof projects>(undefined);
 
   const { data: projects, isLoading: projectsLoading } = trpc.projects.list.useQuery(undefined, {
     enabled: isAuthenticated,
+    refetchInterval: 3000, // 每3秒轮询一次，检查项目状态更新
   });
+
+  // 监听项目状态变化，显示成功通知
+  useEffect(() => {
+    if (!projects || !previousProjectsRef.current) {
+      previousProjectsRef.current = projects;
+      return;
+    }
+
+    const previous = previousProjectsRef.current;
+    const newlyCompleted = projects.filter(p => {
+      const prev = previous.find(prev => prev.id === p.id);
+      return prev && prev.status === 'generating' && p.status === 'completed';
+    });
+
+    newlyCompleted.forEach(project => {
+      playSuccessSound();
+      toast.success(
+        `🎉 Project "${project.name}" generated successfully!`,
+        {
+          description: 'All assets are ready. Click "View Details" to explore.',
+          duration: 5000,
+        }
+      );
+    });
+
+    previousProjectsRef.current = projects;
+  }, [projects]);
 
   if (authLoading || projectsLoading) {
     return (

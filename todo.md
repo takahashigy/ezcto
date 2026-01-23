@@ -103,3 +103,12 @@
 - [x] 实现付费墙（点击部署按钮弹出付费提示）
 - [x] 实现一键部署功能（S3+CDN）
 - [x] 生成的网站自动分配独立URL（projectname.ezcto.manus.space）
+
+## 价格调整
+- [x] 修改部署价格从$29改为$299
+
+## Bug修复
+- [x] 调试并修夏项目生成失败问题（修复undefined检查）
+- [x] 修复View Details按钮跳转404问题（创建ProjectDetails页面并注册路由）
+- [x] 添加生成成功通知弹窗（toast通知+自动轮询）
+- [x] 添加通知声音效果（Web Audio API生成和弦音效）

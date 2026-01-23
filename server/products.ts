@@ -58,7 +58,7 @@ export const DEPLOYMENT: Product = {
   name: "Website Deployment",
   description: "一键部署到生产环境 + 下载所有资产 + 终身访问",
   priceId: process.env.STRIPE_PRICE_DEPLOYMENT || "price_deployment",
-  price: 29,
+  price: 299,
   currency: "USD",
   type: "one_time",
 };

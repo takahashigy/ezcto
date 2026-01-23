@@ -119,8 +119,8 @@ export default function Home() {
             <div className="relative">
               <div className="relative z-10 data-flow-bg rounded-lg p-8">
                 <img 
-                  src="/cyborg_cel_transparent.png" 
-                  alt="EZCTO Cyborg" 
+                  src="/Pearl.png" 
+                  alt="EZCTO Pearl" 
                   className="w-full h-auto drop-shadow-2xl"
                 />
               </div>

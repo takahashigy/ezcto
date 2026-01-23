@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>$MEMES - Internet Meme Token</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <title>{{PROJECT_NAME}} - Clicker Minimal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -13,458 +13,398 @@
     }
 
     body {
-      font-family: 'Comic Neue', cursive;
-      background: #fff;
-      color: #000;
+      font-family: 'Fredoka', sans-serif;
+      background: {{BACKGROUND_COLOR}};
+      color: #333;
       overflow-x: hidden;
       position: relative;
-    }
-
-    /* Floating Money Animation */
-    .money-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-    }
-
-    .money {
-      position: absolute;
-      font-size: 2rem;
-      animation: float-down 8s linear infinite;
-      opacity: 0.7;
-    }
-
-    @keyframes float-down {
-      0% {
-        transform: translateY(-100px) rotate(0deg);
-        opacity: 0;
-      }
-      10% {
-        opacity: 0.7;
-      }
-      90% {
-        opacity: 0.7;
-      }
-      100% {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
-
-    /* Hero Section */
-    .hero {
-      position: relative;
       min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      position: relative;
+      z-index: 100;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-link:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Main Container */
+    .main {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 200px);
       padding: 2rem;
-      background: #fff;
-      overflow: hidden;
+      position: relative;
     }
 
-    /* Hand-drawn Title */
-    .title-container {
+    /* Project Name */
+    .project-name {
+      font-size: 5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #fff;
+      text-shadow: 
+        4px 4px 0 rgba(0, 0, 0, 0.1),
+        -1px -1px 0 rgba(0, 0, 0, 0.05);
+      letter-spacing: 0.05em;
       position: relative;
       z-index: 10;
-      text-align: center;
+    }
+
+    /* Character Container */
+    .character-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 3rem;
     }
 
-    .hero-title {
-      font-family: 'Bangers', cursive;
-      font-size: 12rem;
-      font-weight: 400;
-      color: #000;
-      text-align: center;
-      letter-spacing: 0.05em;
-      position: relative;
-      text-shadow: 
-        4px 4px 0 #fff,
-        5px 5px 0 #000,
-        6px 6px 0 #fff,
-        7px 7px 0 #000;
-      transform: rotate(-2deg);
-    }
-
-    .hero-title::before {
-      content: 'MEMES';
-      position: absolute;
-      top: 0;
-      left: 0;
-      color: transparent;
-      -webkit-text-stroke: 3px #000;
-      z-index: -1;
-    }
-
-    /* Character at center of O */
-    .title-o {
-      position: relative;
-      display: inline-block;
-    }
-
-    .character-in-o {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, #ffd700, #ffed4e);
-      border-radius: 50%;
-      border: 3px solid #000;
-      z-index: 5;
-    }
-
-    /* Buttons */
-    .button-container {
-      display: flex;
-      gap: 2rem;
-      justify-content: center;
-      margin-bottom: 4rem;
-      position: relative;
-      z-index: 10;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      font-family: 'Bangers', cursive;
-      font-size: 1.8rem;
-      padding: 1.2rem 3rem;
-      border: 4px solid #000;
-      border-radius: 50px;
-      background: #fff;
-      color: #000;
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: all 0.3s;
-      box-shadow: 6px 6px 0 #000;
-      position: relative;
+    .character-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
+      transition: transform 0.1s;
       cursor: pointer;
+      user-select: none;
     }
 
-    .btn:hover {
-      transform: translate(3px, 3px);
-      box-shadow: 3px 3px 0 #000;
+    .character-image:active {
+      transform: scale(0.95);
+    }
+
+    /* Stats Box */
+    .stats-box {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 30px;
+      padding: 2rem 3rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
+      text-align: center;
+      min-width: 300px;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    /* Contract Box */
+    .contract-box {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 30px;
+      padding: 1.5rem 2.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .contract-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .contract-address {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+      font-family: monospace;
+      letter-spacing: 0.05em;
+    }
+
+    .copy-btn {
+      padding: 0.75rem 1.5rem;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .copy-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .action-btn {
+      padding: 1.2rem 3rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+      font-family: 'Fredoka', sans-serif;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .action-btn:active {
+      transform: translateY(-2px);
     }
 
     .btn-primary {
-      background: #000;
+      background: #333;
       color: #fff;
     }
 
-    .btn-chart {
-      background: #fff;
-      color: #000;
-    }
-
-    /* Characters Section */
-    .characters {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      gap: 1rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .character {
-      width: 120px;
-      height: 150px;
-      background: #f0f0f0;
-      border: 3px solid #000;
-      border-radius: 20px;
-      position: relative;
-      animation: bounce 2s ease-in-out infinite;
-    }
-
-    .character:nth-child(1) { animation-delay: 0s; background: linear-gradient(135deg, #ff6b9d, #ffc6d9); }
-    .character:nth-child(2) { animation-delay: 0.2s; background: linear-gradient(135deg, #4ecdc4, #b4f8c8); }
-    .character:nth-child(3) { animation-delay: 0.4s; background: linear-gradient(135deg, #ffe66d, #fff4a3); }
-    .character:nth-child(4) { animation-delay: 0.6s; background: linear-gradient(135deg, #a8dadc, #d4f1f4); }
-    .character:nth-child(5) { animation-delay: 0.8s; background: linear-gradient(135deg, #ffb347, #ffd699); }
-    .character:nth-child(6) { animation-delay: 1s; background: linear-gradient(135deg, #c7b3ff, #e5d9ff); }
-    .character:nth-child(7) { animation-delay: 1.2s; background: linear-gradient(135deg, #95e1d3, #c9f4e8); }
-    .character:nth-child(8) { animation-delay: 1.4s; background: linear-gradient(135deg, #f38181, #f9c5c5); }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-
-    .character::before {
-      content: '😎';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-    }
-
-    .character:nth-child(1)::before { content: '🐱'; }
-    .character:nth-child(2)::before { content: '🐸'; }
-    .character:nth-child(3)::before { content: '🐶'; }
-    .character:nth-child(4)::before { content: '🐼'; }
-    .character:nth-child(5)::before { content: '🦊'; }
-    .character:nth-child(6)::before { content: '🐻'; }
-    .character:nth-child(7)::before { content: '🐨'; }
-    .character:nth-child(8)::before { content: '🐯'; }
-
-    /* Content Section */
-    .content {
-      padding: 4rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      background: #fff;
-      position: relative;
-      z-index: 10;
-    }
-
-    .section-title {
-      font-family: 'Bangers', cursive;
-      font-size: 4rem;
-      color: #000;
-      text-align: center;
-      margin-bottom: 3rem;
-      text-shadow: 3px 3px 0 #ffd700;
-      transform: rotate(-1deg);
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin-bottom: 4rem;
-    }
-
-    .feature-card {
-      padding: 2rem;
-      border: 4px solid #000;
-      border-radius: 20px;
-      background: #fff;
-      box-shadow: 8px 8px 0 #000;
-      transition: all 0.3s;
-      transform: rotate(-1deg);
-    }
-
-    .feature-card:nth-child(even) {
-      transform: rotate(1deg);
-    }
-
-    .feature-card:hover {
-      transform: rotate(0deg) translateY(-10px);
-      box-shadow: 12px 12px 0 #000;
-    }
-
-    .feature-card h3 {
-      font-family: 'Bangers', cursive;
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      color: #000;
-    }
-
-    .feature-card p {
-      font-size: 1.1rem;
-      line-height: 1.6;
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.95);
       color: #333;
     }
 
     /* Social Links */
-    .social-section {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: #fffacd;
-      border-top: 4px solid #000;
-      border-bottom: 4px solid #000;
-    }
-
     .social-links {
       display: flex;
+      gap: 1.5rem;
       justify-content: center;
-      gap: 2rem;
-      margin-top: 2rem;
-      flex-wrap: wrap;
+      padding: 2rem 0;
     }
 
     .social-link {
-      width: 80px;
-      height: 80px;
-      border: 4px solid #000;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.95);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Bangers', cursive;
-      font-size: 1.5rem;
-      color: #000;
       text-decoration: none;
+      color: #333;
+      font-weight: 700;
+      font-size: 1.1rem;
       transition: all 0.3s;
-      box-shadow: 4px 4px 0 #000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .social-link:hover {
-      transform: rotate(15deg) scale(1.1);
-      background: #ffd700;
+      transform: translateY(-4px) scale(1.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
 
-    /* Footer */
-    footer {
-      padding: 2rem;
-      text-align: center;
-      background: #000;
-      color: #fff;
-      font-family: 'Bangers', cursive;
-      font-size: 1.2rem;
-    }
-
+    /* Responsive */
     @media (max-width: 768px) {
-      .hero-title {
-        font-size: 5rem;
+      .header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
       }
 
-      .character {
-        width: 80px;
-        height: 100px;
+      .project-name {
+        font-size: 3rem;
       }
 
-      .character::before {
-        font-size: 2rem;
+      .character-container {
+        max-width: 400px;
       }
 
-      .btn {
-        font-size: 1.4rem;
-        padding: 1rem 2rem;
+      .stats-box {
+        padding: 1.5rem 2rem;
+        min-width: auto;
+        width: 100%;
       }
+
+      .stat-row {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .contract-box {
+        flex-direction: column;
+        padding: 1.5rem;
+      }
+
+      .contract-address {
+        font-size: 0.8rem;
+        word-break: break-all;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .action-btn {
+        width: 100%;
+      }
+    }
+
+    /* Click Animation */
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    .character-image.clicked {
+      animation: pop 0.2s ease;
     }
   </style>
 </head>
 <body>
-  <!-- Floating Money -->
-  <div class="money-container" id="moneyContainer"></div>
+  <!-- Header -->
+  <header class="header">
+    <div class="nav-links">
+      <a href="{{SHOP_LINK}}" class="nav-link" title="Shop">🛍️</a>
+      <a href="{{OTHER_LINK}}" class="nav-link" title="Other">🎮</a>
+    </div>
+  </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="title-container">
-      <h1 class="hero-title">
-        M<span class="title-o">E<span class="character-in-o"></span></span>MES
-      </h1>
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Project Name -->
+    <h1 class="project-name">{{PROJECT_NAME}}</h1>
+
+    <!-- Character -->
+    <div class="character-container">
+      <img 
+        src="{{CHARACTER_IMAGE}}" 
+        alt="{{PROJECT_NAME}}" 
+        class="character-image"
+        id="characterImage"
+      >
     </div>
 
-    <div class="button-container">
-      <a href="#" class="btn btn-primary">BUY $MEMES</a>
-      <a href="#" class="btn btn-chart">CHART</a>
-    </div>
-
-    <!-- Characters -->
-    <div class="characters">
-      <div class="character"></div>
-      <div class="character"></div>
-      <div class="character"></div>
-      <div class="character"></div>
-      <div class="character"></div>
-      <div class="character"></div>
-      <div class="character"></div>
-      <div class="character"></div>
-    </div>
-  </section>
-
-  <!-- Content Section -->
-  <div class="content">
-    <h2 class="section-title">Why $MEMES?</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>🎨 Community Driven</h3>
-        <p>Built by meme lovers, for meme lovers. Your creativity shapes our future!</p>
+    <!-- Stats -->
+    <div class="stats-box">
+      <div class="stat-row">
+        <span class="stat-label">🏆 Rank</span>
+        <span class="stat-value">#{{RANK}}</span>
       </div>
-      <div class="feature-card">
-        <h3>💰 Fair Launch</h3>
-        <p>No presale, no team tokens. Everyone starts equal in the meme economy!</p>
-      </div>
-      <div class="feature-card">
-        <h3>🚀 To The Moon</h3>
-        <p>Join the rocket ship to meme supremacy. Diamond hands only!</p>
-      </div>
-      <div class="feature-card">
-        <h3>🎭 Pure Fun</h3>
-        <p>Life's too short to be serious. Let's make memes and money!</p>
+      <div class="stat-row">
+        <span class="stat-label">📊 Market Cap</span>
+        <span class="stat-value">{{MARKET_CAP}}</span>
       </div>
     </div>
 
-    <h2 class="section-title">Tokenomics</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>Total Supply</h3>
-        <p>1,000,000,000 $MEMES</p>
-      </div>
-      <div class="feature-card">
-        <h3>Liquidity</h3>
-        <p>80% Locked Forever</p>
-      </div>
-      <div class="feature-card">
-        <h3>Marketing</h3>
-        <p>10% for Viral Growth</p>
-      </div>
-      <div class="feature-card">
-        <h3>Community</h3>
-        <p>10% for Rewards</p>
-      </div>
+    <!-- Contract Address -->
+    <div class="contract-box">
+      <span class="contract-label">Contract:</span>
+      <span class="contract-address" id="contractAddress">{{CONTRACT_ADDRESS}}</span>
+      <button class="copy-btn" onclick="copyContract()">COPY</button>
     </div>
-  </div>
 
-  <!-- Social Section -->
-  <section class="social-section">
-    <h2 class="section-title">Join The Meme Army!</h2>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <a href="{{BUY_LINK}}" class="action-btn btn-primary" target="_blank">Buy Now</a>
+      <a href="{{CHART_LINK}}" class="action-btn btn-secondary" target="_blank">Chart</a>
+    </div>
+
+    <!-- Social Links -->
     <div class="social-links">
-      <a href="#" class="social-link">X</a>
-      <a href="#" class="social-link">TG</a>
-      <a href="#" class="social-link">DC</a>
-      <a href="#" class="social-link">DEXS</a>
+      <a href="{{X_LINK}}" class="social-link" target="_blank" title="X">𝕏</a>
+      <a href="{{TELEGRAM_LINK}}" class="social-link" target="_blank" title="Telegram">TG</a>
     </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <p>© 2024 $MEMES - POWERED BY EZCTO | MEMES TO THE MOON! 🚀</p>
-  </footer>
+  </main>
 
   <script>
-    // Generate floating money (BNB coins and dollar bills)
-    const moneyContainer = document.getElementById('moneyContainer');
-    const moneySymbols = ['💵', '💸', '💰', '🪙'];
-    
-    function createMoney() {
-      const money = document.createElement('div');
-      money.className = 'money';
-      money.textContent = moneySymbols[Math.floor(Math.random() * moneySymbols.length)];
-      money.style.left = Math.random() * 100 + '%';
-      money.style.animationDuration = (Math.random() * 4 + 6) + 's';
-      money.style.animationDelay = Math.random() * 5 + 's';
-      moneyContainer.appendChild(money);
-
-      // Remove after animation
+    // Click animation
+    const characterImage = document.getElementById('characterImage');
+    characterImage.addEventListener('click', () => {
+      characterImage.classList.add('clicked');
       setTimeout(() => {
-        money.remove();
-      }, 13000);
-    }
+        characterImage.classList.remove('clicked');
+      }, 200);
+    });
 
-    // Create initial money
-    for (let i = 0; i < 20; i++) {
-      createMoney();
+    // Copy contract address
+    function copyContract() {
+      const address = document.getElementById('contractAddress').textContent;
+      navigator.clipboard.writeText(address).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'COPIED!';
+        btn.style.background = '#4caf50';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = '#333';
+        }, 2000);
+      });
     }
-
-    // Continuously create new money
-    setInterval(createMoney, 800);
   </script>
 </body>
 </html>

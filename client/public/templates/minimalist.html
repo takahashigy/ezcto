@@ -1,474 +1,439 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>$MINIMAL - Minimalist Meme Token</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{PROJECT_NAME}} - Brutalist Minimal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #FFFFFF;
-            color: #1A1A1A;
-            line-height: 1.6;
-        }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: {{BACKGROUND_COLOR}};
+      color: {{TEXT_COLOR}};
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px;
-        }
+    /* Geometric Background */
+    .bg-shapes {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        /* Header */
-        header {
-            padding: 30px 0;
-            border-bottom: 1px solid #E0E0E0;
-            background: #FFFFFF;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
+    .shape {
+      position: absolute;
+      opacity: 0.1;
+    }
 
-        .logo {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 28px;
-            font-weight: 900;
-            color: #000000;
-            letter-spacing: -1px;
-        }
+    .shape-1 {
+      width: 300px;
+      height: 300px;
+      border: 20px solid {{ACCENT_COLOR}};
+      top: 10%;
+      right: 10%;
+      transform: rotate(45deg);
+    }
 
-        /* Hero Section */
-        .hero {
-            padding: 120px 0;
-            text-align: center;
-            background: #F5F5F5;
-        }
+    .shape-2 {
+      width: 200px;
+      height: 200px;
+      background: {{ACCENT_COLOR}};
+      bottom: 20%;
+      left: 5%;
+      border-radius: 50%;
+    }
 
-        .hero h1 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 96px;
-            font-weight: 900;
-            color: #000000;
-            margin-bottom: 30px;
-            letter-spacing: -3px;
-            line-height: 1.1;
-        }
+    .shape-3 {
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-bottom: 260px solid {{ACCENT_COLOR}};
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
 
-        .hero p {
-            font-size: 24px;
-            font-weight: 300;
-            color: #666666;
-            margin-bottom: 60px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        .minimal-logo {
-            width: 200px;
-            height: 200px;
-            background: #000000;
-            border-radius: 50%;
-            margin: 0 auto 60px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-        }
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4rem;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
 
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            padding: 18px 48px;
-            font-family: 'Inter', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            text-decoration: none;
-            color: #FFFFFF;
-            background: #000000;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            margin: 10px;
-        }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: {{TEXT_COLOR}};
+      text-decoration: none;
+      letter-spacing: 0.1em;
+    }
 
-        .btn:hover {
-            background: #333333;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
+    .contract-mini {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: {{ACCENT_COLOR}};
+      color: {{BACKGROUND_COLOR}};
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
 
-        .btn-secondary {
-            background: transparent;
-            color: #000000;
-            border: 2px solid #000000;
-        }
+    .contract-mini:hover {
+      opacity: 0.8;
+    }
 
-        .btn-secondary:hover {
-            background: #000000;
-            color: #FFFFFF;
-        }
+    /* Main Content */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
 
-        /* Features Section */
-        .features {
-            padding: 120px 0;
-            background: #FFFFFF;
-        }
+    /* Project Name - Ultra Large */
+    .project-name {
+      font-size: clamp(4rem, 15vw, 12rem);
+      font-weight: 700;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      word-break: break-word;
+      max-width: 100%;
+    }
 
-        .section-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 64px;
-            font-weight: 900;
-            text-align: center;
-            color: #000000;
-            margin-bottom: 80px;
-            letter-spacing: -2px;
-        }
+    /* Tagline */
+    .tagline {
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 700;
+      color: {{ACCENT_COLOR}};
+      letter-spacing: 0.1em;
+      margin-bottom: 3rem;
+      text-transform: uppercase;
+    }
 
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 60px;
-        }
+    /* Stats Grid */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 3rem;
+    }
 
-        .feature-card {
-            text-align: center;
-            padding: 40px;
-            transition: all 0.3s ease;
-        }
+    .stat-box {
+      padding: 2rem;
+      border: 3px solid {{TEXT_COLOR}};
+      background: transparent;
+    }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
+    .stat-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+      opacity: 0.7;
+    }
 
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            background: #000000;
-            border-radius: 16px;
-            margin: 0 auto 30px;
-        }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
 
-        .feature-card h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 15px;
-        }
+    /* Action Buttons */
+    .actions {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
 
-        .feature-card p {
-            font-size: 16px;
-            font-weight: 300;
-            color: #666666;
-            line-height: 1.8;
-        }
+    .action-btn {
+      padding: 1.5rem 3rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 3px solid {{TEXT_COLOR}};
+      transition: all 0.3s;
+      cursor: pointer;
+    }
 
-        /* Tokenomics */
-        .tokenomics {
-            padding: 120px 0;
-            background: #F5F5F5;
-        }
+    .btn-primary {
+      background: {{ACCENT_COLOR}};
+      color: {{BACKGROUND_COLOR}};
+      border-color: {{ACCENT_COLOR}};
+    }
 
-        .token-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-top: 80px;
-        }
+    .btn-primary:hover {
+      background: transparent;
+      color: {{ACCENT_COLOR}};
+    }
 
-        .token-stat {
-            text-align: center;
-            padding: 60px 40px;
-            background: #FFFFFF;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s ease;
-        }
+    .btn-secondary {
+      background: transparent;
+      color: {{TEXT_COLOR}};
+    }
 
-        .token-stat:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        }
+    .btn-secondary:hover {
+      background: {{TEXT_COLOR}};
+      color: {{BACKGROUND_COLOR}};
+    }
 
-        .token-stat .number {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 56px;
-            font-weight: 900;
-            color: #000000;
-            margin-bottom: 15px;
-        }
+    /* Contract Section */
+    .contract-section {
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem;
+      border: 3px solid {{TEXT_COLOR}};
+      background: transparent;
+      margin-bottom: 2rem;
+    }
 
-        .token-stat .label {
-            font-size: 16px;
-            font-weight: 400;
-            color: #666666;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+    .contract-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
 
-        /* Roadmap */
-        .roadmap {
-            padding: 120px 0;
-            background: #FFFFFF;
-        }
+    .contract-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
 
-        .roadmap-timeline {
-            max-width: 800px;
-            margin: 80px auto 0;
-        }
+    .contract-address {
+      font-family: monospace;
+      font-size: 1rem;
+      word-break: break-all;
+      flex: 1;
+      min-width: 200px;
+    }
 
-        .roadmap-item {
-            padding: 40px 0;
-            border-left: 2px solid #E0E0E0;
-            padding-left: 40px;
-            margin-bottom: 40px;
-            position: relative;
-        }
+    .copy-btn {
+      padding: 0.75rem 1.5rem;
+      background: {{TEXT_COLOR}};
+      color: {{BACKGROUND_COLOR}};
+      border: none;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
 
-        .roadmap-item::before {
-            content: "";
-            position: absolute;
-            left: -9px;
-            top: 45px;
-            width: 16px;
-            height: 16px;
-            background: #000000;
-            border-radius: 50%;
-        }
+    .copy-btn:hover {
+      opacity: 0.8;
+    }
 
-        .roadmap-item h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 15px;
-        }
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 3px solid {{TEXT_COLOR}};
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
 
-        .roadmap-item p {
-            font-size: 16px;
-            font-weight: 300;
-            color: #666666;
-            line-height: 1.8;
-        }
+    .social-links {
+      display: flex;
+      gap: 2rem;
+    }
 
-        .phase-tag {
-            display: inline-block;
-            padding: 6px 16px;
-            background: #000000;
-            color: #FFFFFF;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            letter-spacing: 1px;
-        }
+    .social-link {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: {{TEXT_COLOR}};
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: all 0.3s;
+    }
 
-        /* Community */
-        .community {
-            padding: 120px 0;
-            text-align: center;
-            background: #F5F5F5;
-        }
+    .social-link:hover {
+      color: {{ACCENT_COLOR}};
+    }
 
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 60px;
-            flex-wrap: wrap;
-        }
+    .copyright {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+    }
 
-        .social-btn {
-            width: 80px;
-            height: 80px;
-            border: 2px solid #000000;
-            background: #FFFFFF;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            color: #000000;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem 1rem;
+      }
 
-        .social-btn:hover {
-            background: #000000;
-            color: #FFFFFF;
-            transform: scale(1.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-        /* Footer */
-        footer {
-            padding: 60px 0;
-            border-top: 1px solid #E0E0E0;
-            text-align: center;
-            background: #FFFFFF;
-        }
+      .stats {
+        grid-template-columns: 1fr;
+      }
 
-        footer p {
-            font-size: 14px;
-            font-weight: 300;
-            color: #666666;
-            letter-spacing: 1px;
-        }
+      .actions {
+        flex-direction: column;
+        width: 100%;
+      }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 20px;
-            }
+      .action-btn {
+        width: 100%;
+      }
 
-            .hero h1 {
-                font-size: 56px;
-            }
+      .contract-display {
+        flex-direction: column;
+        align-items: stretch;
+      }
 
-            .hero p {
-                font-size: 18px;
-            }
+      .copy-btn {
+        width: 100%;
+      }
 
-            .section-title {
-                font-size: 42px;
-            }
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-            .minimal-logo {
-                width: 150px;
-                height: 150px;
-            }
-
-            .feature-grid,
-            .token-grid {
-                gap: 30px;
-            }
-        }
-    </style>
+      .social-links {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="logo">$MINIMAL</div>
-        </div>
+  <!-- Geometric Background -->
+  <div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <!-- Container -->
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">{{PROJECT_NAME}}</div>
+      <div class="contract-mini" onclick="scrollToContract()">
+        CONTRACT ↓
+      </div>
     </header>
 
-    <section class="hero">
-        <div class="container">
-            <div class="minimal-logo"></div>
-            <h1>LESS IS MORE</h1>
-            <p>A refined approach to digital assets. Clean, simple, and purposeful.</p>
-            <div>
-                <a href="#" class="btn">Get Started</a>
-                <a href="#" class="btn btn-secondary">Learn More</a>
-            </div>
-        </div>
-    </section>
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Project Name -->
+      <h1 class="project-name">{{PROJECT_NAME}}</h1>
 
-    <section class="features">
-        <div class="container">
-            <h2 class="section-title">Core Values</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
-                    <h3>Simplicity</h3>
-                    <p>Stripped down to essentials. No unnecessary complexity, just pure functionality and elegance.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
-                    <h3>Transparency</h3>
-                    <p>Complete visibility into operations, tokenomics, and governance. Trust through clarity.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
-                    <h3>Quality</h3>
-                    <p>Meticulously crafted with attention to detail. Excellence in every aspect of the project.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
-                    <h3>Sustainability</h3>
-                    <p>Built for the long term with sustainable economics and responsible growth strategies.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+      <!-- Tagline -->
+      <div class="tagline">{{TAGLINE}}</div>
 
-    <section class="tokenomics">
-        <div class="container">
-            <h2 class="section-title">Token Distribution</h2>
-            <div class="token-grid">
-                <div class="token-stat">
-                    <div class="number">10M</div>
-                    <div class="label">Total Supply</div>
-                </div>
-                <div class="token-stat">
-                    <div class="number">85%</div>
-                    <div class="label">Public Sale</div>
-                </div>
-                <div class="token-stat">
-                    <div class="number">10%</div>
-                    <div class="label">Treasury</div>
-                </div>
-                <div class="token-stat">
-                    <div class="number">5%</div>
-                    <div class="label">Team</div>
-                </div>
-            </div>
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-label">MARKET CAP</div>
+          <div class="stat-value">{{MARKET_CAP}}</div>
         </div>
-    </section>
+        <div class="stat-box">
+          <div class="stat-label">PRICE</div>
+          <div class="stat-value">{{PRICE}}</div>
+        </div>
+      </div>
 
-    <section class="roadmap">
-        <div class="container">
-            <h2 class="section-title">Development Path</h2>
-            <div class="roadmap-timeline">
-                <div class="roadmap-item">
-                    <span class="phase-tag">PHASE ONE</span>
-                    <h3>Foundation</h3>
-                    <p>Launch token, establish liquidity, build community foundation, and set governance framework.</p>
-                </div>
-                <div class="roadmap-item">
-                    <span class="phase-tag">PHASE TWO</span>
-                    <h3>Growth</h3>
-                    <p>Expand ecosystem partnerships, increase market presence, and enhance utility features.</p>
-                </div>
-                <div class="roadmap-item">
-                    <span class="phase-tag">PHASE THREE</span>
-                    <h3>Maturity</h3>
-                    <p>Achieve sustainable growth, implement advanced features, and establish market leadership.</p>
-                </div>
-                <div class="roadmap-item">
-                    <span class="phase-tag">PHASE FOUR</span>
-                    <h3>Evolution</h3>
-                    <p>Continuous innovation, ecosystem expansion, and long-term value creation for holders.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+      <!-- Actions -->
+      <div class="actions">
+        <a href="{{BUY_LINK}}" class="action-btn btn-primary" target="_blank">BUY NOW</a>
+        <a href="{{CHART_LINK}}" class="action-btn btn-secondary" target="_blank">CHART</a>
+      </div>
 
-    <section class="community">
-        <div class="container">
-            <h2 class="section-title">Join Us</h2>
-            <p style="font-size: 18px; color: #666666; margin-bottom: 20px;">Connect with our community</p>
-            <div class="social-links">
-                <a href="#" class="social-btn">X</a>
-                <a href="#" class="social-btn">TG</a>
-                <a href="#" class="social-btn">DC</a>
-                <a href="#" class="social-btn">DEXS</a>
-            </div>
+      <!-- Contract Section -->
+      <div class="contract-section" id="contractSection">
+        <div class="contract-label">CONTRACT ADDRESS</div>
+        <div class="contract-display">
+          <div class="contract-address" id="contractAddress">{{CONTRACT_ADDRESS}}</div>
+          <button class="copy-btn" onclick="copyContract()">COPY</button>
         </div>
-    </section>
+      </div>
+    </main>
 
-    <footer>
-        <div class="container">
-            <p>© 2024 $MINIMAL - POWERED BY EZCTO</p>
-        </div>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="social-links">
+        <a href="{{X_LINK}}" class="social-link" target="_blank">X</a>
+        <a href="{{TELEGRAM_LINK}}" class="social-link" target="_blank">TG</a>
+      </div>
+      <div class="copyright">© 2024 {{PROJECT_NAME}}</div>
     </footer>
+  </div>
+
+  <script>
+    // Copy contract address
+    function copyContract() {
+      const address = document.getElementById('contractAddress').textContent;
+      navigator.clipboard.writeText(address).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'COPIED!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+
+    // Scroll to contract section
+    function scrollToContract() {
+      document.getElementById('contractSection').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  </script>
 </body>
 </html>

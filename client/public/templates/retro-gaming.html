@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Retro Gaming - Meme Project</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght:400;700;900&display=swap" rel="stylesheet">
+  <title>{{PROJECT_NAME}} - Terminal Hacker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -13,228 +13,265 @@
     }
 
     body {
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Share Tech Mono', monospace;
       background: #000;
-      color: #fff;
+      color: #00ff00;
       overflow-x: hidden;
-    }
-
-    /* Hero Section with Grid Perspective */
-    .hero {
       position: relative;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      perspective: 1000px;
-      overflow: hidden;
     }
 
-    /* Animated Grid Background */
-    .grid-container {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 100%;
-      transform: rotateX(60deg) translateY(-50%);
-      transform-origin: center center;
-    }
-
-    .grid {
-      position: absolute;
-      width: 200%;
-      height: 200%;
-      left: -50%;
+    /* Animated Background Text */
+    .bg-text {
+      position: fixed;
       top: 0;
-      background-image: 
-        linear-gradient(0deg, transparent 24%, rgba(255, 215, 0, 0.3) 25%, rgba(255, 215, 0, 0.3) 26%, transparent 27%, transparent 74%, rgba(255, 215, 0, 0.3) 75%, rgba(255, 215, 0, 0.3) 76%, transparent 77%, transparent),
-        linear-gradient(90deg, transparent 24%, rgba(255, 215, 0, 0.3) 25%, rgba(255, 215, 0, 0.3) 26%, transparent 27%, transparent 74%, rgba(255, 215, 0, 0.3) 75%, rgba(255, 215, 0, 0.3) 76%, transparent 77%, transparent);
-      background-size: 80px 80px;
-      animation: gridMove 3s linear infinite;
-    }
-
-    @keyframes gridMove {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(80px); }
-    }
-
-    /* Stars */
-    .stars {
-      position: absolute;
+      left: 0;
       width: 100%;
       height: 100%;
-      top: 0;
-      left: 0;
+      overflow: hidden;
+      z-index: 0;
+      opacity: 0.1;
+      pointer-events: none;
     }
 
-    .star {
+    .bg-line {
       position: absolute;
-      width: 2px;
-      height: 2px;
-      background: #ffd700;
-      border-radius: 50%;
-      animation: twinkle 2s infinite;
+      white-space: nowrap;
+      font-size: 14px;
+      animation: scroll-left 20s linear infinite;
     }
 
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
+    @keyframes scroll-left {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
     }
 
-    /* 3D Text Effect */
-    .title-3d {
+    /* Header */
+    .header {
       position: relative;
       z-index: 10;
-      font-size: 8rem;
-      font-weight: 900;
-      letter-spacing: 0.1em;
-      color: #ffd700;
-      text-align: center;
-      text-transform: uppercase;
-      text-shadow:
-        0 1px 0 #caa600,
-        0 2px 0 #caa600,
-        0 3px 0 #caa600,
-        0 4px 0 #caa600,
-        0 5px 0 #caa600,
-        0 6px 0 #caa600,
-        0 7px 0 #caa600,
-        0 8px 0 #caa600,
-        0 9px 0 #caa600,
-        0 10px 10px rgba(0,0,0,0.4),
-        0 15px 20px rgba(0,0,0,0.3),
-        0 20px 30px rgba(0,0,0,0.2);
-      animation: float 3s ease-in-out infinite;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      border-bottom: 2px dashed #00ff00;
     }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-
-    .subtitle {
-      position: relative;
-      z-index: 10;
+    .logo {
       font-size: 1.5rem;
-      color: #ffd700;
-      text-align: center;
-      margin-top: 2rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    /* Plus Button */
-    .plus-btn {
-      position: absolute;
-      top: 2rem;
-      right: 2rem;
-      background: white;
-      color: black;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-size: 1.5rem;
-      font-weight: 700;
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: #00ff00;
+      border-radius: 4px;
+    }
+
+    .contract-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: 2px dashed #00ff00;
+      background: rgba(0, 255, 0, 0.05);
+    }
+
+    .contract-label {
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    .contract-address {
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+    }
+
+    .copy-btn {
+      padding: 0.5rem 1rem;
+      background: #00ff00;
+      color: #000;
+      border: none;
       cursor: pointer;
-      z-index: 100;
-      transition: all 0.3s;
+      font-family: inherit;
+      font-weight: bold;
+      transition: all 0.2s;
     }
 
-    .plus-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    .copy-btn:hover {
+      background: #00cc00;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
     }
 
-    /* Content Section */
-    .content {
-      padding: 4rem 2rem;
+    /* Main Content */
+    .main {
+      position: relative;
+      z-index: 10;
       max-width: 1200px;
       margin: 0 auto;
-      position: relative;
-      z-index: 10;
+      padding: 4rem 2rem;
     }
 
-    .section-title {
-      font-size: 3rem;
-      color: #ffd700;
-      margin-bottom: 2rem;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin-bottom: 4rem;
-    }
-
-    .feature-card {
-      background: rgba(255, 215, 0, 0.1);
-      border: 2px solid #ffd700;
+    /* Terminal Window */
+    .terminal {
+      border: 2px dashed #00ff00;
       padding: 2rem;
-      border-radius: 10px;
-      transition: all 0.3s;
+      margin-bottom: 3rem;
+      background: rgba(0, 255, 0, 0.02);
+      position: relative;
     }
 
-    .feature-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+    .terminal::before {
+      content: '> INITIALIZING {{PROJECT_NAME}} PROTOCOL';
+      position: absolute;
+      top: -1px;
+      left: 2rem;
+      background: #000;
+      padding: 0 1rem;
+      font-size: 0.9rem;
     }
 
-    .feature-card h3 {
-      color: #ffd700;
-      font-size: 1.5rem;
+    .terminal-content {
+      padding-top: 1rem;
+    }
+
+    .terminal-line {
       margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-start;
     }
 
-    .feature-card p {
-      color: #fff;
+    .prompt {
+      margin-right: 0.5rem;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 20px;
+      background: #00ff00;
+      animation: blink 1s infinite;
+      margin-left: 4px;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .slogan {
+      font-size: 1.2rem;
+      margin: 1.5rem 0;
       line-height: 1.6;
     }
 
-    /* CTA Buttons */
-    .cta-container {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin-top: 3rem;
+    .quote {
+      border-left: 3px solid #00ff00;
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      opacity: 0.8;
     }
 
-    .cta-btn {
-      padding: 1.5rem 3rem;
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .stat-box {
+      border: 2px dashed #00ff00;
+      padding: 1.5rem;
+      text-align: center;
+      background: rgba(0, 255, 0, 0.02);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    /* Exchanges Section */
+    .exchanges {
+      margin: 3rem 0;
+    }
+
+    .section-title {
       font-size: 1.2rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title::before {
+      content: '>';
+      margin-right: 0.5rem;
+    }
+
+    .section-title .cursor {
+      margin-left: 0.5rem;
+    }
+
+    .exchange-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .exchange-card {
+      border: 2px dashed #00ff00;
+      padding: 2rem;
+      text-align: center;
+      background: rgba(0, 255, 0, 0.02);
       transition: all 0.3s;
-      text-decoration: none;
+    }
+
+    .exchange-card:hover {
+      background: rgba(0, 255, 0, 0.1);
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+    }
+
+    .exchange-name {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+
+    .trade-btn {
       display: inline-block;
-    }
-
-    .cta-primary {
-      background: #ffd700;
-      color: #000;
-    }
-
-    .cta-primary:hover {
-      background: #fff;
-      transform: scale(1.05);
-    }
-
-    .cta-secondary {
+      padding: 0.75rem 2rem;
       background: transparent;
-      color: #ffd700;
-      border: 2px solid #ffd700;
+      color: #00ff00;
+      border: 2px dashed #00ff00;
+      text-decoration: none;
+      font-family: inherit;
+      font-weight: bold;
+      transition: all 0.3s;
+      cursor: pointer;
     }
 
-    .cta-secondary:hover {
-      background: #ffd700;
+    .trade-btn:hover {
+      background: #00ff00;
       color: #000;
+    }
+
+    /* Footer Note */
+    .footer-note {
+      text-align: center;
+      margin: 2rem 0;
+      opacity: 0.6;
+      font-size: 0.9rem;
     }
 
     /* Social Links */
@@ -243,120 +280,159 @@
       justify-content: center;
       gap: 2rem;
       margin-top: 3rem;
+      padding: 2rem 0;
+      border-top: 2px dashed #00ff00;
     }
 
     .social-link {
-      color: #ffd700;
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      color: #00ff00;
+      border: 2px dashed #00ff00;
       text-decoration: none;
-      font-size: 1.2rem;
-      font-weight: 700;
+      font-weight: bold;
       transition: all 0.3s;
     }
 
     .social-link:hover {
-      color: #fff;
-      transform: scale(1.1);
+      background: #00ff00;
+      color: #000;
     }
 
+    /* Responsive */
     @media (max-width: 768px) {
-      .title-3d {
-        font-size: 3rem;
-      }
-      
-      .subtitle {
-        font-size: 1rem;
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
       }
 
-      .cta-container {
+      .contract-box {
         flex-direction: column;
-        align-items: center;
+        text-align: center;
+      }
+
+      .main {
+        padding: 2rem 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .exchange-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .social-links {
+        flex-wrap: wrap;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="plus-btn">Plus (↓)</div>
-    
-    <!-- Stars -->
-    <div class="stars" id="stars"></div>
-    
-    <!-- Grid Background -->
-    <div class="grid-container">
-      <div class="grid"></div>
-    </div>
-    
-    <!-- 3D Title -->
-    <h1 class="title-3d">ARCADE</h1>
-    <p class="subtitle">Back to the Golden Era</p>
-  </section>
+  <!-- Animated Background Text -->
+  <div class="bg-text" id="bgText"></div>
 
-  <!-- Content Section -->
-  <div class="content">
-    <h2 class="section-title">Game Features</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>🕹️ Classic Gameplay</h3>
-        <p>Experience the nostalgia of 80s arcade games with modern blockchain technology.</p>
-      </div>
-      <div class="feature-card">
-        <h3>💎 Rare Collectibles</h3>
-        <p>Unlock exclusive pixel art NFTs and retro-themed digital assets.</p>
-      </div>
-      <div class="feature-card">
-        <h3>🏆 High Scores</h3>
-        <p>Compete on global leaderboards and earn token rewards.</p>
-      </div>
-      <div class="feature-card">
-        <h3>🎮 Community Driven</h3>
-        <p>Join a vibrant community of retro gaming enthusiasts and collectors.</p>
-      </div>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <span>{{PROJECT_NAME}}</span>
     </div>
+    <div class="contract-box">
+      <span class="contract-label">Contract:</span>
+      <span class="contract-address" id="contractAddress">{{CONTRACT_ADDRESS}}</span>
+      <button class="copy-btn" onclick="copyContract()">COPY</button>
+    </div>
+  </header>
 
-    <h2 class="section-title">Tokenomics</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>Total Supply</h3>
-        <p>1,000,000,000 ARCADE</p>
-      </div>
-      <div class="feature-card">
-        <h3>Liquidity Pool</h3>
-        <p>40% locked for 2 years</p>
-      </div>
-      <div class="feature-card">
-        <h3>Community Rewards</h3>
-        <p>30% for staking & gaming</p>
-      </div>
-      <div class="feature-card">
-        <h3>Development</h3>
-        <p>20% for future updates</p>
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Terminal Window -->
+    <div class="terminal">
+      <div class="terminal-content">
+        <div class="terminal-line">
+          <span class="prompt">&gt;</span>
+          <span>INITIALIZING {{PROJECT_NAME}} PROTOCOL<span class="cursor"></span></span>
+        </div>
+        <div class="terminal-line">
+          <span class="prompt">&gt;</span>
+          <span class="slogan">{{PROJECT_SLOGAN}}</span>
+        </div>
+        <div class="quote">
+          "{{PROJECT_QUOTE}}"
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Market Cap:</div>
+            <div class="stat-value">{{MARKET_CAP}}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Current Price:</div>
+            <div class="stat-value">{{CURRENT_PRICE}}</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="cta-container">
-      <a href="#" class="cta-btn cta-primary">BUY NOW</a>
-      <a href="#" class="cta-btn cta-secondary">JOIN DISCORD</a>
+    <!-- Exchanges -->
+    <div class="exchanges">
+      <h2 class="section-title">
+        WE'RE AVAILABLE ON<span class="cursor"></span>
+      </h2>
+      <div class="exchange-grid">
+        <div class="exchange-card">
+          <div class="exchange-name">CoinMarketCap</div>
+          <a href="{{CMC_LINK}}" class="trade-btn" target="_blank">Trade Now →</a>
+        </div>
+        <div class="exchange-card">
+          <div class="exchange-name">CoinGecko</div>
+          <a href="{{COINGECKO_LINK}}" class="trade-btn" target="_blank">Trade Now →</a>
+        </div>
+        <div class="exchange-card">
+          <div class="exchange-name">{{DEX_NAME}}</div>
+          <a href="{{DEX_LINK}}" class="trade-btn" target="_blank">Trade Now →</a>
+        </div>
+      </div>
+      <p class="footer-note">&gt; More exchanges coming soon. Stay tuned for updates.</p>
     </div>
 
+    <!-- Social Links -->
     <div class="social-links">
-      <a href="#" class="social-link">X</a>
-      <a href="#" class="social-link">TG</a>
-      <a href="#" class="social-link">DC</a>
-      <a href="#" class="social-link">DEXS</a>
+      <a href="{{X_LINK}}" class="social-link" target="_blank">X</a>
+      <a href="{{TELEGRAM_LINK}}" class="social-link" target="_blank">Telegram</a>
     </div>
-  </div>
+  </main>
 
   <script>
-    // Generate random stars
-    const starsContainer = document.getElementById('stars');
-    for (let i = 0; i < 100; i++) {
-      const star = document.createElement('div');
-      star.className = 'star';
-      star.style.left = Math.random() * 100 + '%';
-      star.style.top = Math.random() * 50 + '%';
-      star.style.animationDelay = Math.random() * 2 + 's';
-      starsContainer.appendChild(star);
+    // Generate animated background text
+    const bgText = document.getElementById('bgText');
+    const texts = ['PROTOCOL_INITIALIZED', '010101010101010101', 'SYSTEM_ONLINE', '111000111000111000'];
+    
+    for (let i = 0; i < 20; i++) {
+      const line = document.createElement('div');
+      line.className = 'bg-line';
+      line.textContent = texts[Math.floor(Math.random() * texts.length)].repeat(10);
+      line.style.top = Math.random() * 100 + '%';
+      line.style.animationDelay = Math.random() * 5 + 's';
+      line.style.animationDuration = (15 + Math.random() * 10) + 's';
+      bgText.appendChild(line);
+    }
+
+    // Copy contract address
+    function copyContract() {
+      const address = document.getElementById('contractAddress').textContent;
+      navigator.clipboard.writeText(address).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'COPIED!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
     }
   </script>
 </body>

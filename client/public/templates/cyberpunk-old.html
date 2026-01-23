@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBERPUNK 2084 - Cyberpunk Meme Token</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: #f5f1e8;
+      color: #1a1a1a;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem 2rem;
+      background: rgba(245, 241, 232, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid #1a1a1a;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #dc143c;
+      letter-spacing: 0.1em;
+    }
+
+    nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    nav a {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1a1a1a;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #dc143c;
+    }
+
+    .cta-button {
+      padding: 0.8rem 2rem;
+      background: #1a1a1a;
+      color: #f5f1e8;
+      border: none;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cta-button:hover {
+      background: #dc143c;
+      transform: translateY(-2px);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+      background: #f5f1e8;
+    }
+
+    .hero-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-text {
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #dc143c;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 6rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      line-height: 1;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    .hero-title .cyber {
+      display: block;
+      font-style: italic;
+      color: #1a1a1a;
+    }
+
+    .hero-title .punk {
+      display: block;
+      color: #dc143c;
+      font-size: 8rem;
+      letter-spacing: 0.05em;
+    }
+
+    .level-tag {
+      display: inline-block;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+    }
+
+    .character-info {
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid #1a1a1a;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .character-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+
+    .character-desc {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: #4a4a4a;
+      line-height: 1.6;
+    }
+
+    .hero-quote {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .hero-quote-ja {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 2rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      padding: 1.2rem 3rem;
+      background: #dc143c;
+      color: #fff;
+      border: 2px solid #dc143c;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: transparent;
+      color: #dc143c;
+    }
+
+    .btn-secondary {
+      padding: 1.2rem 3rem;
+      background: transparent;
+      color: #1a1a1a;
+      border: 2px solid #1a1a1a;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-secondary:hover {
+      background: #1a1a1a;
+      color: #f5f1e8;
+    }
+
+    /* Character Illustration */
+    .hero-character {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .character-frame {
+      width: 500px;
+      height: 600px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      border: 3px solid #dc143c;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(220, 20, 60, 0.3);
+    }
+
+    .character-silhouette {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      height: 90%;
+      background: linear-gradient(180deg, 
+        rgba(220, 20, 60, 0.8) 0%,
+        rgba(220, 20, 60, 0.6) 30%,
+        rgba(26, 26, 26, 0.9) 70%,
+        rgba(26, 26, 26, 1) 100%
+      );
+      clip-path: polygon(
+        30% 15%, 35% 10%, 40% 8%, 45% 7%, 50% 7%, 55% 7%, 60% 8%, 65% 10%, 70% 15%,
+        75% 20%, 78% 25%, 80% 30%, 82% 40%, 83% 50%, 85% 60%, 88% 70%, 90% 80%, 92% 90%, 93% 100%,
+        7% 100%, 8% 90%, 10% 80%, 12% 70%, 15% 60%, 17% 50%, 18% 40%, 20% 30%, 22% 25%, 25% 20%
+      );
+    }
+
+    /* Decorative elements */
+    .tech-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.3;
+    }
+
+    .tech-line {
+      position: absolute;
+      background: #dc143c;
+      animation: scan 3s linear infinite;
+    }
+
+    .tech-line:nth-child(1) {
+      width: 2px;
+      height: 100%;
+      left: 20%;
+      animation-delay: 0s;
+    }
+
+    .tech-line:nth-child(2) {
+      width: 100%;
+      height: 2px;
+      top: 30%;
+      animation-delay: 1s;
+    }
+
+    .tech-line:nth-child(3) {
+      width: 2px;
+      height: 100%;
+      right: 20%;
+      animation-delay: 2s;
+    }
+
+    @keyframes scan {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Features Section */
+    .features {
+      padding: 6rem 2rem;
+      background: #fff;
+      border-top: 2px solid #1a1a1a;
+      border-bottom: 2px solid #1a1a1a;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 4rem;
+    }
+
+    .feature-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      padding: 2rem;
+      border: 2px solid #1a1a1a;
+      background: #f5f1e8;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: #dc143c;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(220, 20, 60, 0.2);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    .feature-card p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      color: #4a4a4a;
+      line-height: 1.6;
+    }
+
+    /* Tokenomics */
+    .tokenomics {
+      padding: 6rem 2rem;
+      background: #1a1a1a;
+      color: #f5f1e8;
+    }
+
+    .tokenomics .section-title {
+      color: #f5f1e8;
+    }
+
+    .tokenomics-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .tokenomics-card {
+      padding: 2rem;
+      border: 2px solid #dc143c;
+      background: rgba(220, 20, 60, 0.1);
+      text-align: center;
+    }
+
+    .tokenomics-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #dc143c;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    .tokenomics-card p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #f5f1e8;
+    }
+
+    /* Footer */
+    footer {
+      padding: 4rem 2rem;
+      background: #f5f1e8;
+      border-top: 2px solid #1a1a1a;
+      text-align: center;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-link {
+      width: 60px;
+      height: 60px;
+      border: 2px solid #1a1a1a;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #1a1a1a;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .social-link:hover {
+      background: #dc143c;
+      border-color: #dc143c;
+      color: #fff;
+      transform: translateY(-5px);
+    }
+
+    footer p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      color: #4a4a4a;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    @media (max-width: 968px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero-title {
+        font-size: 4rem;
+      }
+
+      .hero-title .punk {
+        font-size: 5rem;
+      }
+
+      .character-frame {
+        width: 400px;
+        height: 500px;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-title {
+        font-size: 3rem;
+      }
+
+      .hero-title .punk {
+        font-size: 4rem;
+      }
+
+      .character-frame {
+        width: 300px;
+        height: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">CYBERPUNK 2084</div>
+    <nav>
+      <a href="#">HOME</a>
+      <a href="#">CHARACTERS</a>
+      <a href="#">NEON SHOP</a>
+      <a href="#">COMMUNITY</a>
+      <button class="cta-button">Join the Network</button>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-subtitle">CYBERPUNK 2084</div>
+        <h1 class="hero-title">
+          <span class="cyber">Nova</span>
+          <span class="punk">CYBER</span>
+        </h1>
+        <div class="level-tag">LVL-20</div>
+
+        <div class="character-info">
+          <div class="character-name">Nova.exe</div>
+          <div class="character-desc">Hacker, street-runner, guide to the neon underworld.</div>
+        </div>
+
+        <div class="hero-quote">
+          "THE SYSTEM IS BROKEN. I'LL SHOW YOU THE BACKDOOR..."
+        </div>
+        <div class="hero-quote-ja">未来はコードで書き換えられる。</div>
+
+        <div class="hero-actions">
+          <a href="#" class="btn-primary">ENTER THE GRID</a>
+          <a href="#" class="btn-secondary">LEARN MORE</a>
+        </div>
+      </div>
+
+      <div class="hero-character">
+        <div class="character-frame">
+          <div class="tech-lines">
+            <div class="tech-line"></div>
+            <div class="tech-line"></div>
+            <div class="tech-line"></div>
+          </div>
+          <div class="character-silhouette"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2 class="section-title">System Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Decentralized</h3>
+        <p>No central authority. The network is owned by the community.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Lightning Fast</h3>
+        <p>Transactions processed at the speed of light on the blockchain.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Secure Protocol</h3>
+        <p>Military-grade encryption protects your digital assets.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Global Network</h3>
+        <p>Connect with hackers and runners from across the metaverse.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tokenomics -->
+  <section class="tokenomics">
+    <h2 class="section-title">Tokenomics</h2>
+    <div class="tokenomics-grid">
+      <div class="tokenomics-card">
+        <h3>Total Supply</h3>
+        <p>100,000,000</p>
+      </div>
+      <div class="tokenomics-card">
+        <h3>Liquidity Pool</h3>
+        <p>70% Locked</p>
+      </div>
+      <div class="tokenomics-card">
+        <h3>Community Rewards</h3>
+        <p>20%</p>
+      </div>
+      <div class="tokenomics-card">
+        <h3>Development</h3>
+        <p>10%</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="social-links">
+      <a href="#" class="social-link">X</a>
+      <a href="#" class="social-link">TG</a>
+      <a href="#" class="social-link">DC</a>
+      <a href="#" class="social-link">DEXS</a>
+    </div>
+    <p>© 2024 CYBERPUNK 2084 - POWERED BY EZCTO</p>
+  </footer>
+</body>
+</html>

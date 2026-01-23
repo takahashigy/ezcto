@@ -120,3 +120,6 @@
 - [x] 调整布局：Logo和Poster为1:1框，排版在Banner下面
 - [x] 为所有图片资产添加水印（付费后才能下载无水印版本）
 - [x] 添加一键打包ZIP下载按钮（使用jszip+file-saver）
+
+## React Hooks错误修复
+- [x] 修复ProjectDetails页面的Hooks调用顺序错误（downloadZipMutation移到组件顶部）

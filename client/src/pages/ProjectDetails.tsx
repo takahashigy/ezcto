@@ -28,6 +28,9 @@ export default function ProjectDetails() {
     { enabled: isAuthenticated && projectId > 0 }
   );
 
+  // 所有Hooks必须在条件判断之前调用
+  const downloadZipMutation = trpc.assets.downloadProjectZip.useMutation();
+
   if (authLoading || projectLoading || assetsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -70,10 +73,8 @@ export default function ProjectDetails() {
     website: assets?.find(a => a.assetType === 'website'),
   };
 
-  const isPaid = project.deploymentStatus === 'deployed';
-  const isDeployed = !!project.deploymentUrl;
-
-  const downloadZipMutation = trpc.assets.downloadProjectZip.useMutation();
+  const isPaid = project?.deploymentStatus === 'deployed';
+  const isDeployed = !!project?.deploymentUrl;
 
   const handleDownloadZip = async () => {
     try {

@@ -112,3 +112,11 @@
 - [x] 修复View Details按钮跳转404问题（创建ProjectDetails页面并注册路由）
 - [x] 添加生成成功通知弹窗（toast通知+自动轮询）
 - [x] 添加通知声音效果（Web Audio API生成和弦音效）
+
+## ProjectDetails页面优化
+- [x] 添加付费/发布状态显示（Success/Failed/Progress + 是否已付费/已发布）
+- [x] 修复Banner预览框比例为1500:500（不是1:1）
+- [x] 去掉Profile Picture展示
+- [x] 调整布局：Logo和Poster为1:1框，排版在Banner下面
+- [x] 为所有图片资产添加水印（付费后才能下载无水印版本）
+- [x] 添加一键打包ZIP下载按钮（使用jszip+file-saver）

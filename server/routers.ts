@@ -95,6 +95,29 @@ export const appRouter = router({
 
   // Asset Management
   assets: router({
+    downloadProjectZip: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+
+        const assets = await db.getAssetsByProjectId(input.projectId);
+        
+        // 返回所有资产的URL列表，前端负责打包
+        return {
+          projectName: project.name,
+          assets: assets.map(asset => ({
+            type: asset.assetType,
+            url: asset.fileUrl,
+            textContent: asset.textContent,
+          })),
+        };
+      }),
     listByProject: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input, ctx }) => {

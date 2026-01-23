@@ -168,3 +168,11 @@
   - [x] 极简几何图形
   - [x] 合约地址一键复制
 - [x] 测试所有4个模版的响应式和视觉效果
+
+## 模版优化 - 用户反馈
+- [x] Internet Meme模版完全复刻Wojak网站设计（保留原网站图片、名称、布局）
+- [x] 更新首页Templates区域的4个模版卡片信息（名称和描述）
+  - [x] Terminal Hacker卡片
+  - [x] Comic Book卡片
+  - [x] Brutalist Minimal卡片
+  - [x] Wojak Style卡片

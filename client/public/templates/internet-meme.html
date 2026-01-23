@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{PROJECT_NAME}} - Clicker Minimal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>{{PROJECT_NAME}} - Comic Meme Style</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -13,397 +13,556 @@
     }
 
     body {
-      font-family: 'Fredoka', sans-serif;
+      font-family: 'Bangers', cursive;
       background: {{BACKGROUND_COLOR}};
-      color: #333;
+      color: #000;
       overflow-x: hidden;
       position: relative;
-      min-height: 100vh;
+    }
+
+    /* Floating decorations */
+    .decorations {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .cloud, .star, .coin {
+      position: absolute;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .cloud {
+      font-size: 3rem;
+      opacity: 0.7;
+    }
+
+    .star {
+      font-size: 2rem;
+      opacity: 0.8;
+    }
+
+    .coin {
+      font-size: 2.5rem;
+      opacity: 0.8;
+    }
+
+    .cloud:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+    .cloud:nth-child(2) { top: 60%; right: 10%; animation-delay: 2s; }
+    .star:nth-child(3) { top: 20%; right: 15%; animation-delay: 1s; }
+    .star:nth-child(4) { top: 70%; left: 10%; animation-delay: 3s; }
+    .coin:nth-child(5) { top: 40%; right: 5%; animation-delay: 1.5s; }
+    .coin:nth-child(6) { top: 80%; left: 20%; animation-delay: 2.5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0;
     }
 
     /* Header */
     .header {
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 5px solid #000;
+      padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 3rem;
-      position: relative;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
       z-index: 100;
     }
 
-    .nav-links {
+    .logo {
+      font-family: 'Luckiest Guy', cursive;
+      font-size: 2rem;
+      color: #000;
+      text-decoration: none;
+      text-shadow: 3px 3px 0 #fff;
+    }
+
+    .nav {
       display: flex;
-      gap: 1.5rem;
+      gap: 2rem;
+      align-items: center;
     }
 
     .nav-link {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 1.2rem;
+      color: #000;
       text-decoration: none;
-      color: #333;
-      font-weight: 600;
-      font-size: 0.9rem;
       transition: all 0.3s;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .nav-link:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transform: scale(1.1);
     }
 
-    /* Main Container */
-    .main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: calc(100vh - 200px);
-      padding: 2rem;
+    .get-started-btn {
+      padding: 0.75rem 1.5rem;
+      background: #fff;
+      border: 4px solid #000;
+      border-radius: 20px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.1rem;
+      color: #000;
+      text-decoration: none;
+      box-shadow: 4px 4px 0 #000;
+      transition: all 0.3s;
+    }
+
+    .get-started-btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 3rem 2rem;
       position: relative;
     }
 
-    /* Project Name */
-    .project-name {
-      font-size: 5rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #fff;
+    .tagline {
+      font-family: 'Luckiest Guy', cursive;
+      font-size: 2rem;
+      color: {{ACCENT_COLOR}};
       text-shadow: 
-        4px 4px 0 rgba(0, 0, 0, 0.1),
-        -1px -1px 0 rgba(0, 0, 0, 0.05);
-      letter-spacing: 0.05em;
-      position: relative;
-      z-index: 10;
-    }
-
-    /* Character Container */
-    .character-container {
-      position: relative;
-      width: 100%;
-      max-width: 600px;
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 3rem;
-    }
-
-    .character-image {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
-      transition: transform 0.1s;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .character-image:active {
-      transform: scale(0.95);
-    }
-
-    /* Stats Box */
-    .stats-box {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 30px;
-      padding: 2rem 3rem;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      margin-bottom: 2rem;
-      text-align: center;
-      min-width: 300px;
-    }
-
-    .stat-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000;
       margin-bottom: 1rem;
     }
 
-    .stat-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .stat-label {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #666;
-    }
-
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #333;
-    }
-
-    /* Contract Box */
-    .contract-box {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 30px;
-      padding: 1.5rem 2.5rem;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    .project-name {
+      font-family: 'Luckiest Guy', cursive;
+      font-size: clamp(4rem, 12vw, 10rem);
+      color: #fff;
+      text-shadow: 
+        -4px -4px 0 #000,
+        4px -4px 0 #000,
+        -4px 4px 0 #000,
+        4px 4px 0 #000;
       margin-bottom: 2rem;
+      line-height: 1;
+    }
+
+    .hero-buttons {
       display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
+      gap: 1.5rem;
       justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
     }
 
-    .contract-label {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #666;
-    }
-
-    .contract-address {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #333;
-      font-family: monospace;
+    .hero-btn {
+      padding: 1rem 2.5rem;
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      text-decoration: none;
+      border: 4px solid #000;
+      border-radius: 15px;
+      box-shadow: 6px 6px 0 #000;
+      transition: all 0.3s;
       letter-spacing: 0.05em;
     }
 
-    .copy-btn {
-      padding: 0.75rem 1.5rem;
-      background: #333;
-      color: #fff;
-      border: none;
-      border-radius: 20px;
-      font-family: 'Fredoka', sans-serif;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .copy-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-    }
-
-    .copy-btn:active {
-      transform: translateY(0);
-    }
-
-    /* Action Buttons */
-    .action-buttons {
-      display: flex;
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .action-btn {
-      padding: 1.2rem 3rem;
-      font-size: 1.3rem;
-      font-weight: 700;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-decoration: none;
-      display: inline-block;
-      font-family: 'Fredoka', sans-serif;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .action-btn:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .action-btn:active {
-      transform: translateY(-2px);
-    }
-
     .btn-primary {
-      background: #333;
-      color: #fff;
+      background: {{ACCENT_COLOR}};
+      color: #000;
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.95);
-      color: #333;
+      background: #fff;
+      color: #000;
     }
 
-    /* Social Links */
-    .social-links {
-      display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      padding: 2rem 0;
+    .hero-btn:hover {
+      transform: translate(3px, 3px);
+      box-shadow: 3px 3px 0 #000;
     }
 
-    .social-link {
-      width: 60px;
-      height: 60px;
+    .character-image {
+      max-width: 600px;
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+      border: 5px solid #000;
+      border-radius: 20px;
+      box-shadow: 8px 8px 0 #000;
+    }
+
+    /* About Section */
+    .about-section {
+      padding: 4rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .about-image {
+      max-width: 400px;
+      width: 100%;
+      height: auto;
+      border: 5px solid #000;
+      border-radius: 20px;
+      box-shadow: 8px 8px 0 #000;
+    }
+
+    .about-card {
+      background: {{ACCENT_COLOR}};
+      border: 5px solid #000;
+      border-radius: 30px;
+      padding: 2.5rem;
+      box-shadow: 8px 8px 0 #000;
+      position: relative;
+    }
+
+    .about-card::before {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: 20px;
+      width: 30px;
+      height: 30px;
+      background: {{ACCENT_COLOR}};
+      border: 5px solid #000;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .about-card::after {
+      content: '';
+      position: absolute;
+      top: -15px;
+      right: 20px;
+      width: 30px;
+      height: 30px;
+      background: {{ACCENT_COLOR}};
+      border: 5px solid #000;
+      border-radius: 50%;
+    }
+
+    .about-title {
+      font-family: 'Luckiest Guy', cursive;
+      font-size: 3rem;
+      color: #fff;
+      text-shadow: 
+        -3px -3px 0 #000,
+        3px -3px 0 #000,
+        -3px 3px 0 #000,
+        3px 3px 0 #000;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-text {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .social-icon {
+      width: 50px;
+      height: 50px;
+      background: #fff;
+      border: 4px solid #000;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 1.5rem;
       text-decoration: none;
-      color: #333;
-      font-weight: 700;
-      font-size: 1.1rem;
+      box-shadow: 4px 4px 0 #000;
       transition: all 0.3s;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .social-link:hover {
-      transform: translateY(-4px) scale(1.1);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    .social-icon:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    /* How to Buy Section */
+    .how-to-buy {
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .section-title {
+      font-family: 'Luckiest Guy', cursive;
+      font-size: clamp(3rem, 8vw, 6rem);
+      color: #fff;
+      text-shadow: 
+        -4px -4px 0 #000,
+        4px -4px 0 #000,
+        -4px 4px 0 #000,
+        4px 4px 0 #000;
+      margin-bottom: 3rem;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto 3rem;
+    }
+
+    .step-card {
+      background: #fff;
+      border: 5px solid #000;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 6px 6px 0 #000;
+      position: relative;
+    }
+
+    .step-number {
+      font-family: 'Luckiest Guy', cursive;
+      font-size: 4rem;
+      color: {{ACCENT_COLOR}};
+      text-shadow: 
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000;
+      margin-bottom: 1rem;
+    }
+
+    .step-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    .step-text {
+      font-family: Arial, sans-serif;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    /* Contract Section */
+    .contract-section {
+      background: #fff;
+      border: 5px solid #000;
+      border-radius: 30px;
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto 4rem;
+      box-shadow: 8px 8px 0 #000;
+    }
+
+    .contract-title {
+      font-family: 'Luckiest Guy', cursive;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .contract-display {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .contract-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 1rem;
+      border: 3px solid #000;
+      border-radius: 10px;
+      background: #f5f5f5;
+    }
+
+    .copy-btn {
+      padding: 1rem 2rem;
+      background: {{ACCENT_COLOR}};
+      border: 4px solid #000;
+      border-radius: 10px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 #000;
+      transition: all 0.3s;
+    }
+
+    .copy-btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.1);
+      border-top: 5px solid #000;
+    }
+
+    .footer-text {
+      font-size: 1.2rem;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
       .header {
-        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .nav {
         flex-direction: column;
         gap: 1rem;
       }
 
-      .project-name {
-        font-size: 3rem;
+      .about-section {
+        grid-template-columns: 1fr;
       }
 
-      .character-container {
-        max-width: 400px;
+      .about-image {
+        order: 2;
       }
 
-      .stats-box {
-        padding: 1.5rem 2rem;
-        min-width: auto;
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .contract-display {
+        flex-direction: column;
+      }
+
+      .copy-btn {
         width: 100%;
       }
-
-      .stat-row {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .contract-box {
-        flex-direction: column;
-        padding: 1.5rem;
-      }
-
-      .contract-address {
-        font-size: 0.8rem;
-        word-break: break-all;
-      }
-
-      .action-buttons {
-        flex-direction: column;
-        width: 100%;
-        max-width: 300px;
-      }
-
-      .action-btn {
-        width: 100%;
-      }
-    }
-
-    /* Click Animation */
-    @keyframes pop {
-      0% { transform: scale(1); }
-      50% { transform: scale(0.95); }
-      100% { transform: scale(1); }
-    }
-
-    .character-image.clicked {
-      animation: pop 0.2s ease;
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="nav-links">
-      <a href="{{SHOP_LINK}}" class="nav-link" title="Shop">🛍️</a>
-      <a href="{{OTHER_LINK}}" class="nav-link" title="Other">🎮</a>
-    </div>
-  </header>
+  <!-- Floating Decorations -->
+  <div class="decorations">
+    <div class="cloud">☁️</div>
+    <div class="cloud">☁️</div>
+    <div class="star">⭐</div>
+    <div class="star">⭐</div>
+    <div class="coin">🪙</div>
+    <div class="coin">🪙</div>
+  </div>
 
-  <!-- Main Content -->
-  <main class="main">
-    <!-- Project Name -->
-    <h1 class="project-name">{{PROJECT_NAME}}</h1>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <a href="#" class="logo">{{PROJECT_NAME}}</a>
+      <nav class="nav">
+        <a href="#about" class="nav-link">About</a>
+        <a href="#how-to-buy" class="nav-link">How to Buy</a>
+        <a href="#tools" class="nav-link">Tools</a>
+        <a href="{{BUY_LINK}}" class="get-started-btn" target="_blank">Get Started</a>
+      </nav>
+    </header>
 
-    <!-- Character -->
-    <div class="character-container">
-      <img 
-        src="{{CHARACTER_IMAGE}}" 
-        alt="{{PROJECT_NAME}}" 
-        class="character-image"
-        id="characterImage"
-      >
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-box">
-      <div class="stat-row">
-        <span class="stat-label">🏆 Rank</span>
-        <span class="stat-value">#{{RANK}}</span>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="tagline">{{TAGLINE}}</div>
+      <h1 class="project-name">{{PROJECT_NAME}}</h1>
+      <div class="hero-buttons">
+        <a href="{{CHART_LINK}}" class="hero-btn btn-primary" target="_blank">📊 DexScreener</a>
+        <a href="{{BUY_LINK}}" class="hero-btn btn-secondary" target="_blank">💰 Buy Now</a>
       </div>
-      <div class="stat-row">
-        <span class="stat-label">📊 Market Cap</span>
-        <span class="stat-value">{{MARKET_CAP}}</span>
+      <img src="{{CHARACTER_IMAGE}}" alt="{{PROJECT_NAME}} Character" class="character-image">
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+      <img src="{{ABOUT_IMAGE}}" alt="About" class="about-image">
+      <div class="about-card">
+        <h2 class="about-title">ABOUT {{PROJECT_NAME}}</h2>
+        <p class="about-text">{{ABOUT_TEXT}}</p>
+        <div class="social-icons">
+          <a href="{{X_LINK}}" class="social-icon" target="_blank">𝕏</a>
+          <a href="{{TELEGRAM_LINK}}" class="social-icon" target="_blank">TG</a>
+          <a href="{{DISCORD_LINK}}" class="social-icon" target="_blank">DC</a>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Contract Address -->
-    <div class="contract-box">
-      <span class="contract-label">Contract:</span>
-      <span class="contract-address" id="contractAddress">{{CONTRACT_ADDRESS}}</span>
-      <button class="copy-btn" onclick="copyContract()">COPY</button>
-    </div>
+    <!-- How to Buy Section -->
+    <section class="how-to-buy" id="how-to-buy">
+      <h2 class="section-title">HOW TO BUY</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3 class="step-title">{{STEP1_TITLE}}</h3>
+          <p class="step-text">{{STEP1_TEXT}}</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3 class="step-title">{{STEP2_TITLE}}</h3>
+          <p class="step-text">{{STEP2_TEXT}}</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3 class="step-title">{{STEP3_TITLE}}</h3>
+          <p class="step-text">{{STEP3_TEXT}}</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h3 class="step-title">{{STEP4_TITLE}}</h3>
+          <p class="step-text">{{STEP4_TEXT}}</p>
+        </div>
+      </div>
 
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <a href="{{BUY_LINK}}" class="action-btn btn-primary" target="_blank">Buy Now</a>
-      <a href="{{CHART_LINK}}" class="action-btn btn-secondary" target="_blank">Chart</a>
-    </div>
+      <!-- Contract Address -->
+      <div class="contract-section">
+        <h3 class="contract-title">CONTRACT ADDRESS</h3>
+        <div class="contract-display">
+          <input type="text" class="contract-input" id="contractAddress" value="{{CONTRACT_ADDRESS}}" readonly>
+          <button class="copy-btn" onclick="copyContract()">📋 COPY</button>
+        </div>
+      </div>
+    </section>
 
-    <!-- Social Links -->
-    <div class="social-links">
-      <a href="{{X_LINK}}" class="social-link" target="_blank" title="X">𝕏</a>
-      <a href="{{TELEGRAM_LINK}}" class="social-link" target="_blank" title="Telegram">TG</a>
-    </div>
-  </main>
+    <!-- Footer -->
+    <footer class="footer">
+      <p class="footer-text">© 2024 {{PROJECT_NAME}}. All rights reserved.</p>
+    </footer>
+  </div>
 
   <script>
-    // Click animation
-    const characterImage = document.getElementById('characterImage');
-    characterImage.addEventListener('click', () => {
-      characterImage.classList.add('clicked');
-      setTimeout(() => {
-        characterImage.classList.remove('clicked');
-      }, 200);
-    });
-
-    // Copy contract address
     function copyContract() {
-      const address = document.getElementById('contractAddress').textContent;
-      navigator.clipboard.writeText(address).then(() => {
-        const btn = event.target;
-        const originalText = btn.textContent;
-        btn.textContent = 'COPIED!';
-        btn.style.background = '#4caf50';
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.style.background = '#333';
-        }, 2000);
-      });
+      const input = document.getElementById('contractAddress');
+      input.select();
+      document.execCommand('copy');
+      
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = '✅ COPIED!';
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
     }
   </script>
 </body>

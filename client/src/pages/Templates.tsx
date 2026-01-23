@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
-import { ExternalLink, Download, Sparkles } from "lucide-react";
+import { ExternalLink, Download, Sparkles, Eye, X } from "lucide-react";
+import { useState } from "react";
 
 const templates = [
   {
@@ -14,7 +15,7 @@ const templates = [
     colors: ["#FF6B9D", "#C060FF", "#00D9FF", "#1A1A2E"],
     fonts: "Press Start 2P, VT323",
     thumbnail: "/templates/retro-gaming-thumb.png",
-    demoUrl: "/templates/retro-gaming/demo.html",
+    demoUrl: "/templates/retro-gaming.html",
   },
   {
     id: "cyberpunk",
@@ -24,7 +25,7 @@ const templates = [
     colors: ["#00F0FF", "#FF006E", "#8338EC", "#0A0E27"],
     fonts: "Orbitron, Share Tech Mono",
     thumbnail: "/templates/cyberpunk-thumb.png",
-    demoUrl: "/templates/cyberpunk/demo.html",
+    demoUrl: "/templates/cyberpunk.html",
   },
   {
     id: "minimalist",
@@ -34,7 +35,7 @@ const templates = [
     colors: ["#000000", "#FFFFFF", "#F5F5F5", "#0066FF"],
     fonts: "Inter, Roboto",
     thumbnail: "/templates/minimalist-thumb.png",
-    demoUrl: "/templates/minimalist/demo.html",
+    demoUrl: "/templates/minimalist.html",
   },
   {
     id: "pop-art",
@@ -44,7 +45,7 @@ const templates = [
     colors: ["#FF5733", "#FFC300", "#C70039", "#00D4FF"],
     fonts: "Bangers, Comic Neue",
     thumbnail: "/templates/pop-art-thumb.png",
-    demoUrl: "/templates/pop-art/demo.html",
+    demoUrl: "/templates/pop-art.html",
   },
 ];
 
@@ -56,6 +57,7 @@ const comingSoonTemplates = [
 
 export default function Templates() {
   const { isAuthenticated } = useAuth();
+  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-[#d1c9b8]">
@@ -165,12 +167,14 @@ export default function Templates() {
 
                 {/* Actions */}
                 <div className="flex gap-3">
-                  <a href={template.demoUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
-                    <Button variant="outline" className="w-full font-mono border-2 border-[#00ff41] text-[#00ff41] hover:bg-[#00ff41] hover:text-black">
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      查看Demo
-                    </Button>
-                  </a>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 font-mono border-2 border-[#00ff41] text-[#00ff41] hover:bg-[#00ff41] hover:text-black"
+                    onClick={() => setPreviewTemplate(template.demoUrl)}
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    预览模版
+                  </Button>
                   <Link href={`/launch?template=${template.id}`} className="flex-1">
                     <Button className="w-full font-mono bg-[#00ff41] text-black hover:bg-[#00ff41]/80">
                       使用模版
@@ -221,6 +225,41 @@ export default function Templates() {
           </Link>
         </div>
       </section>
+
+      {/* Preview Modal */}
+      {previewTemplate && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="relative w-full h-full max-w-7xl max-h-[90vh] bg-white rounded-lg overflow-hidden shadow-2xl">
+            <div className="absolute top-0 left-0 right-0 bg-[#d1c9b8] border-b-2 border-[#00ff41]/30 p-4 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <Eye className="w-5 h-5 text-[#00ff41]" />
+                <span className="font-mono font-bold">模版预览</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <a href={previewTemplate} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm" className="font-mono border-2 border-[#00ff41] text-[#00ff41] hover:bg-[#00ff41] hover:text-black">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    新窗口打开
+                  </Button>
+                </a>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setPreviewTemplate(null)}
+                  className="font-mono hover:bg-[#00ff41]/20"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+            <iframe 
+              src={previewTemplate} 
+              className="w-full h-full border-0"
+              title="Template Preview"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="py-8 border-t-2 border-[#00ff41]/30">

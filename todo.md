@@ -62,14 +62,18 @@
 ## Demo模版系统开发
 - [x] 设计4种风格的配色方案和字体规范
 - [x] 创建/templates页面展示模版卡片
-- [ ] 开发Retro Gaming风格HTML/CSS模版
-- [ ] 开发Cyberpunk风格HTML/CSS模版
-- [ ] 开发Minimalist风格HTML/CSS模版
-- [ ] 开发Pop Art风格HTML/CSS模版
-- [ ] 实现模版预览功能（iframe或新标签页）
+- [x] 开发Retro Gaming风格HTML/CSS模版
+- [x] 开发Cyberpunk风格HTML/CSS模版
+- [x] 开发Minimalist风格HTML/CSS模版
+- [x] 开发Pop Art风格HTML/CSS模版
+- [x] 实现模版预览功能（iframe模态窗口）
 - [ ] 实现模版下载功能（打包HTML/CSS/assets）
 - [ ] 在Launch表单中添加模版选择选项
 - [ ] 集成模版风格参数到AI生成流程
 - [ ] 测试Vercel部署兼容性
 - [ ] 测试Manus部署兼容性
 - [ ] 添加"更多模版开发中"占位区
+
+## UI优化
+- [x] 将顶部导航"模版"按钮改为英文"Templates"
+- [x] 为首页View Demo按钮添加跳转到/templates页面的链接

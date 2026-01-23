@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$RETRO - Retro Gaming Meme Token</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background: #1A1A2E;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Pixel Grid Background */
+        .pixel-bg {
+            background-image: 
+                linear-gradient(rgba(255, 107, 157, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 107, 157, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            border-bottom: 4px solid #FF6B9D;
+            background: rgba(26, 26, 46, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 24px;
+            color: #FF6B9D;
+            text-shadow: 3px 3px 0 #C060FF, 6px 6px 0 #00D9FF;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 48px;
+            color: #FFE66D;
+            text-shadow: 4px 4px 0 #FF6B9D, 8px 8px 0 #C060FF;
+            margin-bottom: 30px;
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+            96% { transform: translate(-2px, -2px); }
+        }
+
+        .hero p {
+            font-size: 28px;
+            color: #00FFA3;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .pixel-box {
+            display: inline-block;
+            padding: 80px;
+            border: 4px solid #FF6B9D;
+            background: rgba(192, 96, 255, 0.2);
+            box-shadow: 0 0 20px #FF6B9D, inset 0 0 20px rgba(255, 107, 157, 0.3);
+            margin: 20px 0;
+        }
+
+        .pixel-logo {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #FF6B9D, #C060FF, #00D9FF);
+            image-rendering: pixelated;
+            box-shadow: 0 0 30px #FF6B9D;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            text-decoration: none;
+            color: #1A1A2E;
+            background: #00FFA3;
+            border: 4px solid #00FFA3;
+            box-shadow: 6px 6px 0 #FF6B9D;
+            transition: all 0.1s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translate(3px, 3px);
+            box-shadow: 3px 3px 0 #FF6B9D;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #00FFA3;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 32px;
+            text-align: center;
+            color: #FFE66D;
+            margin-bottom: 60px;
+            text-shadow: 3px 3px 0 #FF6B9D;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            padding: 30px;
+            border: 4px solid #C060FF;
+            background: rgba(192, 96, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.5);
+            border-color: #FF6B9D;
+        }
+
+        .feature-card h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 18px;
+            color: #00FFA3;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #E0E0E0;
+        }
+
+        /* Tokenomics */
+        .tokenomics {
+            padding: 80px 0;
+        }
+
+        .token-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .token-stat {
+            padding: 30px;
+            border: 4px solid #00D9FF;
+            background: rgba(0, 217, 255, 0.1);
+            text-align: center;
+        }
+
+        .token-stat .number {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 36px;
+            color: #FFE66D;
+            margin-bottom: 10px;
+        }
+
+        .token-stat .label {
+            font-size: 20px;
+            color: #00FFA3;
+        }
+
+        /* Roadmap */
+        .roadmap {
+            padding: 80px 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .roadmap-item {
+            padding: 30px;
+            border-left: 6px solid #FF6B9D;
+            background: rgba(192, 96, 255, 0.1);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .roadmap-item::before {
+            content: "▶";
+            position: absolute;
+            left: -20px;
+            top: 30px;
+            color: #00FFA3;
+            font-size: 24px;
+        }
+
+        .roadmap-item h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 20px;
+            color: #FFE66D;
+            margin-bottom: 15px;
+        }
+
+        .roadmap-item p {
+            font-size: 22px;
+            color: #E0E0E0;
+            line-height: 1.6;
+        }
+
+        .phase-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #00FFA3;
+            color: #1A1A2E;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        /* Community */
+        .community {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            width: 80px;
+            height: 80px;
+            border: 4px solid #FF6B9D;
+            background: rgba(255, 107, 157, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: #00FFA3;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            background: #FF6B9D;
+            color: #1A1A2E;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #FF6B9D;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 4px solid #FF6B9D;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        footer p {
+            font-size: 20px;
+            color: #C060FF;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .hero p {
+                font-size: 20px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .btn {
+                font-size: 12px;
+                padding: 12px 30px;
+            }
+
+            .pixel-box {
+                padding: 40px;
+            }
+
+            .pixel-logo {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body class="pixel-bg">
+    <header>
+        <div class="container">
+            <div class="logo">$RETRO</div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>RETRO GAMING</h1>
+            <div class="pixel-box">
+                <div class="pixel-logo"></div>
+            </div>
+            <p>BACK TO THE 8-BIT ERA</p>
+            <div>
+                <a href="#" class="btn">BUY NOW</a>
+                <a href="#" class="btn btn-secondary">JOIN DISCORD</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">GAME FEATURES</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>PIXEL PERFECT</h3>
+                    <p>Authentic 8-bit aesthetics that bring back the golden age of arcade gaming</p>
+                </div>
+                <div class="feature-card">
+                    <h3>COMMUNITY DRIVEN</h3>
+                    <p>Built by gamers, for gamers. Your voice matters in our retro revolution</p>
+                </div>
+                <div class="feature-card">
+                    <h3>NOSTALGIC VIBES</h3>
+                    <p>Relive the magic of 80s gaming culture with modern blockchain technology</p>
+                </div>
+                <div class="feature-card">
+                    <h3>PLAY TO EARN</h3>
+                    <p>Earn rewards while enjoying classic gaming experiences on-chain</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tokenomics">
+        <div class="container">
+            <h2 class="section-title">TOKENOMICS</h2>
+            <div class="token-grid">
+                <div class="token-stat">
+                    <div class="number">1B</div>
+                    <div class="label">TOTAL SUPPLY</div>
+                </div>
+                <div class="token-stat">
+                    <div class="number">80%</div>
+                    <div class="label">LIQUIDITY</div>
+                </div>
+                <div class="token-stat">
+                    <div class="number">10%</div>
+                    <div class="label">MARKETING</div>
+                </div>
+                <div class="token-stat">
+                    <div class="number">10%</div>
+                    <div class="label">TEAM</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="roadmap">
+        <div class="container">
+            <h2 class="section-title">ROADMAP</h2>
+            <div class="roadmap-item">
+                <span class="phase-tag">PHASE 1</span>
+                <h3>LAUNCH</h3>
+                <p>Token launch, community building, initial marketing campaign, and liquidity pool setup</p>
+            </div>
+            <div class="roadmap-item">
+                <span class="phase-tag">PHASE 2</span>
+                <h3>GROWTH</h3>
+                <p>Major exchange listings, partnerships with retro gaming communities, NFT collection drop</p>
+            </div>
+            <div class="roadmap-item">
+                <span class="phase-tag">PHASE 3</span>
+                <h3>EXPANSION</h3>
+                <p>Launch play-to-earn arcade games, merchandise store, and metaverse integration</p>
+            </div>
+            <div class="roadmap-item">
+                <span class="phase-tag">PHASE 4</span>
+                <h3>DOMINATION</h3>
+                <p>Become the #1 retro gaming token, global brand recognition, and ecosystem expansion</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="community">
+        <div class="container">
+            <h2 class="section-title">JOIN THE ARCADE</h2>
+            <p style="font-size: 24px; margin-bottom: 20px;">Connect with fellow retro gamers</p>
+            <div class="social-links">
+                <a href="#" class="social-btn">X</a>
+                <a href="#" class="social-btn">TG</a>
+                <a href="#" class="social-btn">DC</a>
+                <a href="#" class="social-btn">DEXS</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 $RETRO - POWERED BY EZCTO</p>
+        </div>
+    </footer>
+</body>
+</html>

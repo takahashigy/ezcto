@@ -77,6 +77,12 @@ export default function ProjectDetails() {
   const isDeployed = !!project?.deploymentUrl;
 
   const handleDownloadZip = async () => {
+    // 检查是否已付费
+    if (!isPaid) {
+      setDeploymentPaywallOpen(true);
+      return;
+    }
+
     try {
       toast.loading("Preparing download...", {
         description: "Collecting all project assets",
@@ -182,6 +188,8 @@ export default function ProjectDetails() {
               <Package className="mr-2 h-4 w-4" />
               Download ZIP
             </Button>
+            
+            {/* 网站发布状态按钮 */}
             {!isPaid && project.status === 'completed' && (
               <Button 
                 onClick={() => setDeploymentPaywallOpen(true)}
@@ -190,14 +198,19 @@ export default function ProjectDetails() {
                 className="font-mono"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                Deploy & Remove Watermark
+                Publish Website
               </Button>
             )}
-            {isDeployed && (
-              <Button asChild size="lg" variant="outline" className="font-mono">
-                <a href={project.deploymentUrl ?? undefined} target="_blank" rel="noopener noreferrer">
+            {isPaid && isDeployed && (
+              <Button 
+                asChild
+                size="lg" 
+                variant="default"
+                className="font-mono"
+              >
+                <a href={project.deploymentUrl!} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  Visit Live Site
+                  Visit Website
                 </a>
               </Button>
             )}
@@ -229,9 +242,24 @@ export default function ProjectDetails() {
                         className="w-full h-full object-cover"
                       />
                       {!isPaid && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="text-white/30 text-6xl font-bold transform -rotate-12">
-                            EZCTO WATERMARK
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                          {/* 对角线重复水印 */}
+                          <div className="absolute inset-0 flex flex-wrap">
+                            {[...Array(6)].map((_, i) => (
+                              <div
+                                key={i}
+                                className="text-white/60 text-8xl font-black transform -rotate-45"
+                                style={{
+                                  position: 'absolute',
+                                  top: `${(i % 2) * 50}%`,
+                                  left: `${(i % 3) * 33}%`,
+                                  textShadow: '2px 2px 8px rgba(0,0,0,0.8), -2px -2px 8px rgba(0,0,0,0.8)',
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                EZCTO
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}

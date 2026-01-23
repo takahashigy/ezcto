@@ -123,3 +123,8 @@
 
 ## React Hooks错误修复
 - [x] 修复ProjectDetails页面的Hooks调用顺序错误（downloadZipMutation移到组件顶部）
+
+## 水印和付费墙优化
+- [x] 增强水印显示（增大字体、增加不透明度、对角线重复、阴影效果）
+- [x] 修复Download All Assets按钮的付费墙检查（未付费时弹出付费墙）
+- [x] 添加网站发布状态按钮（未付费显示"Publish Website"，已发布显示"Visit Website"）

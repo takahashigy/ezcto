@@ -132,3 +132,9 @@
 ## tRPC API错误修复
 - [x] 诊断tRPC API返回HTML而不是JSON的错误原因
 - [x] 修复服务器路由配置或错误处理
+
+## Stripe价格ID错误修复
+- [x] 检查当前Stripe产品和价格配置
+- [x] 在Stripe中创建deployment产品（$299）
+- [x] 添加STRIPE_PRICE_DEPLOYMENT环境变量
+- [x] 测试付费墙和checkout流程

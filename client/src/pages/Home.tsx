@@ -126,18 +126,18 @@ export default function Home() {
               </div>
               
               {/* Decorative Elements */}
-              <div className="absolute -top-4 -right-4 w-32 h-32 border-2 border-primary opacity-20 overflow-hidden">
+              <div className="absolute -top-4 -right-4 w-24 h-24 opacity-60 hover:opacity-100 transition-opacity duration-300">
                 <img 
                   src="/favicon.png" 
                   alt="Cyborg Decoration" 
-                  className="w-full h-full object-cover opacity-70"
+                  className="w-full h-full object-cover rounded-lg border-2 border-primary/50"
                 />
               </div>
-              <div className="absolute -bottom-4 -left-4 w-32 h-32 border-2 border-primary opacity-20 overflow-hidden">
+              <div className="absolute -bottom-4 -left-4 w-24 h-24 opacity-60 hover:opacity-100 transition-opacity duration-300">
                 <img 
                   src="/PFP2.png" 
                   alt="Cyborg Decoration" 
-                  className="w-full h-full object-cover opacity-70"
+                  className="w-full h-full object-cover rounded-lg border-2 border-primary/50"
                 />
               </div>
               

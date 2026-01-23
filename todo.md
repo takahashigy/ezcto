@@ -204,3 +204,9 @@
 - [x] 更新Labubu模版的图片路径
 - [x] 将所有4个模版的占位符（{{PROJECT_NAME}}等）改为"MEMES"
 - [x] 测试所有模版的视觉效果
+
+## 模版预览窗口优化
+- [x] 使用Selenium截取4个模版的真实截图（1200x800）
+- [x] 替换Templates页面iframe预览为真实截图
+- [x] 添加图片加载失败的fallback机制
+- [x] 测试Wojak和Labubu预览窗口显示效果

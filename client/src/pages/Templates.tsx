@@ -135,15 +135,20 @@ export default function Templates() {
                 key={template.id}
                 className="p-6 bg-white/80 backdrop-blur-sm border-2 border-black/10 hover:border-[#00ff41] transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,65,0.3)] group"
               >
-                {/* Thumbnail - Live iframe preview */}
+                {/* Thumbnail - Screenshot preview */}
                 <div className="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden border-2 border-black/10 relative group-hover:border-[#00ff41]/50 transition-colors">
-                  <iframe 
-                    src={template.demoUrl} 
-                    className="w-full h-full border-0 pointer-events-none scale-[0.5] origin-top-left"
-                    style={{ width: '200%', height: '200%' }}
-                    title={`${template.name} Preview`}
+                  <img 
+                    src={`/assets/template-preview-${template.id === 'minimalist' ? 'wojak' : template.id === 'internet-meme' ? 'labubu' : template.id}.png`}
+                    alt={`${template.name} Preview`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to iframe if image fails to load
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `<iframe src="${template.demoUrl}" class="w-full h-full border-0 pointer-events-none scale-[0.5] origin-top-left" style="width: 200%; height: 200%;" title="${template.name} Preview"></iframe>`;
+                      }
+                    }}
                   />
-                  <div className="absolute inset-0 bg-transparent" />
                 </div>
 
                 {/* Info */}

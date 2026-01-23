@@ -1,6 +1,8 @@
 import { generateImage } from "./_core/imageGeneration";
 import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
+import fs from "fs/promises";
+import path from "path";
 
 /**
  * Launch自动化引擎核心逻辑
@@ -35,10 +37,19 @@ export interface LaunchOutput {
  * 生成Logo
  */
 async function generateLogo(input: LaunchInput): Promise<string> {
-  const prompt = `Create a professional logo for a Meme cryptocurrency project named "${input.name}"${input.ticker ? ` (${input.ticker})` : ""}. 
-Style: ${input.styleTemplate || "pixel_punk"}. 
+  const styleDescriptions: Record<string, string> = {
+    retro_gaming: "8-bit pixel art style, neon colors, arcade vibes, retro gaming aesthetic",
+    cyberpunk: "cyberpunk style, red and black colors, futuristic tech, neon aesthetics",
+    minimalist: "minimalist style, clean lines, monochrome, modern simplicity",
+    internet_meme: "hand-drawn cartoon style, playful characters, internet meme culture",
+  };
+
+  const styleDesc = styleDescriptions[input.styleTemplate || "retro_gaming"] || "modern crypto meme style";
+
+  const prompt = `Create a professional logo for a Meme cryptocurrency project named "${input.name}"${input.ticker ? ` ($${input.ticker})` : ""}. 
+Style: ${styleDesc}
 ${input.description ? `Project concept: ${input.description}` : ""}
-The logo should be iconic, memorable, and suitable for crypto/meme culture. Clean background, centered composition.`;
+The logo should be iconic, memorable, and suitable for crypto/meme culture. Clean background, centered composition, square format.`;
 
   const result = await generateImage({ prompt });
   return result.url || "";
@@ -48,10 +59,19 @@ The logo should be iconic, memorable, and suitable for crypto/meme culture. Clea
  * 生成Banner
  */
 async function generateBanner(input: LaunchInput): Promise<string> {
-  const prompt = `Create a Twitter/X banner (1500x500) for a Meme cryptocurrency project named "${input.name}"${input.ticker ? ` (${input.ticker})` : ""}. 
-Style: ${input.styleTemplate || "pixel_punk"}. 
+  const styleDescriptions: Record<string, string> = {
+    retro_gaming: "8-bit pixel art style, neon colors, arcade vibes, retro gaming aesthetic",
+    cyberpunk: "cyberpunk style, red and black colors, futuristic tech, neon aesthetics",
+    minimalist: "minimalist style, clean lines, monochrome, modern simplicity",
+    internet_meme: "hand-drawn cartoon style, playful characters, internet meme culture",
+  };
+
+  const styleDesc = styleDescriptions[input.styleTemplate || "retro_gaming"] || "modern crypto meme style";
+
+  const prompt = `Create a Twitter/X banner image for a Meme cryptocurrency project named "${input.name}"${input.ticker ? ` ($${input.ticker})` : ""}. 
+Style: ${styleDesc}
 ${input.description ? `Project concept: ${input.description}` : ""}
-The banner should be eye-catching, professional, and convey the project's energy. Include project name prominently.`;
+The banner should be eye-catching, professional, and convey the project's energy. Include project name prominently. Wide horizontal format, 1500x500 pixels, suitable for Twitter/X header.`;
 
   const result = await generateImage({ prompt });
   return result.url || "";
@@ -211,36 +231,124 @@ Return as a JSON array of strings.`,
 
 /**
  * 生成Landing Page HTML
+ * 使用预设模版 + AI定制化内容
  */
 async function generateWebsite(input: LaunchInput): Promise<string> {
-  const response = await invokeLLM({
-    messages: [
-      {
-        role: "system",
-        content: "You are a professional web developer. Create clean, modern, responsive HTML landing pages.",
-      },
-      {
-        role: "user",
-        content: `Create a single-page HTML landing page for a Meme cryptocurrency project:
+  // 映射styleTemplate到模版文件名
+  const templateMap: Record<string, string> = {
+    retro_gaming: "retro-gaming.html",
+    cyberpunk: "cyberpunk.html",
+    minimalist: "minimalist.html",
+    internet_meme: "internet-meme.html",
+  };
+
+  const templateFile = templateMap[input.styleTemplate || "retro_gaming"] || "retro-gaming.html";
+  const templatePath = path.join(process.cwd(), "client", "public", "templates", templateFile);
+
+  try {
+    // 读取模版文件
+    let template = await fs.readFile(templatePath, "utf-8");
+
+    // 使用AI生成项目特定的内容
+    const response = await invokeLLM({
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional crypto copywriter. Generate concise, engaging content for meme token websites.",
+        },
+        {
+          role: "user",
+          content: `Generate website content for a Meme cryptocurrency project:
 Name: ${input.name}
 ${input.ticker ? `Ticker: ${input.ticker}` : ""}
 ${input.description ? `Description: ${input.description}` : ""}
 
-Requirements:
-- Single HTML file with inline CSS
-- Responsive design
-- Modern, clean aesthetic
-- Sections: Hero, About, Tokenomics, Roadmap, Community
-- Include social media placeholders
-- Meme-friendly but professional
+Generate:
+1. A catchy hero tagline (10-15 words)
+2. A brief project description (30-50 words)
+3. Three feature titles and descriptions
+4. Tokenomics summary (supply, distribution)
 
-Return only the complete HTML code.`,
+Return as JSON.`,
+        },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "website_content",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              heroTagline: { type: "string" },
+              description: { type: "string" },
+              features: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    description: { type: "string" },
+                  },
+                  required: ["title", "description"],
+                  additionalProperties: false,
+                },
+                minItems: 3,
+                maxItems: 3,
+              },
+              tokenomics: {
+                type: "object",
+                properties: {
+                  totalSupply: { type: "string" },
+                  distribution: { type: "string" },
+                },
+                required: ["totalSupply", "distribution"],
+                additionalProperties: false,
+              },
+            },
+            required: ["heroTagline", "description", "features", "tokenomics"],
+            additionalProperties: false,
+          },
+        },
       },
-    ],
-  });
+    });
 
-  const content = response.choices[0]?.message?.content;
-  return typeof content === 'string' ? content : "";
+    const content = response.choices[0]?.message?.content;
+    if (!content || typeof content !== 'string') {
+      return template; // 返回原始模版作为fallback
+    }
+
+    const generatedContent = JSON.parse(content);
+
+    // 替换模版中的占位符
+    template = template.replace(/\{\{PROJECT_NAME\}\}/g, input.name);
+    template = template.replace(/\{\{TICKER\}\}/g, input.ticker || input.name);
+    template = template.replace(/\{\{HERO_TAGLINE\}\}/g, generatedContent.heroTagline);
+    template = template.replace(/\{\{DESCRIPTION\}\}/g, generatedContent.description);
+    
+    // 注意：更复杂的替换（如features数组）需要更精细的模版引擎
+    // 这里先返回基础替换的版本
+    
+    return template;
+  } catch (error) {
+    console.error("[generateWebsite] Error:", error);
+    // Fallback: 使用AI从零生成
+    const response = await invokeLLM({
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional web developer. Create clean, modern, responsive HTML landing pages.",
+        },
+        {
+          role: "user",
+          content: `Create a single-page HTML landing page for: ${input.name}. Include inline CSS, responsive design, and sections for Hero, About, Tokenomics, Community.`,
+        },
+      ],
+    });
+
+    const content = response.choices[0]?.message?.content;
+    return typeof content === 'string' ? content : "";
+  }
 }
 
 /**

@@ -198,3 +198,9 @@
 - [x] 完善Labubu模版的图片路径
 - [x] 更新Templates页面的Wojak Style卡片信息
 - [x] 测试所有模版的视觉效果
+
+## 模版优化 - 用户反馈2
+- [x] 替换Labubu新图片（三只Labubu和单只Labubu PNG）
+- [x] 更新Labubu模版的图片路径
+- [x] 将所有4个模版的占位符（{{PROJECT_NAME}}等）改为"MEMES"
+- [x] 测试所有模版的视觉效果

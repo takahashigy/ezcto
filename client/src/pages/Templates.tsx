@@ -38,14 +38,14 @@ const templates = [
     demoUrl: "/templates/minimalist.html",
   },
   {
-    id: "pop-art",
-    name: "Pop Art",
-    description: "鲜艳色彩，漫画风格，波普艺术趣味性",
-    适用场景: "娱乐主题、社区驱动",
-    colors: ["#FF5733", "#FFC300", "#C70039", "#00D4FF"],
+    id: "internet-meme",
+    name: "Internet Meme",
+    description: "手绘风格，卡通角色，互联网Meme文化",
+    适用场景: "Meme币、社区文化、娱乐项目",
+    colors: ["#FFFFFF", "#000000", "#FFD700", "#FF6B9D"],
     fonts: "Bangers, Comic Neue",
-    thumbnail: "/templates/pop-art-thumb.png",
-    demoUrl: "/templates/pop-art.html",
+    thumbnail: "/templates/internet-meme-thumb.png",
+    demoUrl: "/templates/internet-meme.html",
   },
 ];
 

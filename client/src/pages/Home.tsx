@@ -19,6 +19,11 @@ export default function Home() {
           </Link>
           
           <div className="flex items-center gap-6">
+            <Link href="/templates">
+              <Button variant="ghost" className="font-mono">
+                模版
+              </Button>
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link href="/dashboard">

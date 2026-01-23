@@ -54,3 +54,4 @@
 - [x] 替换首页Hero区域图片为Pearl.png
 - [x] 替换Logo为Anniu.png
 - [x] 设置favicon.png为网站图标
+- [x] 在首页Hero区域添加PFP.png装饰图片

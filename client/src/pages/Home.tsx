@@ -128,6 +128,15 @@ export default function Home() {
               {/* Decorative Elements */}
               <div className="absolute -top-4 -right-4 w-32 h-32 border-2 border-primary opacity-20"></div>
               <div className="absolute -bottom-4 -left-4 w-32 h-32 border-2 border-primary opacity-20"></div>
+              
+              {/* Decorative PFP Image */}
+              <div className="absolute -bottom-8 -right-8 w-24 h-24 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <img 
+                  src="/PFP.png" 
+                  alt="Cyborg PFP" 
+                  className="w-full h-full object-cover rounded-lg border-2 border-primary/50"
+                />
+              </div>
             </div>
           </div>
         </div>

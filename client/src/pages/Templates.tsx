@@ -135,20 +135,15 @@ export default function Templates() {
                 key={template.id}
                 className="p-6 bg-white/80 backdrop-blur-sm border-2 border-black/10 hover:border-[#00ff41] transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,65,0.3)] group"
               >
-                {/* Thumbnail */}
-                <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                  <div className="text-center p-8">
-                    <div className="flex gap-2 mb-4 justify-center">
-                      {template.colors.map((color, i) => (
-                        <div
-                          key={i}
-                          className="w-12 h-12 rounded-full border-2 border-black/20"
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm font-mono text-gray-500">模版预览占位</p>
-                  </div>
+                {/* Thumbnail - Live iframe preview */}
+                <div className="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden border-2 border-black/10 relative group-hover:border-[#00ff41]/50 transition-colors">
+                  <iframe 
+                    src={template.demoUrl} 
+                    className="w-full h-full border-0 pointer-events-none scale-[0.5] origin-top-left"
+                    style={{ width: '200%', height: '200%' }}
+                    title={`${template.name} Preview`}
+                  />
+                  <div className="absolute inset-0 bg-transparent" />
                 </div>
 
                 {/* Info */}

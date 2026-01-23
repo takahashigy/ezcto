@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, projects, assets, orders, payments, subscriptions, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -17,6 +17,8 @@ export async function getDb() {
   }
   return _db;
 }
+
+// ============ User Management ============
 
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
@@ -89,4 +91,182 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ Project Management ============
+
+export async function createProject(project: InsertProject) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(projects).values(project);
+  // Get the last inserted project
+  const inserted = await db.select().from(projects).where(eq(projects.userId, project.userId)).orderBy(desc(projects.createdAt)).limit(1);
+  return inserted[0];
+}
+
+export async function getProjectsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(projects).where(eq(projects.userId, userId)).orderBy(desc(projects.createdAt));
+}
+
+export async function getProjectById(projectId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(projects).where(eq(projects.id, projectId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateProjectStatus(projectId: number, status: "draft" | "generating" | "completed" | "failed") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(projects).set({ status, updatedAt: new Date() }).where(eq(projects.id, projectId));
+}
+
+export async function getAllProjects() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(projects).orderBy(desc(projects.createdAt));
+}
+
+// ============ Asset Management ============
+
+export async function createAsset(asset: InsertAsset) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(assets).values(asset);
+  return result;
+}
+
+export async function getAssetsByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(assets).where(eq(assets.projectId, projectId)).orderBy(desc(assets.createdAt));
+}
+
+export async function getAssetById(assetId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(assets).where(eq(assets.id, assetId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ Order Management ============
+
+export async function createOrder(order: InsertOrder) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(orders).values(order);
+  return result;
+}
+
+export async function getOrdersByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+}
+
+export async function getOrderById(orderId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateOrderStatus(orderId: number, status: "pending" | "processing" | "completed" | "cancelled" | "refunded") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(orders).set({ status, updatedAt: new Date() }).where(eq(orders.id, orderId));
+}
+
+export async function getAllOrders() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(orders).orderBy(desc(orders.createdAt));
+}
+
+// ============ Payment Management ============
+
+export async function createPayment(payment: InsertPayment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(payments).values(payment);
+  return result;
+}
+
+export async function getPaymentsByOrderId(orderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(payments).where(eq(payments.orderId, orderId)).orderBy(desc(payments.createdAt));
+}
+
+export async function getPaymentById(paymentId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(payments).where(eq(payments.id, paymentId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updatePaymentStatus(paymentId: number, status: "pending" | "succeeded" | "failed" | "refunded") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(payments).set({ status, updatedAt: new Date() }).where(eq(payments.id, paymentId));
+}
+
+// ============ Subscription Management ============
+
+export async function upsertSubscription(subscription: InsertSubscription) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(subscriptions).values(subscription).onDuplicateKeyUpdate({
+    set: {
+      plan: subscription.plan,
+      stripeSubscriptionId: subscription.stripeSubscriptionId,
+      stripeCustomerId: subscription.stripeCustomerId,
+      status: subscription.status,
+      currentPeriodStart: subscription.currentPeriodStart,
+      currentPeriodEnd: subscription.currentPeriodEnd,
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+export async function getSubscriptionByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(subscriptions).where(eq(subscriptions.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateSubscriptionStatus(userId: number, status: "active" | "cancelled" | "expired" | "past_due") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(subscriptions).set({ status, updatedAt: new Date() }).where(eq(subscriptions.userId, userId));
+}

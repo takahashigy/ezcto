@@ -24,6 +24,16 @@ export default function Home() {
                 Templates
               </Button>
             </Link>
+            <Link href="/supply">
+              <Button variant="ghost" className="font-mono">
+                供应链
+              </Button>
+            </Link>
+            <Link href="/store">
+              <Button variant="ghost" className="font-mono">
+                商城
+              </Button>
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link href="/dashboard">
@@ -287,7 +297,7 @@ export default function Home() {
 
             {/* Module 2: IP Merchandise Supply Chain */}
             <Link href="/supply" className="block">
-              <div className="module-card opacity-75 hover:opacity-100 transition-opacity cursor-pointer">
+              <div className="module-card hover:border-primary/50 transition-all cursor-pointer">
                 <div className="flex items-start gap-4 mb-6">
                   <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
                     <Package className="w-8 h-8 text-muted-foreground" />
@@ -317,15 +327,16 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <Button className="w-full font-mono" variant="outline" disabled>
-                  Coming Q3 2026
+                <Button className="w-full font-mono retro-border">
+                  查看供应链
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </Link>
 
             {/* Module 3: Official Meme Marketplace */}
             <Link href="/store" className="block">
-              <div className="module-card opacity-75 hover:opacity-100 transition-opacity cursor-pointer">
+              <div className="module-card hover:border-primary/50 transition-all cursor-pointer">
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
                   <ShoppingCart className="w-8 h-8 text-muted-foreground" />
@@ -355,8 +366,9 @@ export default function Home() {
                 </div>
               </div>
               
-              <Button className="w-full font-mono" variant="outline" disabled>
-                Coming Q3 2026
+              <Button className="w-full font-mono retro-border">
+                进入商城
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               </div>
             </Link>

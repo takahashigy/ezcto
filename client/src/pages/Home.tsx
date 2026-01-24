@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
 import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2 } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen">
@@ -21,29 +24,29 @@ export default function Home() {
           <div className="flex items-center gap-6">
             <Link href="/templates">
               <Button variant="ghost" className="font-mono">
-                Templates
+                {t('nav.templates')}
               </Button>
             </Link>
             <Link href="/supply">
               <Button variant="ghost" className="font-mono">
-                供应链
+                {t('nav.supply')}
               </Button>
             </Link>
             <Link href="/store">
               <Button variant="ghost" className="font-mono">
-                商城
+                {t('nav.store')}
               </Button>
             </Link>
             {isAuthenticated ? (
               <>
                 <Link href="/dashboard">
                   <Button variant="ghost" className="font-mono">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Button>
                 </Link>
                 <Link href="/launch">
                   <Button className="font-mono retro-border">
-                    Launch Project
+                    {t('nav.launch')}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
@@ -63,6 +66,7 @@ export default function Home() {
                 </a>
               </>
             )}
+            <LanguageSwitcher />
           </div>
         </div>
       </nav>
@@ -76,18 +80,18 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 px-4 py-2 border-2 border-primary bg-primary/10">
                 <span className="status-indicator active"></span>
                 <span className="text-sm font-mono font-bold uppercase tracking-wider">
-                  System Online
+                  {t('hero.systemOnline')}
                 </span>
               </div>
               
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-                Your Automated
+                {t('hero.title')}
                 <br />
-                <span className="text-primary glitch-text">Meme CTO</span>
+                <span className="text-primary glitch-text">{t('hero.titleMeme')}</span>
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl">
-                全球首个Meme项目自动化CTO与IP全生命周期服务平台。10分钟内生成专业级品牌资产，打破增长上限，将数字共识转化为物理世界的永恒信仰。
+                {t('hero.description')}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
@@ -176,10 +180,10 @@ export default function Home() {
         <div className="container">
           <div className="max-w-3xl mx-auto text-center space-y-4">
             <div className="font-mono text-3xl md:text-4xl lg:text-5xl text-muted-foreground/60">
-              Only Pay Dex &lt; 1
+              {t('formula.onlyPayDex')}
             </div>
-            <div className="font-mono text-4xl md:text-5xl lg:text-6xl font-bold text-primary">
-              Pay Dex + Pay Meme &gt; 2
+            <div className="font-mono text-4xl md:text-5xl lg:text-6xl font-bold text-primary whitespace-nowrap">
+              {t('formula.payDexMeme')}
             </div>
           </div>
         </div>
@@ -190,29 +194,29 @@ export default function Home() {
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              打破三大枷锁
+              {t('barriers.title')}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              当前Meme市场被高成本、碎片化运营和流量内卷束缚，99%的项目死于启动而非市场
+              {t('barriers.subtitle')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                title: "启动枷锁",
-                problem: "高成本、低价值的\"上币税\"",
-                solution: "10分钟自动化生成专业级启动资产"
+                title: t('barriers.launch.title'),
+                problem: t('barriers.launch.problem'),
+                solution: t('barriers.launch.solution')
               },
               {
-                title: "能力枷锁",
-                problem: "高度碎片化的\"作坊式\"运营",
-                solution: "一站式解决方案，无需外包或摸索"
+                title: t('barriers.capability.title'),
+                problem: t('barriers.capability.problem'),
+                solution: t('barriers.capability.solution')
               },
               {
-                title: "流量枷锁",
-                problem: "无法突破的\"加密内卷\"",
-                solution: "打通Web2亿万级蓝海用户"
+                title: t('barriers.traffic.title'),
+                problem: t('barriers.traffic.problem'),
+                solution: t('barriers.traffic.solution')
               }
             ].map((item, i) => (
               <div key={i} className="module-card">
@@ -299,8 +303,8 @@ export default function Home() {
             <Link href="/supply" className="block">
               <div className="module-card hover:border-primary/50 transition-all cursor-pointer">
                 <div className="flex items-start gap-4 mb-6">
-                  <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                    <Package className="w-8 h-8 text-muted-foreground" />
+                  <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Package className="w-8 h-8 text-primary" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold mb-2">IP实体化供应链</h3>
@@ -338,8 +342,8 @@ export default function Home() {
             <Link href="/store" className="block">
               <div className="module-card hover:border-primary/50 transition-all cursor-pointer">
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-8 h-8 text-muted-foreground" />
+                <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-8 h-8 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold mb-2">EZCTO官方商城</h3>

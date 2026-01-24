@@ -9,6 +9,7 @@ import { createCheckoutSession, createSubscriptionCheckoutSession } from "./stri
 import { ALL_PRODUCTS } from "./products";
 import { storagePut } from "./storage";
 import { removeBackground } from "./_core/backgroundRemoval";
+import { notifyOwner } from "./_core/notification";
 
 export const appRouter = router({
   system: systemRouter,
@@ -414,6 +415,38 @@ export const appRouter = router({
 
   // Custom Orders
   customOrder: router({
+    uploadFile: protectedProcedure
+      .input(z.object({
+        fileName: z.string(),
+        fileType: z.string(),
+        base64Data: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        try {
+          // Convert base64 to buffer
+          const base64WithoutPrefix = input.base64Data.replace(/^data:[^;]+;base64,/, "");
+          const buffer = Buffer.from(base64WithoutPrefix, "base64");
+          
+          // Generate unique file key
+          const timestamp = Date.now();
+          const randomSuffix = Math.random().toString(36).substring(7);
+          const fileExtension = input.fileName.split(".").pop() || "png";
+          const fileKey = `custom-orders/${ctx.user.id}/${timestamp}-${randomSuffix}.${fileExtension}`;
+          
+          // Upload to S3
+          const { url } = await storagePut(fileKey, buffer, input.fileType);
+          
+          return {
+            url,
+            key: fileKey,
+            name: input.fileName,
+          };
+        } catch (error) {
+          console.error("Failed to upload file:", error);
+          throw new Error("Failed to upload file");
+        }
+      }),
+
     create: protectedProcedure
       .input(z.object({
         productType: z.enum(["merchandise", "packaging", "manufacturing", "logistics"]),
@@ -435,11 +468,32 @@ export const appRouter = router({
           ...input,
         });
 
-        // TODO: Send notification to admin about new custom order
-        // await notifyOwner({
-        //   title: "New Custom Order",
-        //   content: `User ${ctx.user.name} submitted a custom order for ${input.productType}`,
-        // });
+        // Send notification to admin about new custom order
+        const productTypeMap = {
+          merchandise: "Merchandise",
+          packaging: "Packaging Design",
+          manufacturing: "Custom Manufacturing",
+          logistics: "Logistics Service",
+        };
+        
+        const budgetMap = {
+          small: "$1K-$5K",
+          medium: "$5K-$20K",
+          large: "$20K-$50K",
+          enterprise: "$50K+",
+        };
+
+        await notifyOwner({
+          title: "🛍️ New Custom Order Received",
+          content: `**Order #${orderId}**\n\n` +
+            `**Customer:** ${ctx.user.name || "Unknown"} (${ctx.user.email || "No email"})\n` +
+            `**Product Type:** ${productTypeMap[input.productType]}\n` +
+            `**Quantity:** ${input.quantity.toLocaleString()}\n` +
+            `**Budget:** ${budgetMap[input.budget]}\n` +
+            `**Contact:** ${input.contactName} (${input.contactEmail})\n\n` +
+            `**Description:**\n${input.description}\n\n` +
+            `**Files Attached:** ${input.fileUrls?.length || 0}`,
+        });
 
         return { orderId };
       }),

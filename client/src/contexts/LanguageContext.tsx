@@ -395,12 +395,31 @@ const translations = {
       },
     },
     dashboard: {
+      tabs: {
+        projects: 'My Projects',
+        orders: 'My Orders',
+      },
       page: {
         title: 'Project Dashboard',
         systemOnline: 'SYSTEM ONLINE',
         newProject: 'New Project',
         generationHistory: 'Generation History',
         yourProjects: 'Your Projects',
+      },
+      orders: {
+        title: 'My Custom Orders',
+        empty: 'No orders yet',
+        emptyDescription: "You haven't submitted any custom orders yet. Visit Supply Chain to start your first order.",
+        emptyButton: 'Browse Supply Chain',
+        orderNumber: 'Order',
+        productType: 'Product Type',
+        quantity: 'Quantity',
+        budget: 'Budget',
+        contact: 'Contact',
+        files: 'Files',
+        description: 'Description',
+        createdAt: 'Created',
+        viewFile: 'View',
       },
       stats: {
         totalProjects: 'TOTAL PROJECTS',
@@ -838,12 +857,31 @@ const translations = {
       },
     },
     dashboard: {
+      tabs: {
+        projects: '我的项目',
+        orders: '我的订单',
+      },
       page: {
         title: '项目仪表板',
         systemOnline: '系统在线',
         newProject: '新建项目',
         generationHistory: '生成历史',
         yourProjects: '你的项目',
+      },
+      orders: {
+        title: '我的定制订单',
+        empty: '暂无订单',
+        emptyDescription: '您还没有提交任何定制订单。访问供应链页面开始您的第一个订单。',
+        emptyButton: '浏览供应链',
+        orderNumber: '订单编号',
+        productType: '产品类型',
+        quantity: '数量',
+        budget: '预算',
+        contact: '联系人',
+        files: '附件',
+        description: '需求描述',
+        createdAt: '创建时间',
+        viewFile: '查看',
       },
       stats: {
         totalProjects: '总项目数',

@@ -75,6 +75,8 @@ export default function CustomOrder() {
     },
   });
 
+  const uploadFileMutation = trpc.customOrder.uploadFile.useMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -87,11 +89,19 @@ export default function CustomOrder() {
 
     try {
       // Upload files to S3 if any
-      const fileUrls = uploadedFiles.map(item => ({
-        url: item.preview,
-        key: `custom-orders/${user?.id}/${Date.now()}-${item.file.name}`,
-        name: item.file.name,
-      }));
+      const fileUrls: Array<{ url: string; key: string; name: string }> = [];
+      
+      if (uploadedFiles.length > 0) {
+        toast.info("Uploading files...");
+        for (const item of uploadedFiles) {
+          const uploadedFile = await uploadFileMutation.mutateAsync({
+            fileName: item.file.name,
+            fileType: item.file.type,
+            base64Data: item.preview,
+          });
+          fileUrls.push(uploadedFile);
+        }
+      }
 
       await createOrderMutation.mutateAsync({
         productType: formData.productType as "merchandise" | "packaging" | "manufacturing" | "logistics",

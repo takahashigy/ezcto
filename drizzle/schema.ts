@@ -154,3 +154,26 @@ export const subscriptions = mysqlTable("subscriptions", {
 
 export type InsertSubscription = typeof subscriptions.$inferInsert;
 export type SelectSubscription = typeof subscriptions.$inferSelect;
+
+/**
+ * Custom manufacturing orders from Supply Chain page
+ */
+export const customOrders = mysqlTable("customOrders", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  productType: mysqlEnum("productType", ["merchandise", "packaging", "manufacturing", "logistics"]).notNull(),
+  quantity: int("quantity").notNull(),
+  budget: mysqlEnum("budget", ["small", "medium", "large", "enterprise"]).notNull(),
+  description: text("description").notNull(),
+  contactName: varchar("contactName", { length: 255 }).notNull(),
+  contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
+  contactPhone: varchar("contactPhone", { length: 50 }),
+  fileUrls: json("fileUrls").$type<Array<{ url: string; key: string; name: string }>>(),
+  status: mysqlEnum("status", ["pending", "reviewing", "quoted", "in_production", "completed", "cancelled"]).default("pending").notNull(),
+  metadata: json("metadata").$type<Record<string, unknown>>(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CustomOrder = typeof customOrders.$inferSelect;
+export type InsertCustomOrder = typeof customOrders.$inferInsert;

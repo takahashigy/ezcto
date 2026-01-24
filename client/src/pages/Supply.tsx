@@ -192,7 +192,7 @@ export default function Supply() {
             {t('supply.page.ctaSubtitle')}
           </p>
           {isAuthenticated ? (
-            <Link href="/launch">
+            <Link href="/custom-order">
               <Button size="lg" className="font-mono text-lg px-8 py-6 bg-primary text-black hover:bg-primary/80 shadow-[0_0_30px_rgba(0,255,65,0.3)]">
                 {t('supply.page.ctaButton')}
                 <ArrowRight className="ml-2 h-5 w-5" />

@@ -411,6 +411,56 @@ export const appRouter = router({
         return { url: session.url };
       }),
   }),
+
+  // Custom Orders
+  customOrder: router({
+    create: protectedProcedure
+      .input(z.object({
+        productType: z.enum(["merchandise", "packaging", "manufacturing", "logistics"]),
+        quantity: z.number().min(100),
+        budget: z.enum(["small", "medium", "large", "enterprise"]),
+        description: z.string().min(10),
+        contactName: z.string().min(1),
+        contactEmail: z.string().email(),
+        contactPhone: z.string().optional(),
+        fileUrls: z.array(z.object({
+          url: z.string(),
+          key: z.string(),
+          name: z.string(),
+        })).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const orderId = await db.createCustomOrder({
+          userId: ctx.user.id,
+          ...input,
+        });
+
+        // TODO: Send notification to admin about new custom order
+        // await notifyOwner({
+        //   title: "New Custom Order",
+        //   content: `User ${ctx.user.name} submitted a custom order for ${input.productType}`,
+        // });
+
+        return { orderId };
+      }),
+
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getCustomOrdersByUserId(ctx.user.id);
+    }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const order = await db.getCustomOrderById(input.id);
+        if (!order) {
+          throw new Error("Order not found");
+        }
+        if (order.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+        return order;
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

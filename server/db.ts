@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory } from "../drizzle/schema";
+import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, customOrders, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory, InsertCustomOrder } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -324,4 +324,42 @@ export async function getGenerationHistoryById(id: number) {
 
   const result = await db.select().from(generationHistory).where(eq(generationHistory.id, id));
   return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ Custom Orders Management ============
+
+export async function createCustomOrder(order: InsertCustomOrder) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(customOrders).values(order);
+  const inserted = await db.select().from(customOrders)
+    .where(eq(customOrders.userId, order.userId))
+    .orderBy(desc(customOrders.createdAt))
+    .limit(1);
+  return inserted[0]?.id || 0;
+}
+
+export async function getCustomOrdersByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(customOrders)
+    .where(eq(customOrders.userId, userId))
+    .orderBy(desc(customOrders.createdAt));
+}
+
+export async function getCustomOrderById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(customOrders).where(eq(customOrders.id, id));
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateCustomOrderStatus(id: number, status: "pending" | "reviewing" | "quoted" | "in_production" | "completed" | "cancelled") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(customOrders).set({ status }).where(eq(customOrders.id, id));
 }

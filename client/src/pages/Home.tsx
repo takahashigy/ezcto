@@ -384,32 +384,32 @@ export default function Home() {
                   <TrendingUp className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">社交分发网络 (SDN)</h3>
-                  <span className="coming-soon-badge">Coming Soon</span>
+                  <h3 className="text-2xl font-bold mb-2">{t('modules.sdn.title')}</h3>
+                  <span className="coming-soon-badge">{t('modules.sdn.tag')}</span>
                 </div>
               </div>
               
               <p className="text-muted-foreground mb-6">
-                打破增长上限的"核武器"。AI视频矩阵自动将项目素材转化为病毒式短视频，系统化分发至TikTok等Web2平台，实现数据驱动的指数级增长。
+                {t('modules.sdn.description')}
               </p>
               
               <div className="space-y-2 mb-6">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>AI视频矩阵自动生成</span>
+                  <span>{t('modules.sdn.features.ai')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>多平台智能分发</span>
+                  <span>{t('modules.sdn.features.tiktok')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>数据反馈闭环优化</span>
+                  <span>{t('modules.sdn.features.data')}</span>
                 </div>
               </div>
               
               <Button className="w-full font-mono" variant="outline" disabled>
-                Coming Q2 2026
+                {t('modules.sdn.comingSoon')}
               </Button>
             </div>
 
@@ -420,32 +420,32 @@ export default function Home() {
                   <Sparkles className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">炼丹计划</h3>
-                  <span className="coming-soon-badge">Coming Soon</span>
+                  <h3 className="text-2xl font-bold mb-2">{t('modules.alchemy.title')}</h3>
+                  <span className="coming-soon-badge">{t('modules.alchemy.tag')}</span>
                 </div>
               </div>
               
               <p className="text-muted-foreground mb-6">
-                基于Stable Diffusion训练专属于Meme图片生成的大模型。深度学习成功案例，精准捕捉Meme美学，生成更具传播力和社区共鸣的视觉资产。
+                {t('modules.alchemy.description')}
               </p>
               
               <div className="space-y-2 mb-6">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>专属大模型训练</span>
+                  <span>{t('modules.alchemy.features.sd')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>深度学习Meme美学</span>
+                  <span>{t('modules.alchemy.features.meme')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>更高质量的生成结果</span>
+                  <span>{t('modules.alchemy.features.quality')}</span>
                 </div>
               </div>
               
               <Button className="w-full font-mono" variant="outline" disabled>
-                Coming Q4 2026
+                {t('modules.alchemy.comingSoon')}
               </Button>
             </div>
 
@@ -456,32 +456,32 @@ export default function Home() {
                   <Wand2 className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Lora炼制工坊</h3>
-                  <span className="coming-soon-badge">Coming Soon</span>
+                  <h3 className="text-2xl font-bold mb-2">{t('modules.lora.title')}</h3>
+                  <span className="coming-soon-badge">{t('modules.lora.tag')}</span>
                 </div>
               </div>
               
               <p className="text-muted-foreground mb-6">
-                为优秀的Meme角色提供专属Lora模型训练服务。基于项目的视觉资产，炼制出风格一致、可无限扩展的专属角色模型，让IP生命力更长久。
+                {t('modules.lora.description')}
               </p>
               
               <div className="space-y-2 mb-6">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>专属Lora模型训练</span>
+                  <span>{t('modules.lora.features.exclusive')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>风格一致性保证</span>
+                  <span>{t('modules.lora.features.consistency')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>无限扩展视觉资产</span>
+                  <span>{t('modules.lora.features.lifecycle')}</span>
                 </div>
               </div>
               
               <Button className="w-full font-mono" variant="outline" disabled>
-                Coming Soon
+                {t('modules.lora.comingSoon')}
               </Button>
             </div>
           </div>

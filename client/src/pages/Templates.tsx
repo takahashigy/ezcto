@@ -94,9 +94,19 @@ export default function Templates() {
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 scanline opacity-10" />
         <div className="container mx-auto px-4 text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-mono font-bold mb-6 tracking-tight">
-            {t('templates.page.title').split('Meme')[0]}
-            <span className="text-primary">Meme{t('templates.page.title').split('Meme')[1]}</span>
+          <h1 className="text-4xl md:text-6xl font-mono font-bold mb-6 tracking-tight leading-tight">
+            {t('templates.page.title').includes('Meme') ? (
+              <>
+                {t('templates.page.title').split('Meme')[0]}
+                <span className="text-primary">Meme{t('templates.page.title').split('Meme')[1]}</span>
+              </>
+            ) : (
+              <>
+                One-Click Generation
+                <br className="md:hidden" />
+                {' '}<span className="text-primary">Meme Websites</span> that Match Your Narrative
+              </>
+            )}
           </h1>
           <p className="text-xl md:text-2xl font-mono text-gray-700 mb-8 max-w-3xl mx-auto">
             {t('templates.page.subtitle')}

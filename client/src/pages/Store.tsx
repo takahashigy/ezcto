@@ -106,8 +106,21 @@ export default function Store() {
               {t('store.page.tag')}
             </span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-mono font-bold mb-6 tracking-tight">
-            <span className="text-primary">{t('store.page.title').split('=')[0]}</span>=<span className="text-primary">{t('store.page.title').split('=')[1]}</span>
+          <h1 className="text-4xl md:text-6xl font-mono font-bold mb-6 tracking-tight">
+            {t('store.page.title').includes('=') ? (
+              <>
+                <span className="text-primary">{t('store.page.title').split('=')[0].trim()}</span>
+                <span className="mx-2">=</span>
+                <span className="text-primary">{t('store.page.title').split('=')[1].trim()}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-primary">Hot List</span>
+                <span className="mx-2">=</span>
+                <br className="md:hidden" />
+                <span className="text-primary">Value Discovery Standard</span>
+              </>
+            )}
           </h1>
           <p className="text-xl md:text-2xl font-mono text-muted-foreground mb-8 max-w-3xl mx-auto">
             {t('store.page.subtitle')}

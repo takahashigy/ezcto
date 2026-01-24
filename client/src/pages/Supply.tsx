@@ -82,11 +82,21 @@ export default function Supply() {
               {t('supply.page.tag')}
             </span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-mono font-bold mb-6 tracking-tight">
-            {t('supply.page.title').split('数字共识')[0]}
-            <span className="text-primary">{t('supply.page.title').includes('数字共识') ? '数字共识' : 'Digital Consensus'}</span>
-            {t('supply.page.title').split('数字共识')[1]?.split('物理信仰')[0] || t('supply.page.title').split('Digital Consensus')[1]?.split('Physical Faith')[0]}
-            <span className="text-primary">{t('supply.page.title').includes('物理信仰') ? '物理信仰' : 'Physical Faith'}</span>
+          <h1 className="text-4xl md:text-6xl font-mono font-bold mb-6 tracking-tight leading-tight">
+            {t('supply.page.title').includes('数字共识') ? (
+              <>
+                {t('supply.page.title').split('数字共识')[0]}
+                <span className="text-primary">数字共识</span>
+                {t('supply.page.title').split('数字共识')[1]?.split('物理信仰')[0]}
+                <span className="text-primary">物理信仰</span>
+              </>
+            ) : (
+              <>
+                From <span className="text-primary">Digital Consensus</span>
+                <br className="md:hidden" />
+                {' '}to <span className="text-primary">Physical Faith</span>
+              </>
+            )}
           </h1>
           <p className="text-xl md:text-2xl font-mono text-muted-foreground mb-8 max-w-3xl mx-auto">
             {t('supply.page.subtitle')}

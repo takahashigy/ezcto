@@ -469,6 +469,12 @@ export default function Home() {
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />
               </div>
               <p>
+                <span className="text-primary font-bold">炼丹计划</span>持续提升生成质量，降低启动门槛，吸引更多项目方
+              </p>
+              <div className="flex justify-center">
+                <ArrowRight className="w-6 h-6 text-primary rotate-90" />
+              </div>
+              <p>
                 用<span className="text-primary font-bold">社交分发网络</span>筛选并赋能高潜力项目
               </p>
               <div className="flex justify-center">
@@ -481,7 +487,13 @@ export default function Home() {
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />
               </div>
               <p>
-                <span className="text-primary font-bold">官方商城</span>的"热销榜"成为新的价值发现标准
+                <span className="text-primary font-bold">Lora炼制工坊</span>为热门IP打造专属模型，延长生命周期，增强社区粘性
+              </p>
+              <div className="flex justify-center">
+                <ArrowRight className="w-6 h-6 text-primary rotate-90" />
+              </div>
+              <p>
+                <span className="text-primary font-bold">官方商城</span>的“热销榜”成为新的价值发现标准
               </p>
               <div className="flex justify-center">
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />

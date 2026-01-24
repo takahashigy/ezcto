@@ -394,6 +394,41 @@ const translations = {
         cancel: 'Cancel',
       },
     },
+    dashboard: {
+      page: {
+        title: 'Project Dashboard',
+        systemOnline: 'SYSTEM ONLINE',
+        newProject: 'New Project',
+        generationHistory: 'Generation History',
+        yourProjects: 'Your Projects',
+      },
+      stats: {
+        totalProjects: 'TOTAL PROJECTS',
+        completed: 'COMPLETED',
+        inProgress: 'IN PROGRESS',
+      },
+      empty: {
+        title: 'No Projects Yet',
+        description: 'Start your first Meme project with our automated Launch Engine',
+        button: 'Create Your First Project',
+      },
+      project: {
+        noDescription: 'No description',
+        ticker: 'Ticker',
+        created: 'Created',
+        viewDetails: 'View Details',
+        delete: 'Delete',
+        confirmDelete: 'Are you sure you want to delete this project?',
+        deleteSuccess: 'Project deleted successfully',
+        deleteError: 'Failed to delete project',
+      },
+      status: {
+        completed: 'COMPLETED',
+        generating: 'GENERATING',
+        failed: 'FAILED',
+        pending: 'PENDING',
+      },
+    },
   },
   zh: {
     nav: {
@@ -752,6 +787,41 @@ const translations = {
         generatingAssets: '生成资产中...',
         launchProject: '启动项目',
         cancel: '取消',
+      },
+    },
+    dashboard: {
+      page: {
+        title: '项目仪表板',
+        systemOnline: '系统在线',
+        newProject: '新建项目',
+        generationHistory: '生成历史',
+        yourProjects: '你的项目',
+      },
+      stats: {
+        totalProjects: '总项目数',
+        completed: '已完成',
+        inProgress: '进行中',
+      },
+      empty: {
+        title: '还没有项目',
+        description: '使用我们的Launch自动化引擎启动你的第一个Meme项目',
+        button: '创建第一个项目',
+      },
+      project: {
+        noDescription: '无描述',
+        ticker: 'Ticker',
+        created: '创建时间',
+        viewDetails: '查看详情',
+        delete: '删除',
+        confirmDelete: '确定要删除这个项目吗？',
+        deleteSuccess: '项目删除成功',
+        deleteError: '删除项目失败',
+      },
+      status: {
+        completed: '已完成',
+        generating: '生成中',
+        failed: '失败',
+        pending: '等待中',
       },
     },
   },

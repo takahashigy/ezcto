@@ -100,16 +100,16 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Project Dashboard</h1>
+              <h1 className="text-4xl font-bold mb-2">{t('dashboard.page.title')}</h1>
               <p className="text-muted-foreground font-mono">
                 <span className="status-indicator active mr-2"></span>
-                SYSTEM ONLINE
+                {t('dashboard.page.systemOnline')}
               </p>
             </div>
             <Link href="/launch">
               <Button size="lg" className="font-mono retro-border">
                 <Plus className="mr-2 h-5 w-5" />
-                New Project
+                {t('dashboard.page.newProject')}
               </Button>
             </Link>
           </div>
@@ -119,7 +119,7 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <Card className="module-card">
             <CardHeader>
-              <CardTitle className="text-sm font-mono text-muted-foreground">TOTAL PROJECTS</CardTitle>
+              <CardTitle className="text-sm font-mono text-muted-foreground">{t('dashboard.stats.totalProjects')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-primary">{projects?.length || 0}</div>
@@ -128,7 +128,7 @@ export default function Dashboard() {
 
           <Card className="module-card">
             <CardHeader>
-              <CardTitle className="text-sm font-mono text-muted-foreground">COMPLETED</CardTitle>
+              <CardTitle className="text-sm font-mono text-muted-foreground">{t('dashboard.stats.completed')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-primary">
@@ -139,7 +139,7 @@ export default function Dashboard() {
 
           <Card className="module-card">
             <CardHeader>
-              <CardTitle className="text-sm font-mono text-muted-foreground">IN PROGRESS</CardTitle>
+              <CardTitle className="text-sm font-mono text-muted-foreground">{t('dashboard.stats.inProgress')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-primary">
@@ -152,7 +152,7 @@ export default function Dashboard() {
         {/* Generation History */}
         <div className="space-y-6 mb-12">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Generation History</h2>
+            <h2 className="text-2xl font-bold">{t('dashboard.page.generationHistory')}</h2>
           </div>
           <GenerationHistorySection />
         </div>
@@ -160,21 +160,21 @@ export default function Dashboard() {
         {/* Projects List */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Your Projects</h2>
+            <h2 className="text-2xl font-bold">{t('dashboard.page.yourProjects')}</h2>
           </div>
 
           {!projects || projects.length === 0 ? (
             <Card className="module-card text-center py-12">
               <CardContent>
                 <Rocket className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">No Projects Yet</h3>
+                <h3 className="text-xl font-bold mb-2">{t('dashboard.empty.title')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Start your first Meme project with our automated Launch Engine
+                  {t('dashboard.empty.description')}
                 </p>
                 <Link href="/launch">
                   <Button size="lg" className="font-mono retro-border">
                     <Plus className="mr-2 h-5 w-5" />
-                    Create Your First Project
+                    {t('dashboard.empty.button')}
                   </Button>
                 </Link>
               </CardContent>
@@ -188,7 +188,7 @@ export default function Dashboard() {
                       <div>
                         <CardTitle className="text-2xl mb-2">{project.name}</CardTitle>
                         <CardDescription className="text-base">
-                          {project.description || 'No description'}
+                          {project.description || t('dashboard.project.noDescription')}
                         </CardDescription>
                       </div>
                       <div className={`px-3 py-1 text-xs font-mono font-bold border-2 ${
@@ -204,11 +204,11 @@ export default function Dashboard() {
                   <CardContent>
                     <div className="grid md:grid-cols-2 gap-4 mb-6">
                       <div>
-                        <div className="text-sm text-muted-foreground mb-1">Ticker</div>
+                        <div className="text-sm text-muted-foreground mb-1">{t('dashboard.project.ticker')}</div>
                         <div className="font-mono font-bold">{project.ticker || 'N/A'}</div>
                       </div>
                       <div>
-                        <div className="text-sm text-muted-foreground mb-1">Created</div>
+                        <div className="text-sm text-muted-foreground mb-1">{t('dashboard.project.created')}</div>
                         <div className="font-mono">{new Date(project.createdAt).toLocaleDateString()}</div>
                       </div>
                     </div>
@@ -217,7 +217,7 @@ export default function Dashboard() {
                       <Link href={`/project/${project.id}`}>
                         <Button className="font-mono retro-border">
                           <FileText className="mr-2 h-4 w-4" />
-                          View Details
+                          {t('dashboard.project.viewDetails')}
                         </Button>
                       </Link>
                       {project.status === 'completed' && (

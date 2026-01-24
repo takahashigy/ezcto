@@ -165,15 +165,15 @@ export default function Launch() {
           <div className="inline-flex items-center gap-2 px-4 py-2 border-2 border-primary bg-primary/10 mb-6">
             <Sparkles className="w-5 h-5 text-primary" />
             <span className="text-sm font-mono font-bold uppercase tracking-wider">
-              Launch Automation Engine
+              {t('launch.page.tag')}
             </span>
           </div>
           
           <h1 className="text-5xl font-bold mb-4">
-            Create Your Meme Project
+            {t('launch.page.title')}
           </h1>
           <p className="text-xl text-muted-foreground">
-            10分钟内生成专业级品牌资产：Logo、Banner、PFP、海报、网站、文案
+            {t('launch.page.subtitle')}
           </p>
         </div>
 
@@ -208,9 +208,9 @@ export default function Launch() {
         {/* Launch Form */}
         <Card className="module-card">
           <CardHeader>
-            <CardTitle className="text-2xl">Project Information</CardTitle>
+            <CardTitle className="text-2xl">{t('launch.page.formTitle')}</CardTitle>
             <CardDescription>
-              Fill in your project details to start the automated generation process
+              {t('launch.page.formDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -218,43 +218,43 @@ export default function Launch() {
               {/* Project Name */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-base font-bold">
-                  Project Name <span className="text-destructive">*</span>
+                  {t('launch.form.projectName')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
-                  placeholder="e.g., DogeKing, PepeRevolution"
+                  placeholder={t('launch.form.projectNamePlaceholder')}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="text-lg font-mono retro-border"
                   required
                 />
                 <p className="text-sm text-muted-foreground">
-                  The name of your Meme project
+                  {t('launch.form.projectNameHelp')}
                 </p>
               </div>
 
               {/* Ticker */}
               <div className="space-y-2">
                 <Label htmlFor="ticker" className="text-base font-bold">
-                  Ticker Symbol
+                  {t('launch.form.ticker')}
                 </Label>
                 <Input
                   id="ticker"
-                  placeholder="e.g., DOGE, PEPE"
+                  placeholder={t('launch.form.tickerPlaceholder')}
                   value={formData.ticker}
                   onChange={(e) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
                   className="text-lg font-mono retro-border"
                   maxLength={10}
                 />
                 <p className="text-sm text-muted-foreground">
-                  Token ticker symbol (optional)
+                  {t('launch.form.tickerHelp')}
                 </p>
               </div>
 
               {/* Character Image Upload */}
               <div className="space-y-2">
                 <Label htmlFor="characterImage" className="text-base font-bold">
-                  Upload Meme Character Images <span className="text-destructive">*</span>
+                  {t('launch.form.uploadImages')} <span className="text-destructive">*</span>
                 </Label>
                 <div className="space-y-4">
                   {/* Upload Button */}
@@ -262,10 +262,10 @@ export default function Launch() {
                     <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
                          onClick={() => document.getElementById('characterImage')?.click()}>
                       <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-sm font-mono mb-2">Click to upload or drag and drop</p>
-                      <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (Max 10MB per image)</p>
+                      <p className="text-sm font-mono mb-2">{t('launch.form.uploadPrompt')}</p>
+                      <p className="text-xs text-muted-foreground">{t('launch.form.uploadFormat')}</p>
                       <p className="text-xs text-primary mt-2">
-                        {uploadedImages.length}/{MAX_IMAGES} images uploaded
+                        {uploadedImages.length}/{MAX_IMAGES} {t('launch.form.uploadCount')}
                       </p>
                       <Input
                         id="characterImage"
@@ -276,7 +276,7 @@ export default function Launch() {
                           const file = e.target.files?.[0];
                           if (file) {
                             if (file.size > 10 * 1024 * 1024) {
-                              toast.error("Image size must be less than 10MB");
+                              toast.error(t('launch.form.imageSizeError'));
                               return;
                             }
                             if (uploadedImages.length >= MAX_IMAGES) {
@@ -322,7 +322,7 @@ export default function Launch() {
                           </p>
                           {index === 0 && (
                             <span className="absolute top-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">
-                              Primary
+                              {t('launch.form.primary')}
                             </span>
                           )}
                         </div>
@@ -339,98 +339,98 @@ export default function Launch() {
                     className="w-4 h-4 rounded border-border"
                   />
                   <label htmlFor="removeBackground" className="text-sm text-muted-foreground cursor-pointer">
-                    Automatically remove background (recommended for better results)
+                    {t('launch.form.removeBackground')}
                   </label>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Upload your Meme character/IP image. AI will use this to generate all visual assets (Logo, Banner, PFP, etc.) in your chosen style.
+                  {t('launch.form.uploadHelp')}
                 </p>
               </div>
 
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-base font-bold">
-                  Project Description
+                  {t('launch.form.description')}
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Describe your project concept, target audience, and unique value proposition..."
+                  placeholder={t('launch.form.descriptionPlaceholder')}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="min-h-32 text-base font-mono retro-border"
                 />
                 <p className="text-sm text-muted-foreground">
-                  The more details you provide, the better the AI can generate your assets
+                  {t('launch.form.descriptionHelp')}
                 </p>
               </div>
 
               {/* Style Template */}
               <div className="space-y-2">
                 <Label htmlFor="styleTemplate" className="text-base font-bold">
-                  Visual Style Template
+                  {t('launch.form.styleTemplate')}
                 </Label>
                 <Select
                   value={formData.styleTemplate}
                   onValueChange={(value) => setFormData({ ...formData, styleTemplate: value })}
                 >
                   <SelectTrigger className="text-lg font-mono retro-border">
-                    <SelectValue placeholder="Select a style template" />
+                    <SelectValue placeholder={t('launch.form.styleTemplatePlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="retro_gaming">
                       <div className="flex flex-col">
-                        <span className="font-bold">Retro Gaming</span>
-                        <span className="text-xs text-muted-foreground">8-bit pixel art, neon colors, arcade vibes</span>
+                        <span className="font-bold">{t('launch.styles.retroGaming.name')}</span>
+                        <span className="text-xs text-muted-foreground">{t('launch.styles.retroGaming.description')}</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="cyberpunk">
                       <div className="flex flex-col">
-                        <span className="font-bold">Cyberpunk</span>
-                        <span className="text-xs text-muted-foreground">Red & black, futuristic tech, neon aesthetics</span>
+                        <span className="font-bold">{t('launch.styles.cyberpunk.name')}</span>
+                        <span className="text-xs text-muted-foreground">{t('launch.styles.cyberpunk.description')}</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="minimalist">
                       <div className="flex flex-col">
-                        <span className="font-bold">Minimalist</span>
-                        <span className="text-xs text-muted-foreground">Clean lines, monochrome, modern simplicity</span>
+                        <span className="font-bold">{t('launch.styles.minimalist.name')}</span>
+                        <span className="text-xs text-muted-foreground">{t('launch.styles.minimalist.description')}</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="internet_meme">
                       <div className="flex flex-col">
-                        <span className="font-bold">Internet Meme</span>
-                        <span className="text-xs text-muted-foreground">Hand-drawn style, cartoon characters, playful</span>
+                        <span className="font-bold">{t('launch.styles.internetMeme.name')}</span>
+                        <span className="text-xs text-muted-foreground">{t('launch.styles.internetMeme.description')}</span>
                       </div>
                     </SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-sm text-muted-foreground">
-                  Choose a visual style for your brand assets (affects logo, website, and all visual elements)
+                  {t('launch.form.styleTemplateHelp')}
                 </p>
               </div>
 
               {/* What You'll Get */}
               <Card className="bg-primary/5 border-primary">
                 <CardHeader>
-                  <CardTitle className="text-lg">What You'll Get</CardTitle>
+                  <CardTitle className="text-lg">{t('launch.page.whatYouGetTitle')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <h4 className="font-bold mb-2 text-primary">Visual Assets</h4>
+                      <h4 className="font-bold mb-2 text-primary">{t('launch.page.visualAssets')}</h4>
                       <ul className="space-y-1 text-sm">
-                        <li>• Logo (PNG, SVG)</li>
-                        <li>• Banner (Twitter/X)</li>
-                        <li>• Profile Picture (PFP)</li>
-                        <li>• Promotional Poster</li>
+                        <li>• {t('launch.assets.logo')}</li>
+                        <li>• {t('launch.assets.banner')}</li>
+                        <li>• {t('launch.assets.pfp')}</li>
+                        <li>• {t('launch.assets.poster')}</li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-bold mb-2 text-primary">Content Assets</h4>
+                      <h4 className="font-bold mb-2 text-primary">{t('launch.page.contentAssets')}</h4>
                       <ul className="space-y-1 text-sm">
-                        <li>• Project Narrative</li>
-                        <li>• Whitepaper Draft</li>
-                        <li>• Launch Tweets (5x)</li>
-                        <li>• Landing Page HTML</li>
+                        <li>• {t('launch.assets.narrative')}</li>
+                        <li>• {t('launch.assets.whitepaper')}</li>
+                        <li>• {t('launch.assets.tweets')}</li>
+                        <li>• {t('launch.assets.landingPage')}</li>
                       </ul>
                     </div>
                   </div>
@@ -448,17 +448,17 @@ export default function Launch() {
                 {isUploading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Uploading Image...
+                    {t('launch.buttons.uploadingImage')}
                   </>
                 ) : isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Generating Assets...
+                    {t('launch.buttons.generatingAssets')}
                   </>
                 ) : (
                   <>
                     <Rocket className="mr-2 h-5 w-5" />
-                    Launch Project
+                    {t('launch.buttons.launchProject')}
                   </>
                 )}
               </Button>
@@ -470,13 +470,13 @@ export default function Launch() {
                     className="font-mono text-lg"
                     disabled={isGenerating}
                   >
-                    Cancel
+                    {t('launch.buttons.cancel')}
                   </Button>
                 </Link>
               </div>
 
               <p className="text-sm text-muted-foreground text-center">
-                Generation typically takes 5-10 minutes. You'll be notified when complete.
+                {t('launch.page.generationTime')}
               </p>
             </form>
           </CardContent>

@@ -4,42 +4,37 @@ import { Card } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
 import { Package, Truck, Factory, ShoppingBag, CheckCircle, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function Supply() {
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   const services = [
     {
       icon: Factory,
-      title: "定制生产",
-      description: "连接全球优质工厂，支持小批量定制生产",
-      features: ["MOQ低至50件", "7-15天交付", "质量保证"]
+      key: "production"
     },
     {
       icon: Package,
-      title: "包装设计",
-      description: "专业包装设计团队，打造独特品牌体验",
-      features: ["3D效果图", "环保材料", "品牌定制"]
+      key: "packaging"
     },
     {
       icon: Truck,
-      title: "物流配送",
-      description: "全球物流网络，快速可靠的配送服务",
-      features: ["全球配送", "实时追踪", "保险保障"]
+      key: "logistics"
     },
     {
       icon: ShoppingBag,
-      title: "库存管理",
-      description: "智能库存系统，优化成本降低风险",
-      features: ["零库存风险", "按需生产", "数据分析"]
+      key: "inventory"
     }
   ];
 
   const partners = [
-    { name: "优质工厂A", category: "毛绒玩具", capacity: "月产10万件" },
-    { name: "优质工厂B", category: "服装印花", capacity: "月产5万件" },
-    { name: "优质工厂C", category: "周边配件", capacity: "月产20万件" },
-    { name: "优质工厂D", category: "包装印刷", capacity: "月产50万件" }
+    { key: "factoryA" },
+    { key: "factoryB" },
+    { key: "factoryC" },
+    { key: "factoryD" }
   ];
 
   return (
@@ -52,27 +47,28 @@ export default function Supply() {
           </Link>
           <nav className="flex items-center gap-6">
             <Link href="/" className="text-sm font-mono hover:text-primary transition-colors">
-              首页
+              {t('nav.home')}
             </Link>
             <Link href="/templates" className="text-sm font-mono hover:text-primary transition-colors">
-              Templates
+              {t('nav.templates')}
             </Link>
             <Link href="/store" className="text-sm font-mono hover:text-primary transition-colors">
-              EZSTORE
+              {t('nav.store')}
             </Link>
             {isAuthenticated ? (
               <Link href="/dashboard">
                 <Button variant="outline" className="font-mono border-2 border-primary text-primary hover:bg-primary hover:text-black">
-                  Dashboard
+                  {t('nav.dashboard')}
                 </Button>
               </Link>
             ) : (
               <a href={getLoginUrl()}>
                 <Button variant="outline" className="font-mono border-2 border-primary text-primary hover:bg-primary hover:text-black">
-                  登录
+                  {t('nav.login')}
                 </Button>
               </a>
             )}
+            <LanguageSwitcher />
           </nav>
         </div>
       </header>
@@ -83,29 +79,32 @@ export default function Supply() {
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="inline-block px-4 py-2 border-2 border-primary bg-primary/10 mb-6">
             <span className="text-sm font-mono font-bold uppercase tracking-wider">
-              IP实体化供应链
+              {t('supply.page.tag')}
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-mono font-bold mb-6 tracking-tight">
-            从<span className="text-primary">数字共识</span>到<span className="text-primary">物理信仰</span>
+            {t('supply.page.title').split('数字共识')[0]}
+            <span className="text-primary">{t('supply.page.title').includes('数字共识') ? '数字共识' : 'Digital Consensus'}</span>
+            {t('supply.page.title').split('数字共识')[1]?.split('物理信仰')[0] || t('supply.page.title').split('Digital Consensus')[1]?.split('Physical Faith')[0]}
+            <span className="text-primary">{t('supply.page.title').includes('物理信仰') ? '物理信仰' : 'Physical Faith'}</span>
           </h1>
           <p className="text-xl md:text-2xl font-mono text-muted-foreground mb-8 max-w-3xl mx-auto">
-            连接全球优质供应链，将你的Meme IP转化为实体商品
+            {t('supply.page.subtitle')}
             <br />
-            小批量定制 · 快速交付 · 零库存风险
+            {t('supply.page.subtitleLine2')}
           </p>
           <div className="flex items-center justify-center gap-4">
             {isAuthenticated ? (
               <Link href="/launch">
                 <Button size="lg" className="font-mono text-lg px-8 py-6 bg-primary text-black hover:bg-primary/80">
-                  开始定制
+                  {t('supply.page.startButton')}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             ) : (
               <a href={getLoginUrl()}>
                 <Button size="lg" className="font-mono text-lg px-8 py-6 bg-primary text-black hover:bg-primary/80">
-                  开始定制
+                  {t('supply.page.startButton')}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </a>
@@ -118,8 +117,8 @@ export default function Supply() {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">一站式供应链服务</h2>
-            <p className="text-xl text-muted-foreground font-mono">从设计到交付，全程无忧</p>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">{t('supply.page.servicesTitle')}</h2>
+            <p className="text-xl text-muted-foreground font-mono">{t('supply.page.servicesSubtitle')}</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -129,16 +128,22 @@ export default function Supply() {
                   <div className="p-3 bg-primary/10 rounded-lg">
                     <service.icon className="w-8 h-8 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-bold">{service.title}</h3>
+                  <h3 className="text-2xl font-bold">{t(`supply.services.${service.key}.title`)}</h3>
                 </div>
-                <p className="text-muted-foreground mb-4 font-mono text-sm">{service.description}</p>
+                <p className="text-muted-foreground mb-4 font-mono text-sm">{t(`supply.services.${service.key}.description`)}</p>
                 <ul className="space-y-2">
-                  {service.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-sm font-mono">
-                      <CheckCircle className="w-4 h-4 text-primary" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
+                  <li className="flex items-center gap-2 text-sm font-mono">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <span>{t(`supply.services.${service.key}.feature1`)}</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm font-mono">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <span>{t(`supply.services.${service.key}.feature2`)}</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm font-mono">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <span>{t(`supply.services.${service.key}.feature3`)}</span>
+                  </li>
                 </ul>
               </Card>
             ))}
@@ -150,8 +155,8 @@ export default function Supply() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">合作工厂网络</h2>
-            <p className="text-xl text-muted-foreground font-mono">严选全球优质制造商</p>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">{t('supply.page.partnersTitle')}</h2>
+            <p className="text-xl text-muted-foreground font-mono">{t('supply.page.partnersSubtitle')}</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -160,9 +165,9 @@ export default function Supply() {
                 <div className="w-16 h-16 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <Factory className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">{partner.name}</h3>
-                <p className="text-sm text-muted-foreground mb-1 font-mono">{partner.category}</p>
-                <p className="text-xs text-primary font-mono font-bold">{partner.capacity}</p>
+                <h3 className="text-xl font-bold mb-2">{t(`supply.partners.${partner.key}.name`)}</h3>
+                <p className="text-sm text-muted-foreground mb-1 font-mono">{t(`supply.partners.${partner.key}.category`)}</p>
+                <p className="text-xs text-primary font-mono font-bold">{t(`supply.partners.${partner.key}.capacity`)}</p>
               </Card>
             ))}
           </div>
@@ -172,21 +177,21 @@ export default function Supply() {
       {/* CTA Section */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">准备好将你的IP实体化了吗？</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">{t('supply.page.ctaTitle')}</h2>
           <p className="text-xl text-muted-foreground mb-8 font-mono">
-            立即开始，让你的Meme从屏幕走向现实
+            {t('supply.page.ctaSubtitle')}
           </p>
           {isAuthenticated ? (
             <Link href="/launch">
               <Button size="lg" className="font-mono text-lg px-8 py-6 bg-primary text-black hover:bg-primary/80 shadow-[0_0_30px_rgba(0,255,65,0.3)]">
-                立即开始定制
+                {t('supply.page.ctaButton')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
           ) : (
             <a href={getLoginUrl()}>
               <Button size="lg" className="font-mono text-lg px-8 py-6 bg-primary text-black hover:bg-primary/80 shadow-[0_0_30px_rgba(0,255,65,0.3)]">
-                立即开始定制
+                {t('supply.page.ctaButton')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </a>
@@ -198,7 +203,7 @@ export default function Supply() {
       <footer className="py-8 border-t-2 border-primary/30">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm font-mono text-muted-foreground">
-            © 2026 EZCTO. Powered by Manus.
+            © 2026 EZCTO. Powered by AI · Built for Meme Economy
           </p>
         </div>
       </footer>

@@ -236,3 +236,17 @@
 - [x] 前端实现SSE监听和进度显示UI
 - [x] 测试所有功能的完整流程
 - [x] 编写vitest测试
+
+## AI生成逻辑优化和生成历史记录
+- [x] 优化AI生成逻辑：多图综合生成（第一张生成Logo，第二张生成Banner等）
+- [x] 更新launch.ts支持多图分配策略
+- [x] 设计生成历史记录数据结构（generation_history表）
+- [x] 创建数据库migration添加generation_history表
+- [x] 实现生成历史记录的CRUD操作
+- [x] 在launch.ts中记录每次生成的开始时间、结束时间、耗时
+- [x] 在Dashboard添加Generation History区域UI
+- [x] 实现历史记录列表展示（时间、项目名、状态、耗时）
+- [ ] 添加历史记录详情查看功能
+- [ ] 添加历史记录对比功能
+- [x] 测试完整流程
+- [x] 编写vitest测试

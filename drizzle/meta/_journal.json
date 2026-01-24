@@ -36,6 +36,13 @@
       "when": 1769213634759,
       "tag": "0004_bitter_proteus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1769215380906,
+      "tag": "0005_giant_tomorrow_man",
+      "breakpoints": true
     }
   ]
 }

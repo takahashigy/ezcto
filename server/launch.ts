@@ -23,7 +23,8 @@ export interface LaunchInput {
   description?: string;
   ticker?: string;
   styleTemplate?: string;
-  userImageUrl?: string;
+  userImageUrl?: string; // Primary image (for backward compatibility)
+  userImages?: Array<{ url: string; key: string }>; // Multiple reference images
 }
 
 export interface LaunchOutput {
@@ -43,7 +44,17 @@ export interface LaunchOutput {
 }
 
 /**
- * 生成Logo（基于用户上传的图片）
+ * 获取指定索引的用户图片，如果不存在则返回第一张
+ */
+function getUserImage(input: LaunchInput, index: number): string | undefined {
+  if (input.userImages && input.userImages.length > index) {
+    return input.userImages[index].url;
+  }
+  return input.userImageUrl; // Fallback to primary image
+}
+
+/**
+ * 生成Logo（使用第一张图片）
  */
 async function generateLogo(input: LaunchInput): Promise<string> {
   const prompt = getLogoPrompt(
@@ -53,25 +64,24 @@ async function generateLogo(input: LaunchInput): Promise<string> {
     input.description
   );
 
-  // 如果用户上传了图片，使用图片编辑功能进行二创
-  if (input.userImageUrl) {
+  const imageUrl = getUserImage(input, 0);
+  if (imageUrl) {
     const result = await generateImage({
       prompt,
       originalImages: [{
-        url: input.userImageUrl,
+        url: imageUrl,
         mimeType: "image/png",
       }],
     });
     return result.url || "";
   }
 
-  // 如果没有上传图片，直接文生图
   const result = await generateImage({ prompt });
   return result.url || "";
 }
 
 /**
- * 生成Banner（基于用户上传的图片）
+ * 生成Banner（使用第二张图片，如果没有则使用第一张）
  */
 async function generateBanner(input: LaunchInput): Promise<string> {
   const prompt = getBannerPrompt(
@@ -81,11 +91,13 @@ async function generateBanner(input: LaunchInput): Promise<string> {
     input.description
   );
 
-  if (input.userImageUrl) {
+  // 优先使用第二张图片，如果没有则fallback到第一张
+  const imageUrl = getUserImage(input, 1);
+  if (imageUrl) {
     const result = await generateImage({
       prompt,
       originalImages: [{
-        url: input.userImageUrl,
+        url: imageUrl,
         mimeType: "image/png",
       }],
     });
@@ -97,7 +109,7 @@ async function generateBanner(input: LaunchInput): Promise<string> {
 }
 
 /**
- * 生成PFP (Profile Picture)（基于用户上传的图片）
+ * 生成PFP (Profile Picture)（使用第三张图片，如果没有则使用第一张）
  */
 async function generatePFP(input: LaunchInput): Promise<string> {
   const prompt = getPFPPrompt(
@@ -107,11 +119,13 @@ async function generatePFP(input: LaunchInput): Promise<string> {
     input.description
   );
 
-  if (input.userImageUrl) {
+  // 优先使用第三张图片，如果没有则fallback到第一张
+  const imageUrl = getUserImage(input, 2);
+  if (imageUrl) {
     const result = await generateImage({
       prompt,
       originalImages: [{
-        url: input.userImageUrl,
+        url: imageUrl,
         mimeType: "image/png",
       }],
     });
@@ -404,7 +418,24 @@ Return as JSON.`,
  * 主函数：执行完整的Launch自动化流程
  */
 export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
+  const startTime = Date.now();
+  let historyId: number | undefined;
+  
   try {
+    // 创建生成历史记录
+    const project = await db.getProjectById(input.projectId);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    
+    const history = await db.createGenerationHistory({
+      projectId: input.projectId,
+      userId: project.userId,
+      status: "generating",
+      startTime: new Date(startTime),
+    });
+    historyId = history.id;
+    
     // 更新项目状态为generating
     await db.updateProjectStatus(input.projectId, "generating");
     broadcastProgress(input.projectId, { progress: 0, message: "Starting generation..." });
@@ -483,6 +514,18 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     
     // 更新项目状态为failed
     await db.updateProjectStatus(input.projectId, "failed");
+    
+    // 更新生成历史记录为失败
+    const endTime = Date.now();
+    const durationMs = endTime - startTime;
+    if (historyId) {
+      await db.updateGenerationHistory(historyId, {
+        status: "failed",
+        endTime: new Date(endTime),
+        durationMs,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    }
 
     return {
       projectId: input.projectId,

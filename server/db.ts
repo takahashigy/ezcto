@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, assets, orders, payments, subscriptions, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription } from "../drizzle/schema";
+import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -276,4 +276,52 @@ export async function updateSubscriptionStatus(userId: number, status: "active" 
   if (!db) throw new Error("Database not available");
 
   await db.update(subscriptions).set({ status, updatedAt: new Date() }).where(eq(subscriptions.userId, userId));
+}
+
+// ============ Generation History Management ============
+
+export async function createGenerationHistory(history: InsertGenerationHistory) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(generationHistory).values(history);
+  const inserted = await db.select().from(generationHistory)
+    .where(eq(generationHistory.projectId, history.projectId))
+    .orderBy(desc(generationHistory.createdAt))
+    .limit(1);
+  return inserted[0];
+}
+
+export async function getGenerationHistoryByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(generationHistory)
+    .where(eq(generationHistory.projectId, projectId))
+    .orderBy(desc(generationHistory.createdAt));
+}
+
+export async function getGenerationHistoryByUserId(userId: number, limit: number = 20) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(generationHistory)
+    .where(eq(generationHistory.userId, userId))
+    .orderBy(desc(generationHistory.createdAt))
+    .limit(limit);
+}
+
+export async function updateGenerationHistory(id: number, updates: Partial<InsertGenerationHistory>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(generationHistory).set(updates).where(eq(generationHistory.id, id));
+}
+
+export async function getGenerationHistoryById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(generationHistory).where(eq(generationHistory.id, id));
+  return result.length > 0 ? result[0] : undefined;
 }

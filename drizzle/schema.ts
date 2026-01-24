@@ -112,6 +112,32 @@ export type InsertPayment = typeof payments.$inferInsert;
 /**
  * Subscription plans for PRO features
  */
+export const generationHistory = mysqlTable("generation_history", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  userId: int("userId").notNull(),
+  status: mysqlEnum("status", ["pending", "generating", "completed", "failed"]).default("pending").notNull(),
+  startTime: timestamp("startTime").notNull(),
+  endTime: timestamp("endTime"),
+  durationMs: int("durationMs"), // Duration in milliseconds
+  assetsGenerated: json("assetsGenerated").$type<{
+    logo?: string;
+    banner?: string;
+    pfp?: string;
+    poster?: string;
+    narrative?: boolean;
+    whitepaper?: boolean;
+    tweets?: boolean;
+    website?: boolean;
+  }>(),
+  errorMessage: text("errorMessage"),
+  metadata: json("metadata").$type<Record<string, unknown>>(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type InsertGenerationHistory = typeof generationHistory.$inferInsert;
+export type SelectGenerationHistory = typeof generationHistory.$inferSelect;
+
 export const subscriptions = mysqlTable("subscriptions", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
@@ -126,5 +152,5 @@ export const subscriptions = mysqlTable("subscriptions", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = typeof subscriptions.$inferInsert;
+export type SelectSubscription = typeof subscriptions.$inferSelect;

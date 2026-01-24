@@ -128,12 +128,35 @@ export const appRouter = router({
             ticker: input.ticker,
             styleTemplate: input.styleTemplate,
             userImageUrl: input.userImageUrl,
+            userImages: input.userImages ? JSON.parse(input.userImages) : undefined,
           }).catch(error => {
             console.error("[Launch] Background execution failed:", error);
           });
         }
         
         return { success: true, projectId };
+      }),
+
+    getHistory: protectedProcedure
+      .input(z.object({
+        projectId: z.number().optional(),
+        limit: z.number().optional(),
+      }))
+      .query(async ({ input, ctx }) => {
+        if (input.projectId) {
+          // Get history for specific project
+          const project = await db.getProjectById(input.projectId);
+          if (!project) {
+            throw new Error("Project not found");
+          }
+          if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+            throw new Error("Unauthorized");
+          }
+          return await db.getGenerationHistoryByProjectId(input.projectId);
+        } else {
+          // Get all history for current user
+          return await db.getGenerationHistoryByUserId(ctx.user.id, input.limit || 20);
+        }
       }),
 
     updateStatus: protectedProcedure

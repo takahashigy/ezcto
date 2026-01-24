@@ -6,6 +6,7 @@ import { Link, useLocation } from "wouter";
 import { Rocket, Package, FileText, Download, Loader2, Plus, ArrowLeft, Globe } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { DeploymentPaywall } from "@/components/DeploymentPaywall";
+import { GenerationHistorySection } from "@/components/GenerationHistorySection";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { playSuccessSound } from "@/utils/notificationSound";
@@ -142,6 +143,14 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Generation History */}
+        <div className="space-y-6 mb-12">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Generation History</h2>
+          </div>
+          <GenerationHistorySection />
         </div>
 
         {/* Projects List */}

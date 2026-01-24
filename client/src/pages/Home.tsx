@@ -493,47 +493,47 @@ export default function Home() {
         <div className="container">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
-              正向飞轮生态
+              {t('flywheel.title')}
             </h2>
             <div className="space-y-6 text-lg text-muted-foreground">
               <p>
-                用<span className="text-primary font-bold">自动化引擎</span>作为流量入口，吸引海量项目方
+                {t('flywheel.step1')}
               </p>
               <div className="flex justify-center">
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />
               </div>
               <p>
-                <span className="text-primary font-bold">炼丹计划</span>持续提升生成质量，降低启动门槛，吸引更多项目方
+                {t('flywheel.step2')}
               </p>
               <div className="flex justify-center">
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />
               </div>
               <p>
-                用<span className="text-primary font-bold">社交分发网络</span>筛选并赋能高潜力项目
+                {t('flywheel.step3')}
               </p>
               <div className="flex justify-center">
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />
               </div>
               <p>
-                用<span className="text-primary font-bold">IP实体化供应链</span>帮助其商业变现
+                {t('flywheel.step4')}
               </p>
               <div className="flex justify-center">
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />
               </div>
               <p>
-                <span className="text-primary font-bold">Lora炼制工坊</span>为热门IP打造专属模型，延长生命周期，增强社区粘性
+                {t('flywheel.step5')}
               </p>
               <div className="flex justify-center">
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />
               </div>
               <p>
-                <span className="text-primary font-bold">官方商城</span>的“热销榜”成为新的价值发现标准
+                {t('flywheel.step6')}
               </p>
               <div className="flex justify-center">
                 <ArrowRight className="w-6 h-6 text-primary rotate-90" />
               </div>
               <p className="text-xl font-bold text-foreground">
-                吸引顶级明星流量，实现终极破圈
+                {t('flywheel.step7')}
               </p>
             </div>
           </div>

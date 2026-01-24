@@ -3,6 +3,13 @@ import { invokeLLM } from "./_core/llm";
 import * as db from "./db";
 import fs from "fs/promises";
 import path from "path";
+import {
+  getLogoPrompt,
+  getBannerPrompt,
+  getPFPPrompt,
+  getPosterPrompt,
+  getHeroImagePrompt,
+} from "./stylePrompts";
 
 /**
  * Launch自动化引擎核心逻辑
@@ -15,6 +22,7 @@ export interface LaunchInput {
   description?: string;
   ticker?: string;
   styleTemplate?: string;
+  userImageUrl?: string;
 }
 
 export interface LaunchOutput {
@@ -34,70 +42,106 @@ export interface LaunchOutput {
 }
 
 /**
- * 生成Logo
+ * 生成Logo（基于用户上传的图片）
  */
 async function generateLogo(input: LaunchInput): Promise<string> {
-  const styleDescriptions: Record<string, string> = {
-    retro_gaming: "8-bit pixel art style, neon colors, arcade vibes, retro gaming aesthetic",
-    cyberpunk: "cyberpunk style, red and black colors, futuristic tech, neon aesthetics",
-    minimalist: "minimalist style, clean lines, monochrome, modern simplicity",
-    internet_meme: "hand-drawn cartoon style, playful characters, internet meme culture",
-  };
+  const prompt = getLogoPrompt(
+    input.name,
+    input.ticker,
+    input.styleTemplate,
+    input.description
+  );
 
-  const styleDesc = styleDescriptions[input.styleTemplate || "retro_gaming"] || "modern crypto meme style";
+  // 如果用户上传了图片，使用图片编辑功能进行二创
+  if (input.userImageUrl) {
+    const result = await generateImage({
+      prompt,
+      originalImages: [{
+        url: input.userImageUrl,
+        mimeType: "image/png",
+      }],
+    });
+    return result.url || "";
+  }
 
-  const prompt = `Create a professional logo for a Meme cryptocurrency project named "${input.name}"${input.ticker ? ` ($${input.ticker})` : ""}. 
-Style: ${styleDesc}
-${input.description ? `Project concept: ${input.description}` : ""}
-The logo should be iconic, memorable, and suitable for crypto/meme culture. Clean background, centered composition, square format.`;
-
+  // 如果没有上传图片，直接文生图
   const result = await generateImage({ prompt });
   return result.url || "";
 }
 
 /**
- * 生成Banner
+ * 生成Banner（基于用户上传的图片）
  */
 async function generateBanner(input: LaunchInput): Promise<string> {
-  const styleDescriptions: Record<string, string> = {
-    retro_gaming: "8-bit pixel art style, neon colors, arcade vibes, retro gaming aesthetic",
-    cyberpunk: "cyberpunk style, red and black colors, futuristic tech, neon aesthetics",
-    minimalist: "minimalist style, clean lines, monochrome, modern simplicity",
-    internet_meme: "hand-drawn cartoon style, playful characters, internet meme culture",
-  };
+  const prompt = getBannerPrompt(
+    input.name,
+    input.ticker,
+    input.styleTemplate,
+    input.description
+  );
 
-  const styleDesc = styleDescriptions[input.styleTemplate || "retro_gaming"] || "modern crypto meme style";
-
-  const prompt = `Create a Twitter/X banner image for a Meme cryptocurrency project named "${input.name}"${input.ticker ? ` ($${input.ticker})` : ""}. 
-Style: ${styleDesc}
-${input.description ? `Project concept: ${input.description}` : ""}
-The banner should be eye-catching, professional, and convey the project's energy. Include project name prominently. Wide horizontal format, 1500x500 pixels, suitable for Twitter/X header.`;
+  if (input.userImageUrl) {
+    const result = await generateImage({
+      prompt,
+      originalImages: [{
+        url: input.userImageUrl,
+        mimeType: "image/png",
+      }],
+    });
+    return result.url || "";
+  }
 
   const result = await generateImage({ prompt });
   return result.url || "";
 }
 
 /**
- * 生成PFP (Profile Picture)
+ * 生成PFP (Profile Picture)（基于用户上传的图片）
  */
 async function generatePFP(input: LaunchInput): Promise<string> {
-  const prompt = `Create a profile picture (PFP) avatar for a Meme cryptocurrency project named "${input.name}"${input.ticker ? ` (${input.ticker})` : ""}. 
-Style: ${input.styleTemplate || "pixel_punk"}. 
-${input.description ? `Project concept: ${input.description}` : ""}
-The PFP should be a character or mascot that represents the project. Square format, centered, clean background.`;
+  const prompt = getPFPPrompt(
+    input.name,
+    input.ticker,
+    input.styleTemplate,
+    input.description
+  );
+
+  if (input.userImageUrl) {
+    const result = await generateImage({
+      prompt,
+      originalImages: [{
+        url: input.userImageUrl,
+        mimeType: "image/png",
+      }],
+    });
+    return result.url || "";
+  }
 
   const result = await generateImage({ prompt });
   return result.url || "";
 }
 
 /**
- * 生成Poster
+ * 生成Poster（基于用户上传的图片）
  */
 async function generatePoster(input: LaunchInput): Promise<string> {
-  const prompt = `Create a promotional poster for a Meme cryptocurrency project named "${input.name}"${input.ticker ? ` (${input.ticker})` : ""}. 
-Style: ${input.styleTemplate || "pixel_punk"}. 
-${input.description ? `Project concept: ${input.description}` : ""}
-The poster should be suitable for social media sharing, include key visual elements, and create hype. Vertical format.`;
+  const prompt = getPosterPrompt(
+    input.name,
+    input.ticker,
+    input.styleTemplate,
+    input.description
+  );
+
+  if (input.userImageUrl) {
+    const result = await generateImage({
+      prompt,
+      originalImages: [{
+        url: input.userImageUrl,
+        mimeType: "image/png",
+      }],
+    });
+    return result.url || "";
+  }
 
   const result = await generateImage({ prompt });
   return result.url || "";

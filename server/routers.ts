@@ -7,6 +7,7 @@ import * as db from "./db";
 import { executeLaunch } from "./launch";
 import { createCheckoutSession, createSubscriptionCheckoutSession } from "./stripe";
 import { ALL_PRODUCTS } from "./products";
+import { storagePut } from "./storage";
 
 export const appRouter = router({
   system: systemRouter,
@@ -19,6 +20,41 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+  }),
+
+  // Image Upload
+  upload: router({
+    characterImage: protectedProcedure
+      .input(z.object({
+        fileName: z.string(),
+        fileType: z.string(),
+        base64Data: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        try {
+          // Convert base64 to buffer
+          const base64WithoutPrefix = input.base64Data.replace(/^data:image\/\w+;base64,/, "");
+          const buffer = Buffer.from(base64WithoutPrefix, "base64");
+          
+          // Generate unique file key
+          const timestamp = Date.now();
+          const randomSuffix = Math.random().toString(36).substring(7);
+          const fileExtension = input.fileName.split(".").pop() || "png";
+          const fileKey = `user-uploads/${ctx.user.id}/${timestamp}-${randomSuffix}.${fileExtension}`;
+          
+          // Upload to S3
+          const { url } = await storagePut(fileKey, buffer, input.fileType);
+          
+          return {
+            success: true,
+            url,
+            fileKey,
+          };
+        } catch (error) {
+          console.error("[Upload] Failed to upload image:", error);
+          throw new Error("Failed to upload image");
+        }
+      }),
   }),
 
   // Project Management
@@ -47,6 +83,8 @@ export const appRouter = router({
         description: z.string().optional(),
         ticker: z.string().max(50).optional(),
         styleTemplate: z.string().max(100).optional(),
+        userImageUrl: z.string().optional(),
+        userImageKey: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const project = await db.createProject({
@@ -55,6 +93,8 @@ export const appRouter = router({
           description: input.description,
           ticker: input.ticker,
           styleTemplate: input.styleTemplate,
+          userImageUrl: input.userImageUrl,
+          userImageKey: input.userImageKey,
           status: "draft",
         });
         const projectId = project.id;
@@ -67,6 +107,7 @@ export const appRouter = router({
             description: input.description,
             ticker: input.ticker,
             styleTemplate: input.styleTemplate,
+            userImageUrl: input.userImageUrl,
           }).catch(error => {
             console.error("[Launch] Background execution failed:", error);
           });

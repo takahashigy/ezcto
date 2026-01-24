@@ -210,3 +210,15 @@
 - [x] 替换Templates页面iframe预览为真实截图
 - [x] 添加图片加载失败的fallback机制
 - [x] 测试Wojak和Labubu预览窗口显示效果
+
+## 基于用户图片的AI二创生成功能
+- [x] 在Launch表单添加图片上传组件
+- [x] 实现前端图片预览功能
+- [x] 创建图片上传到S3的tRPC路由
+- [x] 更新projects表添加userImageUrl字段
+- [x] 重构launch.ts支持基于用户图片的生成
+- [x] 为每个资产类型优化Prompt（Logo/Banner/PFP/Poster）
+- [x] 添加风格适配系统（根据模版调整生成风格）
+- [x] 测试完整的上传和生成流程
+- [x] 添加错误处理和加载状态
+- [x] 编写vitest测试

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
-import { Rocket, Loader2, ArrowLeft, Sparkles } from "lucide-react";
+import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X, Image as ImageIcon } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,13 +24,17 @@ export default function Launch() {
     styleTemplate: "retro_gaming",
   });
 
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const triggerLaunchMutation = trpc.launch.trigger.useMutation();
+
+  const uploadImageMutation = trpc.upload.characterImage.useMutation();
 
   const createProjectMutation = trpc.projects.create.useMutation({
     onSuccess: async (_, variables) => {
       toast.success("Project created! Starting asset generation...");
-      // Note: We can't get the project ID from the create mutation directly,
-      // so we'll redirect to dashboard where the user can see the generating status
       setLocation("/dashboard");
     },
     onError: (error) => {
@@ -47,12 +51,40 @@ export default function Launch() {
       return;
     }
 
+    if (!uploadedImage) {
+      toast.error("Please upload a character image");
+      return;
+    }
+
     setIsGenerating(true);
+    setIsUploading(true);
     
     try {
-      await createProjectMutation.mutateAsync(formData);
+      // Step 1: Upload image to S3
+      toast.info("Uploading character image...");
+      const uploadResult = await uploadImageMutation.mutateAsync({
+        fileName: uploadedImage.name,
+        fileType: uploadedImage.type,
+        base64Data: imagePreview!,
+      });
+      
+      if (!uploadResult.success) {
+        throw new Error("Failed to upload image");
+      }
+      
+      setIsUploading(false);
+      toast.success("Image uploaded! Creating project...");
+      
+      // Step 2: Create project with uploaded image URL
+      await createProjectMutation.mutateAsync({
+        ...formData,
+        userImageUrl: uploadResult.url,
+        userImageKey: uploadResult.fileKey,
+      });
     } catch (error) {
       console.error("Failed to create project:", error);
+      setIsUploading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -158,6 +190,68 @@ export default function Launch() {
                 </p>
               </div>
 
+              {/* Character Image Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="characterImage" className="text-base font-bold">
+                  Upload Meme Character Image <span className="text-destructive">*</span>
+                </Label>
+                <div className="space-y-4">
+                  {!imagePreview ? (
+                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
+                         onClick={() => document.getElementById('characterImage')?.click()}>
+                      <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-sm font-mono mb-2">Click to upload or drag and drop</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (Max 10MB)</p>
+                      <Input
+                        id="characterImage"
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 10 * 1024 * 1024) {
+                              toast.error("Image size must be less than 10MB");
+                              return;
+                            }
+                            setUploadedImage(file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setImagePreview(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative border-2 border-primary rounded-lg p-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUploadedImage(null);
+                          setImagePreview(null);
+                        }}
+                        className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/80 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <img
+                        src={imagePreview}
+                        alt="Uploaded character"
+                        className="max-h-64 mx-auto rounded-lg"
+                      />
+                      <p className="text-sm text-center mt-2 font-mono text-muted-foreground">
+                        {uploadedImage?.name}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Upload your Meme character/IP image. AI will use this to generate all visual assets (Logo, Banner, PFP, etc.) in your chosen style.
+                </p>
+              </div>
+
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-base font-bold">
@@ -250,24 +344,29 @@ export default function Launch() {
 
               {/* Submit Button */}
               <div className="flex gap-4">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="flex-1 font-mono text-lg retro-border"
-                  disabled={isGenerating || !formData.name.trim()}
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Generating Assets...
-                    </>
-                  ) : (
-                    <>
-                      <Rocket className="mr-2 h-5 w-5" />
-                      Launch Project
-                    </>
-                  )}
-                </Button>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={isGenerating || isUploading}
+                className="w-full text-lg font-mono"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Uploading Image...
+                  </>
+                ) : isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Generating Assets...
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="mr-2 h-5 w-5" />
+                    Launch Project
+                  </>
+                )}
+              </Button>
                 <Link href="/dashboard">
                   <Button
                     type="button"

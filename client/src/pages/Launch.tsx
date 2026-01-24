@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
+import { useProgress } from "@/hooks/useProgress";
 import { Link, useLocation } from "wouter";
 import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X, Image as ImageIcon } from "lucide-react";
 import { getLoginUrl } from "@/const";
@@ -24,9 +25,16 @@ export default function Launch() {
     styleTemplate: "retro_gaming",
   });
 
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [removeBackground, setRemoveBackground] = useState(true);
+  const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
+  
+  const MAX_IMAGES = 3;
+  
+  // Listen to progress updates
+  const { progress, isConnected } = useProgress(currentProjectId);
 
   const triggerLaunchMutation = trpc.launch.trigger.useMutation();
 
@@ -51,8 +59,8 @@ export default function Launch() {
       return;
     }
 
-    if (!uploadedImage) {
-      toast.error("Please upload a character image");
+    if (uploadedImages.length === 0) {
+      toast.error("Please upload at least one character image");
       return;
     }
 
@@ -60,27 +68,48 @@ export default function Launch() {
     setIsUploading(true);
     
     try {
-      // Step 1: Upload image to S3
-      toast.info("Uploading character image...");
-      const uploadResult = await uploadImageMutation.mutateAsync({
-        fileName: uploadedImage.name,
-        fileType: uploadedImage.type,
-        base64Data: imagePreview!,
-      });
+      // Step 1: Upload all images to S3
+      if (removeBackground) {
+        toast.info(`Removing background and uploading ${uploadedImages.length} image(s)...`);
+      } else {
+        toast.info(`Uploading ${uploadedImages.length} image(s)...`);
+      }
       
-      if (!uploadResult.success) {
-        throw new Error("Failed to upload image");
+      const uploadResults = await Promise.all(
+        uploadedImages.map((file, index) =>
+          uploadImageMutation.mutateAsync({
+            fileName: file.name,
+            fileType: file.type,
+            base64Data: imagePreviews[index],
+            removeBackground,
+          })
+        )
+      );
+      
+      if (uploadResults.some(result => !result.success)) {
+        throw new Error("Failed to upload one or more images");
       }
       
       setIsUploading(false);
-      toast.success("Image uploaded! Creating project...");
+      toast.success(`${uploadedImages.length} image(s) uploaded! Creating project...`);
       
-      // Step 2: Create project with uploaded image URL
-      await createProjectMutation.mutateAsync({
+      // Step 2: Create project with uploaded image URLs
+      const userImages = uploadResults.map(result => ({
+        url: result.url,
+        key: result.fileKey,
+      }));
+      
+      const result = await createProjectMutation.mutateAsync({
         ...formData,
-        userImageUrl: uploadResult.url,
-        userImageKey: uploadResult.fileKey,
+        userImageUrl: userImages[0].url, // Primary image
+        userImageKey: userImages[0].key,
+        userImages: JSON.stringify(userImages),
       });
+      
+      // Start listening to progress
+      if (result.projectId) {
+        setCurrentProjectId(result.projectId);
+      }
     } catch (error) {
       console.error("Failed to create project:", error);
       setIsUploading(false);
@@ -144,6 +173,34 @@ export default function Launch() {
           </p>
         </div>
 
+        {/* Progress Display */}
+        {isGenerating && progress && (
+          <Card className="module-card mb-6 border-primary">
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    <span className="font-mono text-sm font-bold">{progress.message}</span>
+                  </div>
+                  <span className="font-mono text-sm font-bold text-primary">
+                    {progress.progress}%
+                  </span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                  <div
+                    className="bg-primary h-full transition-all duration-500 ease-out"
+                    style={{ width: `${progress.progress}%` }}
+                  />
+                </div>
+                {progress.error && (
+                  <p className="text-sm text-destructive font-mono">{progress.error}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Launch Form */}
         <Card className="module-card">
           <CardHeader>
@@ -193,15 +250,19 @@ export default function Launch() {
               {/* Character Image Upload */}
               <div className="space-y-2">
                 <Label htmlFor="characterImage" className="text-base font-bold">
-                  Upload Meme Character Image <span className="text-destructive">*</span>
+                  Upload Meme Character Images <span className="text-destructive">*</span>
                 </Label>
                 <div className="space-y-4">
-                  {!imagePreview ? (
+                  {/* Upload Button */}
+                  {uploadedImages.length < MAX_IMAGES && (
                     <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
                          onClick={() => document.getElementById('characterImage')?.click()}>
                       <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                       <p className="text-sm font-mono mb-2">Click to upload or drag and drop</p>
-                      <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (Max 10MB)</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (Max 10MB per image)</p>
+                      <p className="text-xs text-primary mt-2">
+                        {uploadedImages.length}/{MAX_IMAGES} images uploaded
+                      </p>
                       <Input
                         id="characterImage"
                         type="file"
@@ -214,38 +275,68 @@ export default function Launch() {
                               toast.error("Image size must be less than 10MB");
                               return;
                             }
-                            setUploadedImage(file);
+                            if (uploadedImages.length >= MAX_IMAGES) {
+                              toast.error(`Maximum ${MAX_IMAGES} images allowed`);
+                              return;
+                            }
+                            setUploadedImages([...uploadedImages, file]);
                             const reader = new FileReader();
                             reader.onloadend = () => {
-                              setImagePreview(reader.result as string);
+                              setImagePreviews([...imagePreviews, reader.result as string]);
                             };
                             reader.readAsDataURL(file);
+                            // Reset input
+                            e.target.value = '';
                           }
                         }}
                       />
                     </div>
-                  ) : (
-                    <div className="relative border-2 border-primary rounded-lg p-4">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUploadedImage(null);
-                          setImagePreview(null);
-                        }}
-                        className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/80 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                      <img
-                        src={imagePreview}
-                        alt="Uploaded character"
-                        className="max-h-64 mx-auto rounded-lg"
-                      />
-                      <p className="text-sm text-center mt-2 font-mono text-muted-foreground">
-                        {uploadedImage?.name}
-                      </p>
+                  )}
+                  
+                  {/* Image Previews Grid */}
+                  {uploadedImages.length > 0 && (
+                    <div className="grid grid-cols-3 gap-4">
+                      {uploadedImages.map((file, index) => (
+                        <div key={index} className="relative border-2 border-primary rounded-lg p-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUploadedImages(uploadedImages.filter((_, i) => i !== index));
+                              setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+                            }}
+                            className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/80 transition-colors z-10"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                          <img
+                            src={imagePreviews[index]}
+                            alt={`Character ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                          <p className="text-xs text-center mt-1 font-mono text-muted-foreground truncate">
+                            {file.name}
+                          </p>
+                          {index === 0 && (
+                            <span className="absolute top-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">
+                              Primary
+                            </span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <input
+                    type="checkbox"
+                    id="removeBackground"
+                    checked={removeBackground}
+                    onChange={(e) => setRemoveBackground(e.target.checked)}
+                    className="w-4 h-4 rounded border-border"
+                  />
+                  <label htmlFor="removeBackground" className="text-sm text-muted-foreground cursor-pointer">
+                    Automatically remove background (recommended for better results)
+                  </label>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Upload your Meme character/IP image. AI will use this to generate all visual assets (Logo, Banner, PFP, etc.) in your chosen style.

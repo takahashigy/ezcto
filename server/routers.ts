@@ -8,6 +8,7 @@ import { executeLaunch } from "./launch";
 import { createCheckoutSession, createSubscriptionCheckoutSession } from "./stripe";
 import { ALL_PRODUCTS } from "./products";
 import { storagePut } from "./storage";
+import { removeBackground } from "./_core/backgroundRemoval";
 
 export const appRouter = router({
   system: systemRouter,
@@ -29,6 +30,7 @@ export const appRouter = router({
         fileName: z.string(),
         fileType: z.string(),
         base64Data: z.string(),
+        removeBackground: z.boolean().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         try {
@@ -43,12 +45,28 @@ export const appRouter = router({
           const fileKey = `user-uploads/${ctx.user.id}/${timestamp}-${randomSuffix}.${fileExtension}`;
           
           // Upload to S3
-          const { url } = await storagePut(fileKey, buffer, input.fileType);
+          let finalUrl = "";
+          let finalFileKey = fileKey;
+          
+          // Remove background if requested
+          if (input.removeBackground) {
+            const { url: uploadedUrl } = await storagePut(fileKey, buffer, input.fileType);
+            const { url: noBgUrl, fileKey: noBgKey } = await removeBackground({
+              imageUrl: uploadedUrl,
+              size: "auto",
+              type: "auto",
+            });
+            finalUrl = noBgUrl;
+            finalFileKey = noBgKey;
+          } else {
+            const { url } = await storagePut(fileKey, buffer, input.fileType);
+            finalUrl = url;
+          }
           
           return {
             success: true,
-            url,
-            fileKey,
+            url: finalUrl,
+            fileKey: finalFileKey,
           };
         } catch (error) {
           console.error("[Upload] Failed to upload image:", error);
@@ -85,6 +103,7 @@ export const appRouter = router({
         styleTemplate: z.string().max(100).optional(),
         userImageUrl: z.string().optional(),
         userImageKey: z.string().optional(),
+        userImages: z.string().optional(), // JSON string of array
       }))
       .mutation(async ({ input, ctx }) => {
         const project = await db.createProject({
@@ -95,6 +114,7 @@ export const appRouter = router({
           styleTemplate: input.styleTemplate,
           userImageUrl: input.userImageUrl,
           userImageKey: input.userImageKey,
+          userImages: input.userImages ? JSON.parse(input.userImages) : null,
           status: "draft",
         });
         const projectId = project.id;

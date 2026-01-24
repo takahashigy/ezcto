@@ -10,6 +10,7 @@ import {
   getPosterPrompt,
   getHeroImagePrompt,
 } from "./stylePrompts";
+import { broadcastProgress } from "./_core/progressStream";
 
 /**
  * Launch自动化引擎核心逻辑
@@ -406,16 +407,24 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
   try {
     // 更新项目状态为generating
     await db.updateProjectStatus(input.projectId, "generating");
+    broadcastProgress(input.projectId, { progress: 0, message: "Starting generation..." });
 
     const assets: LaunchOutput["assets"] = {};
 
     // 并行生成视觉资产
-    const [logo, banner, pfp, poster] = await Promise.all([
-      generateLogo(input),
-      generateBanner(input),
-      generatePFP(input),
-      generatePoster(input),
-    ]);
+    broadcastProgress(input.projectId, { progress: 10, message: "Generating visual assets..." });
+    
+    const logo = await generateLogo(input);
+    broadcastProgress(input.projectId, { progress: 20, message: "Logo generated" });
+    
+    const banner = await generateBanner(input);
+    broadcastProgress(input.projectId, { progress: 30, message: "Banner generated" });
+    
+    const pfp = await generatePFP(input);
+    broadcastProgress(input.projectId, { progress: 40, message: "Profile picture generated" });
+    
+    const poster = await generatePoster(input);
+    broadcastProgress(input.projectId, { progress: 50, message: "Poster generated" });
 
     assets.logo = logo;
     assets.banner = banner;
@@ -423,6 +432,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     assets.poster = poster;
 
     // 保存视觉资产到数据库
+    broadcastProgress(input.projectId, { progress: 55, message: "Saving visual assets..." });
     await Promise.all([
       db.createAsset({ projectId: input.projectId, assetType: "logo", fileUrl: logo }),
       db.createAsset({ projectId: input.projectId, assetType: "banner", fileUrl: banner }),
@@ -431,12 +441,19 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     ]);
 
     // 生成文案资产
-    const [narrative, whitepaper, tweets, website] = await Promise.all([
-      generateNarrative(input),
-      generateWhitepaper(input),
-      generateTweets(input),
-      generateWebsite(input),
-    ]);
+    broadcastProgress(input.projectId, { progress: 60, message: "Generating content assets..." });
+    
+    const narrative = await generateNarrative(input);
+    broadcastProgress(input.projectId, { progress: 70, message: "Project narrative generated" });
+    
+    const whitepaper = await generateWhitepaper(input);
+    broadcastProgress(input.projectId, { progress: 80, message: "Whitepaper draft generated" });
+    
+    const tweets = await generateTweets(input);
+    broadcastProgress(input.projectId, { progress: 85, message: "Launch tweets generated" });
+    
+    const website = await generateWebsite(input);
+    broadcastProgress(input.projectId, { progress: 90, message: "Landing page generated" });
 
     assets.narrative = narrative;
     assets.whitepaper = whitepaper;
@@ -444,6 +461,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     assets.website = website;
 
     // 保存文案资产到数据库
+    broadcastProgress(input.projectId, { progress: 95, message: "Saving content assets..." });
     await Promise.all([
       db.createAsset({ projectId: input.projectId, assetType: "narrative", textContent: narrative }),
       db.createAsset({ projectId: input.projectId, assetType: "whitepaper", textContent: whitepaper }),
@@ -453,6 +471,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
 
     // 更新项目状态为completed
     await db.updateProjectStatus(input.projectId, "completed");
+    broadcastProgress(input.projectId, { progress: 100, message: "Generation completed!" });
 
     return {
       projectId: input.projectId,

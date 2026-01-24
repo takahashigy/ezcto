@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerWebhookHandler } from "../webhookHandler";
+import { createProgressStream, registerProgressStream, unregisterProgressStream } from "./progressStream";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -48,6 +49,23 @@ async function startServer() {
       createContext,
     })
   );
+  
+  // SSE Progress Stream
+  app.get("/api/progress/:projectId", (req, res) => {
+    const projectId = parseInt(req.params.projectId);
+    if (isNaN(projectId)) {
+      res.status(400).json({ error: "Invalid project ID" });
+      return;
+    }
+    
+    const stream = createProgressStream(res);
+    registerProgressStream(projectId, stream);
+    
+    // Clean up when client disconnects
+    req.on("close", () => {
+      unregisterProgressStream(projectId, stream);
+    });
+  });
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);

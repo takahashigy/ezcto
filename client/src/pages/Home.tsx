@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
-import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2 } from "lucide-react";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -356,7 +356,7 @@ export default function Home() {
               </div>
               
               <p className="text-muted-foreground mb-6">
-                Meme实体经济的"价值发现平台"。聚合所有优质Meme周边，热销榜单成为衡量项目真实社区凝聚力和长期潜力的"数据预言机"。
+                Meme实体经济的“价值发现平台”。聚合所有优质Meme周边，热销榜单成为衡量项目真实社区凝聚力和长期潜力的“数据预言机”。
               </p>
               
               <div className="space-y-2 mb-6">
@@ -366,7 +366,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>"热销榜"即"Alpha榜"</span>
+                  <span>“热销榜”即“Alpha榜”</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1 h-1 bg-muted-foreground"></div>
@@ -376,6 +376,78 @@ export default function Home() {
               
               <Button className="w-full font-mono" variant="outline" disabled>
                 Coming Q3 2026
+              </Button>
+            </div>
+
+            {/* Module 5: Alchemy Plan - Meme-Specific AI Model */}
+            <div className="module-card opacity-75">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">炼丹计划</h3>
+                  <span className="coming-soon-badge">Coming Soon</span>
+                </div>
+              </div>
+              
+              <p className="text-muted-foreground mb-6">
+                基于Stable Diffusion训练专属于Meme图片生成的大模型。深度学习成功案例，精准捕捉Meme美学，生成更具传播力和社区共鸣的视觉资产。
+              </p>
+              
+              <div className="space-y-2 mb-6">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>专属大模型训练</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>深度学习Meme美学</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>更高质量的生成结果</span>
+                </div>
+              </div>
+              
+              <Button className="w-full font-mono" variant="outline" disabled>
+                Coming Q4 2026
+              </Button>
+            </div>
+
+            {/* Module 6: Lora Forge - Custom Character Training */}
+            <div className="module-card opacity-75">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <Wand2 className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">Lora炼制工坊</h3>
+                  <span className="coming-soon-badge">Coming Soon</span>
+                </div>
+              </div>
+              
+              <p className="text-muted-foreground mb-6">
+                为优秀的Meme角色提供专属Lora模型训练服务。基于项目的视觉资产，炼制出风格一致、可无限扩展的专属角色模型，让IP生命力更长久。
+              </p>
+              
+              <div className="space-y-2 mb-6">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>专属Lora模型训练</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>风格一致性保证</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>无限扩展视觉资产</span>
+                </div>
+              </div>
+              
+              <Button className="w-full font-mono" variant="outline" disabled>
+                Coming Soon
               </Button>
             </div>
           </div>

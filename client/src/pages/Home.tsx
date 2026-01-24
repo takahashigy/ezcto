@@ -285,7 +285,83 @@ export default function Home() {
               )}
             </div>
 
-            {/* Module 2: Social Distribution Network */}
+            {/* Module 2: IP Merchandise Supply Chain */}
+            <Link href="/supply" className="block">
+              <div className="module-card opacity-75 hover:opacity-100 transition-opacity cursor-pointer">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                    <Package className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">IP实体化供应链</h3>
+                    <span className="coming-soon-badge">Coming Soon</span>
+                  </div>
+                </div>
+                
+                <p className="text-muted-foreground mb-6">
+                  打通次元壁，将数字IP转化为"物理信仰"。整合全球顶级供应链，提供从设计、打样、生产到全球配送的一站式C2M服务。
+                </p>
+                
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                    <span>C2M对接全球供应链</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                    <span>AI效果图生成</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                    <span>从设计到全球配送</span>
+                  </div>
+                </div>
+                
+                <Button className="w-full font-mono" variant="outline" disabled>
+                  Coming Q3 2026
+                </Button>
+              </div>
+            </Link>
+
+            {/* Module 3: Official Meme Marketplace */}
+            <Link href="/store" className="block">
+              <div className="module-card opacity-75 hover:opacity-100 transition-opacity cursor-pointer">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">EZCTO官方商城</h3>
+                  <span className="coming-soon-badge">Coming Soon</span>
+                </div>
+              </div>
+              
+              <p className="text-muted-foreground mb-6">
+                Meme实体经济的“价值发现平台”。聚合所有优质Meme周边，热销榜单成为衡量项目真实社区凝聚力和长期潜力的“数据预言机”。
+              </p>
+              
+              <div className="space-y-2 mb-6">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>聚合销售平台</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>“热销榜”即“Alpha榜”</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <span>IP价值试金石</span>
+                </div>
+              </div>
+              
+              <Button className="w-full font-mono" variant="outline" disabled>
+                Coming Q3 2026
+              </Button>
+              </div>
+            </Link>
+
+            {/* Module 4: Social Distribution Network */}
             <div className="module-card opacity-75">
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
@@ -318,78 +394,6 @@ export default function Home() {
               
               <Button className="w-full font-mono" variant="outline" disabled>
                 Coming Q2 2026
-              </Button>
-            </div>
-
-            {/* Module 3: IP Merchandise Supply Chain */}
-            <div className="module-card opacity-75">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                  <Package className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">IP实体化供应链</h3>
-                  <span className="coming-soon-badge">Coming Soon</span>
-                </div>
-              </div>
-              
-              <p className="text-muted-foreground mb-6">
-                打通次元壁，将数字IP转化为"物理信仰"。整合全球顶级供应链，提供从设计、打样、生产到全球配送的一站式C2M服务。
-              </p>
-              
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>C2M对接全球供应链</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>AI效果图生成</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>从设计到全球配送</span>
-                </div>
-              </div>
-              
-              <Button className="w-full font-mono" variant="outline" disabled>
-                Coming Q3 2026
-              </Button>
-            </div>
-
-            {/* Module 4: Official Meme Marketplace */}
-            <div className="module-card opacity-75">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">EZCTO官方商城</h3>
-                  <span className="coming-soon-badge">Coming Soon</span>
-                </div>
-              </div>
-              
-              <p className="text-muted-foreground mb-6">
-                Meme实体经济的“价值发现平台”。聚合所有优质Meme周边，热销榜单成为衡量项目真实社区凝聚力和长期潜力的“数据预言机”。
-              </p>
-              
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>聚合销售平台</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>“热销榜”即“Alpha榜”</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>IP价值试金石</span>
-                </div>
-              </div>
-              
-              <Button className="w-full font-mono" variant="outline" disabled>
-                Coming Q3 2026
               </Button>
             </div>
 

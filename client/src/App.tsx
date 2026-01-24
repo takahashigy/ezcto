@@ -9,6 +9,8 @@ import Dashboard from "./pages/Dashboard";
 import Launch from "./pages/Launch";
 import Templates from "./pages/Templates";
 import ProjectDetails from "./pages/ProjectDetails";
+import Supply from "./pages/Supply";
+import Store from "./pages/Store";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -18,6 +20,8 @@ function Router() {
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/launch"} component={Launch} />
       <Route path={"/templates"} component={Templates} />
+      <Route path={"/supply"} component={Supply} />
+      <Route path={"/store"} component={Store} />
       <Route path={"/project/:id"} component={ProjectDetails} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

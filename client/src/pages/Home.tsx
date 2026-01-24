@@ -237,16 +237,16 @@ export default function Home() {
       <section className="py-20">
         <div className="container">
           <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 border-2 border-primary bg-primary/10 mb-4">
+            <div className="inline-block mb-4">
               <span className="text-sm font-mono font-bold uppercase tracking-wider">
-                Core Modules
+                {t('modules.title')}
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              全生命周期解决方案
+              {t('modules.title')}
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              从启动、增长、变现到价值发现，EZCTO提供完整的Meme项目生态系统
+              {t('modules.subtitle')}
             </p>
           </div>
 
@@ -258,41 +258,41 @@ export default function Home() {
                   <Rocket className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Launch自动化引擎</h3>
-                  <div className="text-sm text-primary font-mono">STANDARD VERSION</div>
+                  <h3 className="text-2xl font-bold mb-2">{t('modules.launch.title')}</h3>
+                  <div className="text-sm text-primary font-mono">{t('modules.launch.tag')}</div>
                 </div>
               </div>
               
               <p className="text-muted-foreground mb-6">
-                10分钟内自动化生成并交付一整套专业级启动资产：Logo、Banner、PFP、海报、官方网站、核心文案。抬高行业下限，成为Meme项目启动的"及格线"。
+                {t('modules.launch.description')}
               </p>
               
               <div className="space-y-2 mb-6">
                 <div className="flex items-center gap-2 text-sm">
                   <div className="w-1 h-1 bg-primary"></div>
-                  <span>品牌视觉：Logo, Banner, PFP, 海报</span>
+                  <span>{t('modules.launch.features.assets')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <div className="w-1 h-1 bg-primary"></div>
-                  <span>官方网站：一键生成并部署</span>
+                  <span>{t('modules.launch.features.website')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <div className="w-1 h-1 bg-primary"></div>
-                  <span>核心文案：项目叙事、白皮书、推文</span>
+                  <span>{t('modules.launch.features.core')}</span>
                 </div>
               </div>
               
               {isAuthenticated ? (
                 <Link href="/launch">
                   <Button className="w-full font-mono retro-border">
-                    Start Launch
+                    {t('modules.launch.button')}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               ) : (
                 <a href={getLoginUrl()} className="block">
                   <Button className="w-full font-mono retro-border">
-                    Get Started
+                    {t('modules.launch.button')}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </a>
@@ -307,32 +307,32 @@ export default function Home() {
                     <Package className="w-8 h-8 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">IP实体化供应链</h3>
-                    <span className="coming-soon-badge">Coming Soon</span>
+                    <h3 className="text-2xl font-bold mb-2">{t('modules.supply.title')}</h3>
+                    <span className="coming-soon-badge">{t('modules.supply.tag')}</span>
                   </div>
                 </div>
                 
                 <p className="text-muted-foreground mb-6">
-                  打通次元壁，将数字IP转化为"物理信仰"。整合全球顶级供应链，提供从设计、打样、生产到全球配送的一站式C2M服务。
+                  {t('modules.supply.description')}
                 </p>
                 
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="w-1 h-1 bg-muted-foreground"></div>
-                    <span>C2M对接全球供应链</span>
+                    <span>{t('modules.supply.features.c2m')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="w-1 h-1 bg-muted-foreground"></div>
-                    <span>AI效果图生成</span>
+                    <span>{t('modules.supply.features.ai')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="w-1 h-1 bg-muted-foreground"></div>
-                    <span>从设计到全球配送</span>
+                    <span>{t('modules.supply.features.global')}</span>
                   </div>
                 </div>
                 
                 <Button className="w-full font-mono retro-border">
-                  查看供应链
+                  {t('modules.supply.button')}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -341,39 +341,39 @@ export default function Home() {
             {/* Module 3: Official Meme Marketplace */}
             <Link href="/store" className="block">
               <div className="module-card hover:border-primary/50 transition-all cursor-pointer">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-8 h-8 text-primary" />
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <ShoppingCart className="w-8 h-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">{t('modules.store.title')}</h3>
+                    <span className="coming-soon-badge">{t('modules.store.tag')}</span>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">EZCTO官方商城</h3>
-                  <span className="coming-soon-badge">Coming Soon</span>
+                
+                <p className="text-muted-foreground mb-6">
+                  {t('modules.store.description')}
+                </p>
+                
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                    <span>{t('modules.store.features.aggregation')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                    <span>{t('modules.store.features.hotlist')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                    <span>{t('modules.store.features.value')}</span>
+                  </div>
                 </div>
-              </div>
-              
-              <p className="text-muted-foreground mb-6">
-                Meme实体经济的“价值发现平台”。聚合所有优质Meme周边，热销榜单成为衡量项目真实社区凝聚力和长期潜力的“数据预言机”。
-              </p>
-              
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>聚合销售平台</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>“热销榜”即“Alpha榜”</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
-                  <span>IP价值试金石</span>
-                </div>
-              </div>
-              
-              <Button className="w-full font-mono retro-border">
-                进入商城
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+                
+                <Button className="w-full font-mono retro-border">
+                  {t('modules.store.button')}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
             </Link>
 

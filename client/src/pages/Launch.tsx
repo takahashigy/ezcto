@@ -12,9 +12,12 @@ import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X, Image as ImageIcon } f
 import { getLoginUrl } from "@/const";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function Launch() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -148,9 +151,10 @@ export default function Launch() {
             <Link href="/dashboard">
               <Button variant="ghost" className="font-mono">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Dashboard
+                {t('nav.dashboard')}
               </Button>
             </Link>
+            <LanguageSwitcher />
           </div>
         </div>
       </nav>

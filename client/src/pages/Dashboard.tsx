@@ -10,9 +10,12 @@ import { GenerationHistorySection } from "@/components/GenerationHistorySection"
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { playSuccessSound } from "@/utils/notificationSound";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const [deploymentPaywallOpen, setDeploymentPaywallOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<{ id: number; name: string } | null>(null);
@@ -84,9 +87,10 @@ export default function Dashboard() {
             <Link href="/">
               <Button variant="ghost" className="font-mono">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Home
+                {t('nav.home')}
               </Button>
             </Link>
+            <LanguageSwitcher />
           </div>
         </div>
       </nav>

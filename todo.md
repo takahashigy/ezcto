@@ -311,3 +311,6 @@
   - [ ] Phase 8: Dashboard页面
   - [ ] Phase 9: Launch页面
 - [ ] 测试每个Phase的功能
+
+## Launch页面UI修复
+- [x] 修复Launch页面Cancel按钮被遮挡的排版问题

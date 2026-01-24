@@ -443,7 +443,7 @@ export default function Launch() {
                 type="submit"
                 size="lg"
                 disabled={isGenerating || isUploading}
-                className="w-full text-lg font-mono"
+                className="flex-1 text-lg font-mono"
               >
                 {isUploading ? (
                   <>

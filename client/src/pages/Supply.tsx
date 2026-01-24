@@ -105,7 +105,7 @@ export default function Supply() {
           </p>
           <div className="flex items-center justify-center gap-4">
             {isAuthenticated ? (
-              <Link href="/launch">
+              <Link href="/custom-order">
                 <Button size="lg" className="font-mono text-lg px-8 py-6 bg-primary text-black hover:bg-primary/80">
                   {t('supply.page.startButton')}
                   <ArrowRight className="ml-2 h-5 w-5" />

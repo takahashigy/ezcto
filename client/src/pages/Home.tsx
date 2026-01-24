@@ -161,6 +161,20 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pay Meme Formula */}
+      <section className="py-12 bg-background">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center space-y-4">
+            <div className="font-mono text-3xl md:text-4xl lg:text-5xl text-muted-foreground/60">
+              Only Pay Dex &lt; 1
+            </div>
+            <div className="font-mono text-4xl md:text-5xl lg:text-6xl font-bold text-primary">
+              Pay Dex + Pay Meme &gt; 2
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Value Proposition */}
       <section className="py-16 bg-card/30">
         <div className="container">

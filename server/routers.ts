@@ -180,6 +180,99 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    // AI analysis preview (no asset generation)
+    previewAnalysis: protectedProcedure
+      .input(z.object({
+        projectName: z.string().min(1).max(255),
+        ticker: z.string().min(1).max(50),
+        description: z.string().min(10).max(2000),
+        memeImageUrl: z.string().url(),
+      }))
+      .mutation(async ({ input }) => {
+        console.log(`[PreviewAnalysis] Analyzing ${input.projectName}`);
+
+        try {
+          // Run AI analysis only (no asset generation)
+          const analysis = await analyzeProject(
+            input.memeImageUrl,
+            input.projectName,
+            input.ticker,
+            input.description
+          );
+
+          console.log(`[PreviewAnalysis] Analysis complete:`, analysis);
+
+          return {
+            success: true,
+            analysis,
+          };
+        } catch (error) {
+          console.error(`[PreviewAnalysis] Analysis failed:`, error);
+          throw error;
+        }
+      }),
+
+    // Generate preview HTML with custom settings
+    generatePreview: protectedProcedure
+      .input(z.object({
+        projectName: z.string().min(1).max(255),
+        ticker: z.string().min(1).max(50),
+        description: z.string().min(10).max(2000),
+        memeImageUrl: z.string().url(),
+        analysis: z.object({
+          narrativeType: z.enum(["community", "tech", "culture", "gaming"]),
+          layoutStyle: z.enum(["minimal", "playful", "cyberpunk", "retro"]),
+          colorPalette: z.object({
+            primary: z.string(),
+            secondary: z.string(),
+            background: z.string(),
+            text: z.string(),
+            accent: z.string(),
+          }),
+          vibe: z.enum(["friendly", "edgy", "mysterious", "energetic"]),
+          targetAudience: z.string(),
+        }),
+        socialLinks: z.object({
+          twitter: z.string().url().optional(),
+          telegram: z.string().url().optional(),
+          discord: z.string().url().optional(),
+          website: z.string().url().optional(),
+        }).optional(),
+        contractAddress: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        console.log(`[GeneratePreview] Generating preview for ${input.projectName}`);
+
+        try {
+          // Generate preview HTML (no S3 upload, return HTML directly)
+          const websiteHTML = generateWebsiteHTML(
+            {
+              projectName: input.projectName,
+              ticker: input.ticker,
+              description: input.description,
+              logoUrl: input.memeImageUrl,
+              bannerUrl: input.memeImageUrl, // Use original image as banner for preview
+              twitterUrl: input.socialLinks?.twitter,
+              telegramUrl: input.socialLinks?.telegram,
+              discordUrl: input.socialLinks?.discord,
+              websiteUrl: input.socialLinks?.website,
+              contractAddress: input.contractAddress,
+            },
+            input.analysis
+          );
+
+          console.log(`[GeneratePreview] Preview generated successfully`);
+
+          return {
+            success: true,
+            html: websiteHTML,
+          };
+        } catch (error) {
+          console.error(`[GeneratePreview] Preview generation failed:`, error);
+          throw error;
+        }
+      }),
+
     // AI-driven website generation
     generateWebsite: protectedProcedure
       .input(z.object({

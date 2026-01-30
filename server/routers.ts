@@ -5,6 +5,9 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { executeLaunch } from "./launch";
+import { analyzeProject } from "./aiAnalyzer";
+import { generateProjectAssets } from "./assetGenerator";
+import { generateWebsiteHTML } from "./websiteTemplate";
 import { createCheckoutSession, createSubscriptionCheckoutSession } from "./stripe";
 import { ALL_PRODUCTS } from "./products";
 import { storagePut } from "./storage";
@@ -175,6 +178,146 @@ export const appRouter = router({
         }
         await db.updateProjectStatus(input.id, input.status);
         return { success: true };
+      }),
+
+    // AI-driven website generation
+    generateWebsite: protectedProcedure
+      .input(z.object({
+        projectName: z.string().min(1).max(255),
+        ticker: z.string().min(1).max(50),
+        description: z.string().min(10).max(2000),
+        memeImageUrl: z.string().url(),
+        socialLinks: z.object({
+          twitter: z.string().url().optional(),
+          telegram: z.string().url().optional(),
+          discord: z.string().url().optional(),
+          website: z.string().url().optional(),
+        }).optional(),
+        contractAddress: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        console.log(`[GenerateWebsite] Starting generation for ${input.projectName}`);
+
+        // 1. Create project record
+        const project = await db.createProject({
+          userId: ctx.user.id,
+          name: input.projectName,
+          description: input.description,
+          ticker: input.ticker,
+          userImageUrl: input.memeImageUrl,
+          status: "generating",
+        });
+
+        const projectId = project.id;
+        console.log(`[GenerateWebsite] Project created with ID: ${projectId}`);
+
+        try {
+          // 2. AI Analysis
+          console.log(`[GenerateWebsite] Analyzing project...`);
+          const analysis = await analyzeProject(
+            input.memeImageUrl,
+            input.projectName,
+            input.ticker,
+            input.description
+          );
+          console.log(`[GenerateWebsite] Analysis complete:`, analysis);
+
+          // 3. Generate Assets
+          console.log(`[GenerateWebsite] Generating assets...`);
+          const assets = await generateProjectAssets(
+            input.projectName,
+            input.ticker,
+            input.description,
+            input.memeImageUrl,
+            analysis,
+            projectId
+          );
+          console.log(`[GenerateWebsite] Assets generated:`, assets);
+
+          // 4. Generate Website HTML
+          console.log(`[GenerateWebsite] Generating website HTML...`);
+          const websiteHTML = generateWebsiteHTML(
+            {
+              projectName: input.projectName,
+              ticker: input.ticker,
+              description: input.description,
+              logoUrl: assets.logoVariants.original.url,
+              bannerUrl: assets.banner.url,
+              twitterUrl: input.socialLinks?.twitter,
+              telegramUrl: input.socialLinks?.telegram,
+              discordUrl: input.socialLinks?.discord,
+              websiteUrl: input.socialLinks?.website,
+              contractAddress: input.contractAddress,
+            },
+            analysis
+          );
+
+          // 5. Upload website to S3
+          console.log(`[GenerateWebsite] Uploading website to S3...`);
+          const slug = input.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          const websiteKey = `websites/${projectId}/${slug}/index.html`;
+          const { url: websiteUrl } = await storagePut(
+            websiteKey,
+            websiteHTML,
+            "text/html"
+          );
+          console.log(`[GenerateWebsite] Website uploaded: ${websiteUrl}`);
+
+          // 6. Save assets to database
+          await db.createAsset({
+            projectId,
+            assetType: "logo",
+            fileUrl: assets.logoVariants.original.url,
+            fileKey: assets.logoVariants.original.key,
+          });
+
+          await db.createAsset({
+            projectId,
+            assetType: "banner",
+            fileUrl: assets.banner.url,
+            fileKey: assets.banner.key,
+          });
+
+          await db.createAsset({
+            projectId,
+            assetType: "website",
+            fileUrl: websiteUrl,
+            fileKey: websiteKey,
+          });
+
+          // 7. Update project with results
+          await db.updateProject(projectId, {
+            status: "completed",
+            deploymentUrl: websiteUrl,
+            deploymentStatus: "deployed",
+            aiAnalysis: analysis,
+            metadata: {
+              generatedAt: new Date().toISOString(),
+              assets: {
+                logo: assets.logoVariants.original.url,
+                banner: assets.banner.url,
+                website: websiteUrl,
+              },
+            },
+          });
+
+          console.log(`[GenerateWebsite] Generation complete for project ${projectId}`);
+
+          return {
+            success: true,
+            projectId,
+            websiteUrl,
+            analysis,
+            assets: {
+              logo: assets.logoVariants.original.url,
+              banner: assets.banner.url,
+            },
+          };
+        } catch (error) {
+          console.error(`[GenerateWebsite] Generation failed:`, error);
+          await db.updateProjectStatus(projectId, "failed");
+          throw error;
+        }
       }),
   }),
 

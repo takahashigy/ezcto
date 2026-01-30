@@ -35,6 +35,19 @@ export const projects = mysqlTable("projects", {
   userImages: json("userImages").$type<Array<{ url: string; key: string }>>(),
   deploymentUrl: varchar("deploymentUrl", { length: 1000 }),
   deploymentStatus: mysqlEnum("deploymentStatus", ["not_deployed", "deployed", "failed"]).default("not_deployed"),
+  aiAnalysis: json("aiAnalysis").$type<{
+    narrativeType?: string;
+    layoutStyle?: string;
+    colorPalette?: {
+      primary: string;
+      secondary: string;
+      background: string;
+      text: string;
+      accent: string;
+    };
+    vibe?: string;
+    targetAudience?: string;
+  }>(),
   metadata: json("metadata").$type<Record<string, unknown>>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

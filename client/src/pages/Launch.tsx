@@ -4,11 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { useProgress } from "@/hooks/useProgress";
 import { Link, useLocation } from "wouter";
-import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Rocket, Loader2, ArrowLeft, Upload, X, ImageIcon, Sparkles } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -22,485 +20,438 @@ export default function Launch() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
+    projectName: "",
     ticker: "",
-    styleTemplate: "retro_gaming",
+    description: "",
+    twitter: "",
+    telegram: "",
+    discord: "",
+    website: "",
+    contractAddress: "",
   });
 
-  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
-  const [removeBackground, setRemoveBackground] = useState(true);
-  const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
-  
-  const MAX_IMAGES = 3;
-  
-  // Listen to progress updates
-  const { progress, isConnected } = useProgress(currentProjectId);
-
-  const triggerLaunchMutation = trpc.launch.trigger.useMutation();
 
   const uploadImageMutation = trpc.upload.characterImage.useMutation();
-
-  const createProjectMutation = trpc.projects.create.useMutation({
-    onSuccess: async (_, variables) => {
-      toast.success("Project created! Starting asset generation...");
-      setLocation("/dashboard");
+  const generateWebsiteMutation = trpc.projects.generateWebsite.useMutation({
+    onSuccess: (data) => {
+      toast.success("Website generated successfully!");
+      setIsGenerating(false);
+      // Open generated website in new tab
+      window.open(data.websiteUrl, "_blank");
+      // Navigate to dashboard
+      setTimeout(() => {
+        setLocation("/dashboard");
+      }, 1000);
     },
     onError: (error) => {
-      toast.error(`Failed to create project: ${error.message}`);
+      toast.error(`Failed to generate website: ${error.message}`);
       setIsGenerating(false);
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name.trim()) {
-      toast.error("Project name is required");
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image size must be less than 10MB");
       return;
     }
 
-    if (uploadedImages.length === 0) {
-      toast.error("Please upload at least one character image");
+    // Check file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    setUploadedImage(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setUploadedImage(null);
+    setImagePreview("");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.projectName.trim()) {
+      toast.error(t("launch.errors.nameRequired") || "Project name is required");
+      return;
+    }
+
+    if (!formData.ticker.trim()) {
+      toast.error(t("launch.errors.tickerRequired") || "Ticker is required");
+      return;
+    }
+
+    if (!formData.description.trim() || formData.description.length < 10) {
+      toast.error(t("launch.errors.descriptionRequired") || "Description must be at least 10 characters");
+      return;
+    }
+
+    if (!uploadedImage) {
+      toast.error(t("launch.errors.imageRequired") || "Please upload your meme image");
       return;
     }
 
     setIsGenerating(true);
     setIsUploading(true);
-    
+
     try {
-      // Step 1: Upload all images to S3
-      if (removeBackground) {
-        toast.info(`Removing background and uploading ${uploadedImages.length} image(s)...`);
-      } else {
-        toast.info(`Uploading ${uploadedImages.length} image(s)...`);
-      }
-      
-      const uploadResults = await Promise.all(
-        uploadedImages.map((file, index) =>
-          uploadImageMutation.mutateAsync({
-            fileName: file.name,
-            fileType: file.type,
-            base64Data: imagePreviews[index],
-            removeBackground,
-          })
-        )
-      );
-      
-      if (uploadResults.some(result => !result.success)) {
-        throw new Error("Failed to upload one or more images");
-      }
-      
-      setIsUploading(false);
-      toast.success(`${uploadedImages.length} image(s) uploaded! Creating project...`);
-      
-      // Step 2: Create project with uploaded image URLs
-      const userImages = uploadResults.map(result => ({
-        url: result.url,
-        key: result.fileKey,
-      }));
-      
-      const result = await createProjectMutation.mutateAsync({
-        ...formData,
-        userImageUrl: userImages[0].url, // Primary image
-        userImageKey: userImages[0].key,
-        userImages: JSON.stringify(userImages),
+      // Step 1: Upload image to S3
+      toast.info(t("launch.uploading") || "Uploading image...");
+
+      const uploadResult = await uploadImageMutation.mutateAsync({
+        fileName: uploadedImage.name,
+        fileType: uploadedImage.type,
+        base64Data: imagePreview,
+        removeBackground: false, // Don't remove background for meme images
       });
-      
-      // Start listening to progress
-      if (result.projectId) {
-        setCurrentProjectId(result.projectId);
+
+      if (!uploadResult.success) {
+        throw new Error("Failed to upload image");
       }
-    } catch (error) {
-      console.error("Failed to create project:", error);
+
       setIsUploading(false);
+      toast.success(t("launch.uploadSuccess") || "Image uploaded!");
+
+      // Step 2: Generate website
+      toast.info(t("launch.generating") || "Generating your website... This may take 30-60 seconds");
+
+      await generateWebsiteMutation.mutateAsync({
+        projectName: formData.projectName,
+        ticker: formData.ticker,
+        description: formData.description,
+        memeImageUrl: uploadResult.url,
+        socialLinks: {
+          twitter: formData.twitter || undefined,
+          telegram: formData.telegram || undefined,
+          discord: formData.discord || undefined,
+          website: formData.website || undefined,
+        },
+        contractAddress: formData.contractAddress || undefined,
+      });
+    } catch (error) {
+      console.error("[Launch] Error:", error);
       setIsGenerating(false);
+      setIsUploading(false);
     }
   };
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground font-mono">LOADING SYSTEM...</p>
-        </div>
+      <div className="min-h-screen bg-[#d1c9b8] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#2d3e2d]" />
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    window.location.href = getLoginUrl();
-    return null;
+    return (
+      <div className="min-h-screen bg-[#d1c9b8] flex flex-col items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-white/90 border-2 border-[#2d3e2d]">
+          <CardHeader>
+            <CardTitle className="text-2xl text-[#2d3e2d]">
+              {t("launch.loginRequired") || "Login Required"}
+            </CardTitle>
+            <CardDescription>
+              {t("launch.loginDescription") || "Please login to launch your meme project"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button asChild className="w-full bg-[#2d3e2d] hover:bg-[#3d4e3d]">
+              <a href={getLoginUrl()}>
+                {t("nav.login") || "Login"}
+              </a>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                {t("nav.home") || "Back to Home"}
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation Header */}
-      <nav className="border-b-2 border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-[#d1c9b8]">
+      {/* Header */}
+      <header className="border-b-2 border-[#2d3e2d] bg-white/90 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <img src="/EZ.png" alt="EZCTO" className="h-10" />
-            </div>
+            <img src="/Anniu.png" alt="EZCTO Logo" className="h-12" />
           </Link>
-          
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
-              <Button variant="ghost" className="font-mono">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {t('nav.dashboard')}
+              <Button variant="ghost" className="text-[#2d3e2d]">
+                {t("nav.dashboard") || "Dashboard"}
               </Button>
             </Link>
             <LanguageSwitcher />
           </div>
         </div>
-      </nav>
+      </header>
 
-      <div className="container py-12 max-w-4xl">
-        {/* Header */}
-        <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 border-2 border-primary bg-primary/10 mb-6">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <span className="text-sm font-mono font-bold uppercase tracking-wider">
-              {t('launch.page.tag')}
-            </span>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-3xl mx-auto">
+          {/* Page Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-[#2d3e2d] mb-4 font-mono">
+              {t("launch.title") || "Launch Your Meme Project"}
+            </h1>
+            <p className="text-lg text-[#2d3e2d]/80 mb-2">
+              {t("launch.subtitle") || "Upload your meme, tell us about it, and get a complete website in 60 seconds."}
+            </p>
+            <p className="text-sm text-[#2d3e2d]/60">
+              {t("launch.aiPowered") || "Powered by AI - No design skills required"}
+            </p>
           </div>
-          
-          <h1 className="text-5xl font-bold mb-4">
-            {t('launch.page.title')}
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            {t('launch.page.subtitle')}
-          </p>
-        </div>
 
-        {/* Progress Display */}
-        {isGenerating && progress && (
-          <Card className="module-card mb-6 border-primary">
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                    <span className="font-mono text-sm font-bold">{progress.message}</span>
-                  </div>
-                  <span className="font-mono text-sm font-bold text-primary">
-                    {progress.progress}%
-                  </span>
+          {/* Form */}
+          <Card className="bg-white/90 border-2 border-[#2d3e2d]">
+            <CardHeader>
+              <CardTitle className="text-2xl text-[#2d3e2d] flex items-center gap-2">
+                <Sparkles className="w-6 h-6" />
+                {t("launch.formTitle") || "Project Information"}
+              </CardTitle>
+              <CardDescription>
+                {t("launch.formDescription") || "Fill in the details below. Our AI will analyze your meme and create a perfect website."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Meme Image Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="meme-image" className="text-[#2d3e2d] font-semibold">
+                    {t("launch.memeImage") || "Your Meme Image"} *
+                  </Label>
+                  <p className="text-sm text-[#2d3e2d]/60">
+                    {t("launch.memeImageDescription") || "Upload the main character/image for your meme project"}
+                  </p>
+
+                  {!imagePreview ? (
+                    <label
+                      htmlFor="meme-image"
+                      className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-[#2d3e2d] rounded-lg cursor-pointer bg-white/50 hover:bg-white/70 transition-colors"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-12 h-12 mb-4 text-[#2d3e2d]/60" />
+                        <p className="mb-2 text-sm text-[#2d3e2d]">
+                          <span className="font-semibold">{t("launch.clickToUpload") || "Click to upload"}</span> {t("launch.orDragAndDrop") || "or drag and drop"}
+                        </p>
+                        <p className="text-xs text-[#2d3e2d]/60">
+                          PNG, JPG, GIF (MAX. 10MB)
+                        </p>
+                      </div>
+                      <input
+                        id="meme-image"
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={isGenerating}
+                      />
+                    </label>
+                  ) : (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Uploaded meme"
+                        className="w-full h-64 object-contain rounded-lg border-2 border-[#2d3e2d] bg-white"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={removeImage}
+                        disabled={isGenerating}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                  <div
-                    className="bg-primary h-full transition-all duration-500 ease-out"
-                    style={{ width: `${progress.progress}%` }}
+
+                {/* Project Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-[#2d3e2d] font-semibold">
+                    {t("launch.projectName") || "Project Name"} *
+                  </Label>
+                  <Input
+                    id="name"
+                    value={formData.projectName}
+                    onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
+                    placeholder="DogeKing"
+                    className="border-2 border-[#2d3e2d]"
+                    disabled={isGenerating}
+                    required
                   />
                 </div>
-                {progress.error && (
-                  <p className="text-sm text-destructive font-mono">{progress.error}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Launch Form */}
-        <Card className="module-card">
-          <CardHeader>
-            <CardTitle className="text-2xl">{t('launch.page.formTitle')}</CardTitle>
-            <CardDescription>
-              {t('launch.page.formDescription')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Project Name */}
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-base font-bold">
-                  {t('launch.form.projectName')} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="name"
-                  placeholder={t('launch.form.projectNamePlaceholder')}
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="text-lg font-mono retro-border"
-                  required
-                />
-                <p className="text-sm text-muted-foreground">
-                  {t('launch.form.projectNameHelp')}
-                </p>
-              </div>
+                {/* Ticker */}
+                <div className="space-y-2">
+                  <Label htmlFor="ticker" className="text-[#2d3e2d] font-semibold">
+                    {t("launch.ticker") || "Ticker Symbol"} *
+                  </Label>
+                  <Input
+                    id="ticker"
+                    value={formData.ticker}
+                    onChange={(e) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
+                    placeholder="DGKNG"
+                    className="border-2 border-[#2d3e2d] font-mono"
+                    disabled={isGenerating}
+                    maxLength={10}
+                    required
+                  />
+                </div>
 
-              {/* Ticker */}
-              <div className="space-y-2">
-                <Label htmlFor="ticker" className="text-base font-bold">
-                  {t('launch.form.ticker')}
-                </Label>
-                <Input
-                  id="ticker"
-                  placeholder={t('launch.form.tickerPlaceholder')}
-                  value={formData.ticker}
-                  onChange={(e) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
-                  className="text-lg font-mono retro-border"
-                  maxLength={10}
-                />
-                <p className="text-sm text-muted-foreground">
-                  {t('launch.form.tickerHelp')}
-                </p>
-              </div>
+                {/* Description */}
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="text-[#2d3e2d] font-semibold">
+                    {t("launch.description") || "Project Description"} *
+                  </Label>
+                  <p className="text-sm text-[#2d3e2d]/60">
+                    {t("launch.descriptionHint") || "Describe your project's story, community, and vision. Our AI will use this to design your website."}
+                  </p>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder={t("launch.descriptionPlaceholder") || "Tell us about your meme project... (100-500 words)"}
+                    rows={6}
+                    className="border-2 border-[#2d3e2d]"
+                    disabled={isGenerating}
+                    required
+                  />
+                  <p className="text-xs text-[#2d3e2d]/60">
+                    {formData.description.length} characters
+                  </p>
+                </div>
 
-              {/* Character Image Upload */}
-              <div className="space-y-2">
-                <Label htmlFor="characterImage" className="text-base font-bold">
-                  {t('launch.form.uploadImages')} <span className="text-destructive">*</span>
-                </Label>
-                <div className="space-y-4">
-                  {/* Upload Button */}
-                  {uploadedImages.length < MAX_IMAGES && (
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
-                         onClick={() => document.getElementById('characterImage')?.click()}>
-                      <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-sm font-mono mb-2">{t('launch.form.uploadPrompt')}</p>
-                      <p className="text-xs text-muted-foreground">{t('launch.form.uploadFormat')}</p>
-                      <p className="text-xs text-primary mt-2">
-                        {uploadedImages.length}/{MAX_IMAGES} {t('launch.form.uploadCount')}
-                      </p>
+                {/* Optional: Social Links */}
+                <details className="border-2 border-[#2d3e2d] rounded-lg p-4 bg-white/50">
+                  <summary className="cursor-pointer font-semibold text-[#2d3e2d] mb-4">
+                    {t("launch.socialLinks") || "Social Links (Optional)"}
+                  </summary>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="twitter" className="text-[#2d3e2d]">Twitter</Label>
                       <Input
-                        id="characterImage"
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            if (file.size > 10 * 1024 * 1024) {
-                              toast.error(t('launch.form.imageSizeError'));
-                              return;
-                            }
-                            if (uploadedImages.length >= MAX_IMAGES) {
-                              toast.error(`Maximum ${MAX_IMAGES} images allowed`);
-                              return;
-                            }
-                            setUploadedImages([...uploadedImages, file]);
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setImagePreviews([...imagePreviews, reader.result as string]);
-                            };
-                            reader.readAsDataURL(file);
-                            // Reset input
-                            e.target.value = '';
-                          }
-                        }}
+                        id="twitter"
+                        type="url"
+                        value={formData.twitter}
+                        onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                        placeholder="https://twitter.com/..."
+                        className="border-2 border-[#2d3e2d]"
+                        disabled={isGenerating}
                       />
                     </div>
-                  )}
-                  
-                  {/* Image Previews Grid */}
-                  {uploadedImages.length > 0 && (
-                    <div className="grid grid-cols-3 gap-4">
-                      {uploadedImages.map((file, index) => (
-                        <div key={index} className="relative border-2 border-primary rounded-lg p-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUploadedImages(uploadedImages.filter((_, i) => i !== index));
-                              setImagePreviews(imagePreviews.filter((_, i) => i !== index));
-                            }}
-                            className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/80 transition-colors z-10"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                          <img
-                            src={imagePreviews[index]}
-                            alt={`Character ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg"
-                          />
-                          <p className="text-xs text-center mt-1 font-mono text-muted-foreground truncate">
-                            {file.name}
-                          </p>
-                          {index === 0 && (
-                            <span className="absolute top-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">
-                              {t('launch.form.primary')}
-                            </span>
-                          )}
-                        </div>
-                      ))}
+                    <div className="space-y-2">
+                      <Label htmlFor="telegram" className="text-[#2d3e2d]">Telegram</Label>
+                      <Input
+                        id="telegram"
+                        type="url"
+                        value={formData.telegram}
+                        onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                        placeholder="https://t.me/..."
+                        className="border-2 border-[#2d3e2d]"
+                        disabled={isGenerating}
+                      />
                     </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <input
-                    type="checkbox"
-                    id="removeBackground"
-                    checked={removeBackground}
-                    onChange={(e) => setRemoveBackground(e.target.checked)}
-                    className="w-4 h-4 rounded border-border"
-                  />
-                  <label htmlFor="removeBackground" className="text-sm text-muted-foreground cursor-pointer">
-                    {t('launch.form.removeBackground')}
-                  </label>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {t('launch.form.uploadHelp')}
-                </p>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-base font-bold">
-                  {t('launch.form.description')}
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder={t('launch.form.descriptionPlaceholder')}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="min-h-32 text-base font-mono retro-border"
-                />
-                <p className="text-sm text-muted-foreground">
-                  {t('launch.form.descriptionHelp')}
-                </p>
-              </div>
-
-              {/* Style Template */}
-              <div className="space-y-2">
-                <Label htmlFor="styleTemplate" className="text-base font-bold">
-                  {t('launch.form.styleTemplate')}
-                </Label>
-                <Select
-                  value={formData.styleTemplate}
-                  onValueChange={(value) => setFormData({ ...formData, styleTemplate: value })}
-                >
-                  <SelectTrigger className="text-lg font-mono retro-border">
-                    <SelectValue placeholder={t('launch.form.styleTemplatePlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="retro_gaming">
-                      <div className="flex flex-col">
-                        <span className="font-bold">{t('launch.styles.retroGaming.name')}</span>
-                        <span className="text-xs text-muted-foreground">{t('launch.styles.retroGaming.description')}</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="cyberpunk">
-                      <div className="flex flex-col">
-                        <span className="font-bold">{t('launch.styles.cyberpunk.name')}</span>
-                        <span className="text-xs text-muted-foreground">{t('launch.styles.cyberpunk.description')}</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="minimalist">
-                      <div className="flex flex-col">
-                        <span className="font-bold">{t('launch.styles.minimalist.name')}</span>
-                        <span className="text-xs text-muted-foreground">{t('launch.styles.minimalist.description')}</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="internet_meme">
-                      <div className="flex flex-col">
-                        <span className="font-bold">{t('launch.styles.internetMeme.name')}</span>
-                        <span className="text-xs text-muted-foreground">{t('launch.styles.internetMeme.description')}</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">
-                  {t('launch.form.styleTemplateHelp')}
-                </p>
-              </div>
-
-              {/* What You'll Get */}
-              <Card className="bg-primary/5 border-primary">
-                <CardHeader>
-                  <CardTitle className="text-lg">{t('launch.page.whatYouGetTitle')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-bold mb-2 text-primary">{t('launch.page.visualAssets')}</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li>• {t('launch.assets.logo')}</li>
-                        <li>• {t('launch.assets.banner')}</li>
-                        <li>• {t('launch.assets.pfp')}</li>
-                        <li>• {t('launch.assets.poster')}</li>
-                      </ul>
+                    <div className="space-y-2">
+                      <Label htmlFor="discord" className="text-[#2d3e2d]">Discord</Label>
+                      <Input
+                        id="discord"
+                        type="url"
+                        value={formData.discord}
+                        onChange={(e) => setFormData({ ...formData, discord: e.target.value })}
+                        placeholder="https://discord.gg/..."
+                        className="border-2 border-[#2d3e2d]"
+                        disabled={isGenerating}
+                      />
                     </div>
-                    <div>
-                      <h4 className="font-bold mb-2 text-primary">{t('launch.page.contentAssets')}</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li>• {t('launch.assets.narrative')}</li>
-                        <li>• {t('launch.assets.whitepaper')}</li>
-                        <li>• {t('launch.assets.tweets')}</li>
-                        <li>• {t('launch.assets.landingPage')}</li>
-                      </ul>
+                    <div className="space-y-2">
+                      <Label htmlFor="website" className="text-[#2d3e2d]">Website</Label>
+                      <Input
+                        id="website"
+                        type="url"
+                        value={formData.website}
+                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                        placeholder="https://..."
+                        className="border-2 border-[#2d3e2d]"
+                        disabled={isGenerating}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contract" className="text-[#2d3e2d]">Contract Address</Label>
+                      <Input
+                        id="contract"
+                        value={formData.contractAddress}
+                        onChange={(e) => setFormData({ ...formData, contractAddress: e.target.value })}
+                        placeholder="0x..."
+                        className="border-2 border-[#2d3e2d] font-mono text-sm"
+                        disabled={isGenerating}
+                      />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </details>
 
-              {/* Submit Button */}
-              <div className="flex gap-4">
-              <Button
-                type="submit"
-                size="lg"
-                disabled={isGenerating || isUploading}
-                className="flex-1 text-lg font-mono"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    {t('launch.buttons.uploadingImage')}
-                  </>
-                ) : isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    {t('launch.buttons.generatingAssets')}
-                  </>
-                ) : (
-                  <>
-                    <Rocket className="mr-2 h-5 w-5" />
-                    {t('launch.buttons.launchProject')}
-                  </>
-                )}
-              </Button>
-                <Link href="/dashboard">
+                {/* Submit Button */}
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    type="submit"
+                    disabled={isGenerating || isUploading}
+                    className="flex-1 bg-[#2d3e2d] hover:bg-[#3d4e3d] text-white py-6 text-lg"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        {isUploading
+                          ? (t("launch.uploading") || "Uploading...")
+                          : (t("launch.generating") || "Generating...")}
+                      </>
+                    ) : (
+                      <>
+                        <Rocket className="w-5 h-5 mr-2" />
+                        {t("launch.generateWebsite") || "Generate Website"}
+                      </>
+                    )}
+                  </Button>
                   <Button
                     type="button"
-                    size="lg"
                     variant="outline"
-                    className="font-mono text-lg"
+                    onClick={() => setLocation("/dashboard")}
                     disabled={isGenerating}
+                    className="border-2 border-[#2d3e2d]"
                   >
-                    {t('launch.buttons.cancel')}
+                    {t("launch.cancel") || "Cancel"}
                   </Button>
-                </Link>
-              </div>
-
-              <p className="text-sm text-muted-foreground text-center">
-                {t('launch.page.generationTime')}
-              </p>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Process Overview */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6 text-center">How It Works</h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { step: "01", title: "Input", desc: "Provide project details" },
-              { step: "02", title: "Generate", desc: "AI creates your assets" },
-              { step: "03", title: "Review", desc: "Check & download" },
-              { step: "04", title: "Launch", desc: "Deploy & promote" },
-            ].map((item, i) => (
-              <div key={i} className="text-center">
-                <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center mx-auto mb-4 font-bold text-2xl">
-                  {item.step}
                 </div>
-                <h3 className="font-bold mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
-              </div>
-            ))}
-          </div>
+
+                {/* Info Text */}
+                <p className="text-sm text-center text-[#2d3e2d]/60">
+                  {t("launch.processingTime") || "Generation typically takes 30-60 seconds. You'll be redirected to your dashboard when complete."}
+                </p>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

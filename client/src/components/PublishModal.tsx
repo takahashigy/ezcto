@@ -12,6 +12,8 @@ interface PublishModalProps {
   onOpenChange: (open: boolean) => void;
   projectId: number;
   projectName: string;
+  currentSubdomain?: string;
+  isEdit?: boolean;
   onPublishSuccess?: () => void;
 }
 
@@ -20,6 +22,8 @@ export function PublishModal({
   onOpenChange,
   projectId,
   projectName,
+  currentSubdomain,
+  isEdit = false,
   onPublishSuccess,
 }: PublishModalProps) {
   const [subdomain, setSubdomain] = useState("");
@@ -34,23 +38,33 @@ export function PublishModal({
   const checkSubdomainMutation = trpc.projects.checkSubdomain.useMutation();
   const publishMutation = trpc.projects.publishWebsite.useMutation({
     onSuccess: (data) => {
-      toast.success(`Website published successfully to ${data.fullDomain}!`);
+      if (isEdit) {
+        toast.success(`Subdomain updated successfully to ${data.fullDomain}!`);
+      } else {
+        toast.success(`Website published successfully to ${data.fullDomain}!`);
+      }
       onPublishSuccess?.();
       onOpenChange(false);
     },
     onError: (error) => {
-      toast.error(`Failed to publish: ${error.message}`);
+      toast.error(`Failed to ${isEdit ? 'update' : 'publish'}: ${error.message}`);
     },
   });
 
-  // Initialize subdomain from project name
+  // Initialize subdomain from project name or current subdomain
   useEffect(() => {
-    if (open && projectName) {
-      const slug = projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      setSubdomain(slug);
+    if (open) {
+      if (isEdit && currentSubdomain) {
+        // In edit mode, use current subdomain
+        setSubdomain(currentSubdomain);
+      } else if (projectName) {
+        // In publish mode, generate from project name
+        const slug = projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        setSubdomain(slug);
+      }
       setAvailabilityStatus(null);
     }
-  }, [open, projectName]);
+  }, [open, projectName, currentSubdomain, isEdit]);
 
   const handleSubdomainChange = (value: string) => {
     // Only allow lowercase letters, numbers, and hyphens
@@ -104,9 +118,13 @@ export function PublishModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Publish Your Website</DialogTitle>
+          <DialogTitle className="text-2xl">
+            {isEdit ? "Edit Subdomain" : "Publish Your Website"}
+          </DialogTitle>
           <DialogDescription>
-            Choose how you want to publish your meme project website
+            {isEdit
+              ? "Update your website's subdomain. The website will be redeployed automatically."
+              : "Choose how you want to publish your meme project website"}
           </DialogDescription>
         </DialogHeader>
 
@@ -119,10 +137,12 @@ export function PublishModal({
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-[#2d3e2d] mb-2">
-                  Free Subdomain
+                  {isEdit ? "Update Subdomain" : "Free Subdomain"}
                 </h3>
                 <p className="text-sm text-[#2d3e2d]/70 mb-4">
-                  Get a free subdomain under cto.fun. Perfect for getting started quickly.
+                  {isEdit
+                    ? "Change your website's subdomain. Your website will be redeployed to the new address."
+                    : "Get a free subdomain under cto.fun. Perfect for getting started quickly."}
                 </p>
 
                 <div className="space-y-4">
@@ -204,12 +224,12 @@ export function PublishModal({
                     {publishMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Publishing...
+                        {isEdit ? "Updating..." : "Publishing..."}
                       </>
                     ) : (
                       <>
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        Publish to {subdomain}.cto.fun
+                        {isEdit ? `Update to ${subdomain}.cto.fun` : `Publish to ${subdomain}.cto.fun`}
                       </>
                     )}
                   </Button>

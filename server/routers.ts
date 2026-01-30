@@ -468,6 +468,10 @@ export const appRouter = router({
           throw new Error("Unauthorized");
         }
 
+        // Track if this is an edit (subdomain change)
+        const isEdit = project.subdomain && project.subdomain !== input.subdomain;
+        const oldSubdomain = project.subdomain;
+
         // 2. Check subdomain availability
         const existing = await db.getProjectBySubdomain(input.subdomain);
         if (existing && existing.id !== input.projectId) {
@@ -493,11 +497,38 @@ export const appRouter = router({
           // The actual URL remains the S3 URL, but we store the intended subdomain
           const fullDomain = `${input.subdomain}.cto.fun`;
 
-          // 6. Update project with deployment info
+          // 6. Update project with deployment info and record history
+          const metadata = project.metadata ? 
+            (typeof project.metadata === 'string' ? JSON.parse(project.metadata) : project.metadata) : 
+            {};
+          
+          // Initialize subdomain history if not exists
+          if (!metadata.subdomainHistory) {
+            metadata.subdomainHistory = [];
+          }
+
+          // Record subdomain change if this is an edit
+          if (isEdit && oldSubdomain) {
+            metadata.subdomainHistory.push({
+              from: oldSubdomain,
+              to: input.subdomain,
+              changedAt: new Date().toISOString(),
+              changedBy: ctx.user.id,
+            });
+          } else if (!isEdit) {
+            // First time publishing
+            metadata.subdomainHistory.push({
+              subdomain: input.subdomain,
+              publishedAt: new Date().toISOString(),
+              publishedBy: ctx.user.id,
+            });
+          }
+
           await db.updateProject(input.projectId, {
             deploymentStatus: "deployed",
             subdomain: input.subdomain,
             deploymentUrl: websiteAsset.fileUrl, // In production, this would be https://${fullDomain}
+            metadata,
           });
 
           console.log(`[PublishWebsite] Successfully published to ${fullDomain}`);

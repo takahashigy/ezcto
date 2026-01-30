@@ -387,4 +387,14 @@
 - [x] 在Dashboard添加“发布”按钮
 - [x] 集成发布Modal到Dashboard
 - [x] 测试完整发布流程
+- [x] 保存checkpoint
+
+## 子域名编辑功能
+- [x] 更新PublishModal支持编辑模式（isEdit prop）
+- [x] 在编辑模式下显示当前子域名
+- [x] 在编辑模式下允许修改子域名
+- [x] 更新publishWebsite API支持重新部署
+- [x] 在项目metadata中记录子域名变更历史
+- [x] 在Dashboard已发布项目旁添加“编辑子域名”按钮
+- [x] 测试子域名编辑和重新部署流程
 - [ ] 保存checkpoint

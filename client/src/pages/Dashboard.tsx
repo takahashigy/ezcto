@@ -20,7 +20,8 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [deploymentPaywallOpen, setDeploymentPaywallOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<{ id: number; name: string } | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<{ id: number; name: string; subdomain?: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'projects' | 'orders'>('projects');
   const previousProjectsRef = useRef<typeof projects>(undefined);
 
@@ -257,20 +258,38 @@ export default function Dashboard() {
                       {project.status === 'completed' && (
                         <>
                           {project.deploymentStatus === 'deployed' && project.deploymentUrl ? (
-                            <Button
-                              variant="default"
-                              className="font-mono bg-green-600 hover:bg-green-700"
-                              onClick={() => window.open(project.deploymentUrl, '_blank')}
-                            >
-                              <Globe className="mr-2 h-4 w-4" />
-                              {t('dashboard.project.viewWebsite')}
-                            </Button>
+                            <>
+                              <Button
+                                variant="default"
+                                className="font-mono bg-green-600 hover:bg-green-700"
+                                onClick={() => window.open(project.deploymentUrl, '_blank')}
+                              >
+                                <Globe className="mr-2 h-4 w-4" />
+                                {t('dashboard.project.viewWebsite')}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="font-mono"
+                                onClick={() => {
+                                  setSelectedProject({ 
+                                    id: project.id, 
+                                    name: project.name,
+                                    subdomain: project.subdomain 
+                                  });
+                                  setIsEditMode(true);
+                                  setPublishModalOpen(true);
+                                }}
+                              >
+                                Edit Subdomain
+                              </Button>
+                            </>
                           ) : (
                             <Button
                               variant="default"
                               className="font-mono"
                               onClick={() => {
                                 setSelectedProject({ id: project.id, name: project.name });
+                                setIsEditMode(false);
                                 setPublishModalOpen(true);
                               }}
                             >
@@ -393,9 +412,16 @@ export default function Dashboard() {
       {selectedProject && (
         <PublishModal
           open={publishModalOpen}
-          onOpenChange={setPublishModalOpen}
+          onOpenChange={(open) => {
+            setPublishModalOpen(open);
+            if (!open) {
+              setIsEditMode(false);
+            }
+          }}
           projectId={selectedProject.id}
           projectName={selectedProject.name}
+          currentSubdomain={selectedProject.subdomain}
+          isEdit={isEditMode}
           onPublishSuccess={() => {
             // Refetch projects to update UI
             window.location.reload();

@@ -126,6 +126,14 @@ export async function getProjectById(projectId: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getProjectBySubdomain(subdomain: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(projects).where(eq(projects.subdomain, subdomain)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function updateProjectStatus(projectId: number, status: "draft" | "generating" | "completed" | "failed") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

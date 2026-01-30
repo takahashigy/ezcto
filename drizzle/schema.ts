@@ -33,8 +33,9 @@ export const projects = mysqlTable("projects", {
   userImageUrl: varchar("userImageUrl", { length: 1000 }),
   userImageKey: varchar("userImageKey", { length: 500 }),
   userImages: json("userImages").$type<Array<{ url: string; key: string }>>(),
+  subdomain: varchar("subdomain", { length: 100 }),
   deploymentUrl: varchar("deploymentUrl", { length: 1000 }),
-  deploymentStatus: mysqlEnum("deploymentStatus", ["not_deployed", "deployed", "failed"]).default("not_deployed"),
+  deploymentStatus: mysqlEnum("deploymentStatus", ["not_deployed", "deploying", "deployed", "failed"]).default("not_deployed"),
   aiAnalysis: json("aiAnalysis").$type<{
     narrativeType?: string;
     layoutStyle?: string;

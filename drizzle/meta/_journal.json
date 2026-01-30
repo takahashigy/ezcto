@@ -57,6 +57,13 @@
       "when": 1769802889904,
       "tag": "0007_noisy_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1769804867660,
+      "tag": "0008_fair_namor",
+      "breakpoints": true
     }
   ]
 }

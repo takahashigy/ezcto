@@ -378,11 +378,10 @@ export const appRouter = router({
             fileKey: websiteKey,
           });
 
-          // 7. Update project with results
+          // 7. Update project with results (not deployed yet, waiting for user to publish)
           await db.updateProject(projectId, {
             status: "completed",
-            deploymentUrl: websiteUrl,
-            deploymentStatus: "deployed",
+            deploymentStatus: "not_deployed",
             aiAnalysis: analysis,
             metadata: {
               generatedAt: new Date().toISOString(),
@@ -409,6 +408,111 @@ export const appRouter = router({
         } catch (error) {
           console.error(`[GenerateWebsite] Generation failed:`, error);
           await db.updateProjectStatus(projectId, "failed");
+          throw error;
+        }
+      }),
+
+    // Check subdomain availability
+    checkSubdomain: protectedProcedure
+      .input(z.object({
+        subdomain: z.string().min(3).max(63).regex(/^[a-z0-9-]+$/),
+      }))
+      .mutation(async ({ input }) => {
+        console.log(`[CheckSubdomain] Checking availability for: ${input.subdomain}`);
+
+        // Check if subdomain is already taken
+        const existing = await db.getProjectBySubdomain(input.subdomain);
+
+        if (existing) {
+          return {
+            available: false,
+            message: "This subdomain is already taken",
+          };
+        }
+
+        // Check against reserved subdomains
+        const reserved = [
+          "www", "api", "admin", "dashboard", "app", "mail", "ftp",
+          "localhost", "staging", "dev", "test", "demo", "cdn", "static",
+        ];
+
+        if (reserved.includes(input.subdomain.toLowerCase())) {
+          return {
+            available: false,
+            message: "This subdomain is reserved",
+          };
+        }
+
+        return {
+          available: true,
+          message: "This subdomain is available",
+          fullDomain: `${input.subdomain}.cto.fun`,
+        };
+      }),
+
+    // Publish website with subdomain
+    publishWebsite: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        subdomain: z.string().min(3).max(63).regex(/^[a-z0-9-]+$/),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        console.log(`[PublishWebsite] Publishing project ${input.projectId} to ${input.subdomain}.cto.fun`);
+
+        // 1. Verify project ownership
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        // 2. Check subdomain availability
+        const existing = await db.getProjectBySubdomain(input.subdomain);
+        if (existing && existing.id !== input.projectId) {
+          throw new Error("Subdomain is already taken");
+        }
+
+        // 3. Get website HTML from assets
+        const assets = await db.getAssetsByProjectId(input.projectId);
+        const websiteAsset = assets.find(a => a.assetType === "website");
+        if (!websiteAsset || !websiteAsset.fileUrl) {
+          throw new Error("Website HTML not found. Please generate the website first.");
+        }
+
+        try {
+          // 4. Update deployment status
+          await db.updateProject(input.projectId, {
+            deploymentStatus: "deploying",
+            subdomain: input.subdomain,
+          });
+
+          // 5. Upload to subdomain path (simulated - in production would configure DNS/CDN)
+          // For now, we just update the database with the subdomain
+          // The actual URL remains the S3 URL, but we store the intended subdomain
+          const fullDomain = `${input.subdomain}.cto.fun`;
+
+          // 6. Update project with deployment info
+          await db.updateProject(input.projectId, {
+            deploymentStatus: "deployed",
+            subdomain: input.subdomain,
+            deploymentUrl: websiteAsset.fileUrl, // In production, this would be https://${fullDomain}
+          });
+
+          console.log(`[PublishWebsite] Successfully published to ${fullDomain}`);
+
+          return {
+            success: true,
+            subdomain: input.subdomain,
+            fullDomain,
+            deploymentUrl: websiteAsset.fileUrl,
+          };
+        } catch (error) {
+          console.error(`[PublishWebsite] Deployment failed:`, error);
+          await db.updateProject(input.projectId, {
+            deploymentStatus: "failed",
+          });
           throw error;
         }
       }),

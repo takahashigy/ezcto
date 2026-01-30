@@ -6,6 +6,7 @@ import { Link, useLocation } from "wouter";
 import { Rocket, Package, FileText, Download, Loader2, Plus, ArrowLeft, Globe } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { DeploymentPaywall } from "@/components/DeploymentPaywall";
+import { PublishModal } from "@/components/PublishModal";
 import { GenerationHistorySection } from "@/components/GenerationHistorySection";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const [deploymentPaywallOpen, setDeploymentPaywallOpen] = useState(false);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<{ id: number; name: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'projects' | 'orders'>('projects');
   const previousProjectsRef = useRef<typeof projects>(undefined);
@@ -254,17 +256,28 @@ export default function Dashboard() {
                       </Link>
                       {project.status === 'completed' && (
                         <>
-                          <Button
-                            variant="default"
-                            className="font-mono"
-                            onClick={() => {
-                              setSelectedProject({ id: project.id, name: project.name });
-                              setDeploymentPaywallOpen(true);
-                            }}
-                          >
-                            <Globe className="mr-2 h-4 w-4" />
-                            Deploy Website
-                          </Button>
+                          {project.deploymentStatus === 'deployed' && project.deploymentUrl ? (
+                            <Button
+                              variant="default"
+                              className="font-mono bg-green-600 hover:bg-green-700"
+                              onClick={() => window.open(project.deploymentUrl, '_blank')}
+                            >
+                              <Globe className="mr-2 h-4 w-4" />
+                              {t('dashboard.project.viewWebsite')}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="default"
+                              className="font-mono"
+                              onClick={() => {
+                                setSelectedProject({ id: project.id, name: project.name });
+                                setPublishModalOpen(true);
+                              }}
+                            >
+                              <Globe className="mr-2 h-4 w-4" />
+                              {t('dashboard.project.publish')}
+                            </Button>
+                          )}
                           <Button variant="outline" className="font-mono">
                             <Download className="mr-2 h-4 w-4" />
                             Download Assets
@@ -375,6 +388,20 @@ export default function Dashboard() {
           </>
         )}
       </div>
+
+      {/* Publish Modal */}
+      {selectedProject && (
+        <PublishModal
+          open={publishModalOpen}
+          onOpenChange={setPublishModalOpen}
+          projectId={selectedProject.id}
+          projectName={selectedProject.name}
+          onPublishSuccess={() => {
+            // Refetch projects to update UI
+            window.location.reload();
+          }}
+        />
+      )}
 
       {/* Deployment Paywall */}
       {selectedProject && (

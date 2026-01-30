@@ -1,0 +1,2 @@
+ALTER TABLE `projects` MODIFY COLUMN `deploymentStatus` enum('not_deployed','deploying','deployed','failed') DEFAULT 'not_deployed';--> statement-breakpoint
+ALTER TABLE `projects` ADD `subdomain` varchar(100);

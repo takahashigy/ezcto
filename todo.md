@@ -405,4 +405,10 @@
 - [x] 优化Launch页面布局和视觉效果
 - [x] 确保所有UI元素与EZCTO品牌风格匹配
 - [x] 测试优化后的视觉效果
+- [x] 保存checkpoint
+
+## Launch页面UI细节修复
+- [x] 去掉左上角Logo旁的“EZCTO”文字，只保留Logo图片
+- [x] 优化底部按钮布局，防止Cancel按钮被挤出视图
+- [x] 测试修复效果
 - [ ] 保存checkpoint

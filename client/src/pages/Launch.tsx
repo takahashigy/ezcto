@@ -331,9 +331,8 @@ export default function Launch() {
       {/* Header */}
       <header className="border-b-2 border-[#2d3e2d] bg-white/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/">
             <img src="/EZ.png" alt="EZCTO Logo" className="h-10" />
-            <span className="text-2xl font-bold text-[#2d3e2d]">EZCTO</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
@@ -559,12 +558,12 @@ export default function Launch() {
                   </details>
 
                   {/* Analyze Button */}
-                  <div className="flex gap-4 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={!formData.projectName || !formData.ticker || !formData.description || !uploadedImage || isAnalyzing || isUploading}
-                    className="w-full bg-[#00FF00] hover:bg-[#00DD00] text-black font-mono text-lg py-6 font-bold"
-                  >
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                    <Button
+                      type="submit"
+                      disabled={!formData.projectName || !formData.ticker || !formData.description || !uploadedImage || isAnalyzing || isUploading}
+                      className="w-full bg-[#00FF00] hover:bg-[#00DD00] text-black font-mono text-lg py-6 font-bold"
+                    >
                       {isAnalyzing ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -582,7 +581,7 @@ export default function Launch() {
                       variant="outline"
                       onClick={() => setLocation("/dashboard")}
                       disabled={isAnalyzing}
-                      className="border-2 border-[#2d3e2d]"
+                      className="w-full border-2 border-[#2d3e2d]"
                     >
                       Cancel
                     </Button>

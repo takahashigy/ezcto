@@ -558,7 +558,7 @@ export default function Launch() {
                   </details>
 
                   {/* Analyze Button */}
-                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <div className="flex flex-col gap-4 pt-4">
                     <Button
                       type="submit"
                       disabled={!formData.projectName || !formData.ticker || !formData.description || !uploadedImage || isAnalyzing || isUploading}

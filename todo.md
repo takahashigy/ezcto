@@ -411,4 +411,9 @@
 - [x] 去掉左上角Logo旁的“EZCTO”文字，只保留Logo图片
 - [x] 优化底部按钮布局，防止Cancel按钮被挤出视图
 - [x] 测试修复效果
+- [x] 保存checkpoint
+
+## Launch页面按钮布局调整
+- [x] 将Cancel按钮改为垂直排列在Analyze & Preview按钮下方
+- [x] 确保两个按钮尺寸一致
 - [ ] 保存checkpoint

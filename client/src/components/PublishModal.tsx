@@ -142,7 +142,7 @@ export function PublishModal({
                 <p className="text-sm text-[#2d3e2d]/70 mb-4">
                   {isEdit
                     ? "Change your website's subdomain. Your website will be redeployed to the new address."
-                    : "Get a free subdomain under cto.fun. Perfect for getting started quickly."}
+                    : "Get a free subdomain under ezcto.fun. Perfect for getting started quickly."}
                 </p>
 
                 <div className="space-y-4">
@@ -161,7 +161,7 @@ export function PublishModal({
                           disabled={publishMutation.isPending}
                         />
                         <span className="text-[#2d3e2d] font-mono whitespace-nowrap">
-                          .cto.fun
+                          .ezcto.fun
                         </span>
                       </div>
                       <Button
@@ -229,7 +229,7 @@ export function PublishModal({
                     ) : (
                       <>
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        {isEdit ? `Update to ${subdomain}.cto.fun` : `Publish to ${subdomain}.cto.fun`}
+                        {isEdit ? `Update to ${subdomain}.ezcto.fun` : `Publish to ${subdomain}.ezcto.fun`}
                       </>
                     )}
                   </Button>

@@ -13,6 +13,7 @@ import { ALL_PRODUCTS } from "./products";
 import { storagePut } from "./storage";
 import { removeBackground } from "./_core/backgroundRemoval";
 import { notifyOwner } from "./_core/notification";
+import { uploadToR2 } from "./cloudflareR2";
 
 export const appRouter = router({
   system: systemRouter,
@@ -446,7 +447,7 @@ export const appRouter = router({
         return {
           available: true,
           message: "This subdomain is available",
-          fullDomain: `${input.subdomain}.cto.fun`,
+          fullDomain: `${input.subdomain}.ezcto.fun`,
         };
       }),
 
@@ -492,10 +493,18 @@ export const appRouter = router({
             subdomain: input.subdomain,
           });
 
-          // 5. Upload to subdomain path (simulated - in production would configure DNS/CDN)
-          // For now, we just update the database with the subdomain
-          // The actual URL remains the S3 URL, but we store the intended subdomain
-          const fullDomain = `${input.subdomain}.cto.fun`;
+          // 5. Fetch HTML content from S3
+          const htmlResponse = await fetch(websiteAsset.fileUrl);
+          if (!htmlResponse.ok) {
+            throw new Error("Failed to fetch website HTML from storage");
+          }
+          const htmlContent = await htmlResponse.text();
+
+          // 6. Upload to Cloudflare R2
+          const deploymentUrl = await uploadToR2(input.subdomain, htmlContent);
+          const fullDomain = `${input.subdomain}.ezcto.fun`;
+          
+          console.log(`[PublishWebsite] Uploaded to R2, accessible at ${deploymentUrl}`);
 
           // 6. Update project with deployment info and record history
           const metadata = project.metadata ? 
@@ -527,7 +536,7 @@ export const appRouter = router({
           await db.updateProject(input.projectId, {
             deploymentStatus: "deployed",
             subdomain: input.subdomain,
-            deploymentUrl: websiteAsset.fileUrl, // In production, this would be https://${fullDomain}
+            deploymentUrl, // Real URL: https://{subdomain}.ezcto.fun
             metadata,
           });
 

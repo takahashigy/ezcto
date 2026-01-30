@@ -416,4 +416,14 @@
 ## Launch页面按钮布局调整
 - [x] 将Cancel按钮改为垂直排列在Analyze & Preview按钮下方
 - [x] 确保两个按钮尺寸一致
+- [x] 保存checkpoint
+
+## Cloudflare R2集成
+- [ ] 添加Cloudflare凭证到环境变量
+- [ ] 创建Cloudflare R2客户端代码
+- [ ] 更新部署逻辑从S3切换到R2
+- [ ] 更新PublishModal显示真实域名ezcto.fun
+- [ ] 更新Dashboard显示真实网站URL
+- [ ] 测试完整发布流程
+- [ ] 验证子域名可访问性
 - [ ] 保存checkpoint

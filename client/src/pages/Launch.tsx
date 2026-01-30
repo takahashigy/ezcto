@@ -331,8 +331,9 @@ export default function Launch() {
       {/* Header */}
       <header className="border-b-2 border-[#2d3e2d] bg-white/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
-            <img src="/Anniu.png" alt="EZCTO Logo" className="h-12" />
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/EZ.png" alt="EZCTO Logo" className="h-10" />
+            <span className="text-2xl font-bold text-[#2d3e2d]">EZCTO</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
@@ -350,8 +351,12 @@ export default function Launch() {
         <div className="max-w-5xl mx-auto">
           {/* Page Header */}
           <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FF00] text-black font-mono text-sm font-bold mb-6 rounded">
+              <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
+              SYSTEM ONLINE
+            </div>
             <h1 className="text-4xl md:text-5xl font-bold text-[#2d3e2d] mb-4 font-mono">
-              Launch Your Meme Project
+              Launch Your <span className="text-[#00FF00]">Meme Project</span>
             </h1>
             <p className="text-lg text-[#2d3e2d]/80 mb-2">
               Upload your meme, tell us about it, and get a complete website in 60 seconds.
@@ -555,11 +560,11 @@ export default function Launch() {
 
                   {/* Analyze Button */}
                   <div className="flex gap-4 pt-4">
-                    <Button
-                      type="submit"
-                      disabled={isAnalyzing || isUploading}
-                      className="flex-1 bg-[#2d3e2d] hover:bg-[#3d4e3d] text-white py-6 text-lg"
-                    >
+                  <Button
+                    type="submit"
+                    disabled={!formData.projectName || !formData.ticker || !formData.description || !uploadedImage || isAnalyzing || isUploading}
+                    className="w-full bg-[#00FF00] hover:bg-[#00DD00] text-black font-mono text-lg py-6 font-bold"
+                  >
                       {isAnalyzing ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />

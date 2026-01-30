@@ -191,8 +191,8 @@ export function WebsitePreview({
           {hasChanges && (
             <Button
               onClick={handleApplyChanges}
-              disabled={isLoadingPreview}
-              className="w-full bg-[#2d3e2d] hover:bg-[#3d4e3d]"
+              disabled={!hasChanges || isLoadingPreview}
+              className="w-full bg-[#2d3e2d] hover:bg-[#3d4e3d] text-white"
             >
               {isLoadingPreview ? (
                 <>
@@ -257,7 +257,7 @@ export function WebsitePreview({
           <Button
             onClick={onConfirmGenerate}
             disabled={isGenerating}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-6 text-lg"
+            className="flex-1 bg-[#00FF00] hover:bg-[#00DD00] text-black font-mono font-bold py-6 text-lg"
           >
             {isGenerating ? (
               <>

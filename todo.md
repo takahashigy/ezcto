@@ -397,4 +397,12 @@
 - [x] 在项目metadata中记录子域名变更历史
 - [x] 在Dashboard已发布项目旁添加“编辑子域名”按钮
 - [x] 测试子域名编辑和重新部署流程
+- [x] 保存checkpoint
+
+## Launch页面UI优化
+- [x] 修复左上角Logo不显示的问题
+- [x] 统一Launch页面配色方案与主站一致
+- [x] 优化Launch页面布局和视觉效果
+- [x] 确保所有UI元素与EZCTO品牌风格匹配
+- [x] 测试优化后的视觉效果
 - [ ] 保存checkpoint

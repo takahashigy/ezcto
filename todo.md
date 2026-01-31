@@ -435,3 +435,7 @@
 - [x] 将Home页面Core Modules中IP实体化供应链按钮设为灰色失效状态
 - [x] 将Home页面Core Modules中EZSTORE官方商城按钮设为灰色失效状态
 - [x] 测试修改效果
+
+## UI调整 - 移除View Demo按钮
+- [x] 去掉主页Hero区域的View Demo按钮
+- [x] 测试修改效果

@@ -96,12 +96,6 @@ export default function Home() {
                     </Button>
                   </a>
                 )}
-                <Link href="/templates">
-                  <Button size="lg" variant="outline" className="font-mono text-lg w-full sm:w-auto">
-                    View Demo
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
               </div>
               
               <div className="flex items-center gap-8 pt-4">

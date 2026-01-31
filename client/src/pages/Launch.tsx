@@ -465,7 +465,7 @@ export default function Launch() {
                       id="name"
                       value={formData.projectName}
                       onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
-                      placeholder="DogeKing"
+                      placeholder="EZCTO"
                       className="border-2 border-[#2d3e2d]"
                       disabled={isAnalyzing}
                       required
@@ -481,7 +481,7 @@ export default function Launch() {
                       id="ticker"
                       value={formData.ticker}
                       onChange={(e) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
-                      placeholder="DGKNG"
+                      placeholder="EZCTO"
                       className="border-2 border-[#2d3e2d] font-mono"
                       disabled={isAnalyzing}
                       maxLength={10}
@@ -608,7 +608,21 @@ export default function Launch() {
                           id="website"
                           type="url"
                           value={formData.website}
-                          onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                          onChange={(e) => {
+                            let value = e.target.value;
+                            // Auto-add https:// if user didn't provide protocol
+                            if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+                              value = 'https://' + value;
+                            }
+                            setFormData({ ...formData, website: value });
+                          }}
+                          onBlur={(e) => {
+                            // Also check on blur to ensure protocol is added
+                            let value = e.target.value;
+                            if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+                              setFormData({ ...formData, website: 'https://' + value });
+                            }
+                          }}
                           placeholder="https://..."
                           className="border-2 border-[#2d3e2d]"
                           disabled={isAnalyzing}

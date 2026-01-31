@@ -701,3 +701,9 @@
 
 ## 修复HTML嵌套错误
 - [x] 修复Dashboard中AlertDialog的HTML嵌套问题（p标签不能包含ul标签）
+
+## Launch页面优化
+- [x] 修改Project Name的placeholder为"EZCTO"
+- [x] 修改Ticker Symbol的placeholder为"EZCTO"
+- [x] 添加Website URL自动https://前缀功能
+- [x] 测试修改

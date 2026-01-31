@@ -824,3 +824,8 @@
 - [x] 为LaunchV2Preview页面添加中英文翻译
 - [x] 替换所有硬编码文字为多语言函数
 - [ ] 保存checkpoint
+
+## 更新Launch表单示例文字
+- [x] 将LanguageContext中projectNamePlaceholder从DogeKing改为EZCTO
+- [x] 将LanguageContext中tickerPlaceholder从DOGE改为EZCTO
+- [ ] 保存checkpoint

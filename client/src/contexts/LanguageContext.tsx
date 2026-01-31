@@ -403,9 +403,9 @@ const translations = {
         },
         form: {
           projectName: 'Project Name',
-          projectNamePlaceholder: 'e.g., DogeKing',
+          projectNamePlaceholder: 'e.g., EZCTO',
           ticker: 'Ticker',
-          tickerPlaceholder: 'e.g., DOGE',
+          tickerPlaceholder: 'e.g., EZCTO',
           description: 'Project Description',
           descriptionPlaceholder: 'Describe your project (minimum 20 characters)...',
           descriptionHelp: 'At least 20 characters',
@@ -935,9 +935,9 @@ const translations = {
         },
         form: {
           projectName: '项目名称',
-          projectNamePlaceholder: '例如：DogeKing',
+          projectNamePlaceholder: '例如：EZCTO',
           ticker: 'Ticker符号',
-          tickerPlaceholder: '例如：DOGE',
+          tickerPlaceholder: '例如：EZCTO',
           description: '项目描述',
           descriptionPlaceholder: '描述你的项目（最少20个字符）...',
           descriptionHelp: '至少20个字符',

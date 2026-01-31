@@ -45,7 +45,7 @@ export async function callClaude(
     throw new Error("CLAUDE_API_URL is not configured");
   }
 
-  const model = options?.model || "claude-3-7-sonnet-20250219";
+  const model = options?.model || "claude-opus-4-5-20251101";
   const maxTokens = options?.maxTokens || 4096;
   const temperature = options?.temperature || 0.7;
 

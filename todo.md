@@ -488,3 +488,9 @@
 - [x] 测试完整的用户输入→Claude分析→图像生成→代码生成流程
 - [x] 编写vitest测试验证Claude API集成
 - [x] 保存checkpoint
+
+## 升级到Claude Opus 4.5
+- [x] 更新Claude API密钥
+- [x] 更新模型名称为claude-opus-4-5-20251101
+- [x] 测试Claude Opus 4.5 API调用
+- [x] 保存checkpoint

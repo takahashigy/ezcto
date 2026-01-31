@@ -927,4 +927,10 @@
 - [x] 添加顶部导航栏（与Home一致，包含EZ logo）
 - [x] 调整进度条和卡片风格（深绿色主题、retro-border、复古阴影）
 - [x] 统一字体和按钮样式（font-mono、font-black、复古美学）
-- [ ] 测试并保存checkpoint
+- [x] 测试并保存checkpoint
+
+## LaunchV2副标题修改
+- [x] 修改副标题文案：将"8张图片+完整网站"改为"图片+网站"
+- [x] 修改LanguageContext中的中英文翻译
+- [x] 修改GenerationPreview中的描述文案
+- [ ] 保存checkpoint

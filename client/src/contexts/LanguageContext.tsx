@@ -398,7 +398,7 @@ const translations = {
       v2: {
         page: {
           title: 'Launch Your Meme Project',
-          subtitle: 'AI-powered generation in 10 minutes: 8 images + complete website',
+          subtitle: 'AI-powered generation in 10 minutes: images + complete website',
           formTitle: 'Project Information',
         },
         form: {
@@ -426,7 +426,7 @@ const translations = {
         },
         whatYouGet: {
           title: "What You'll Get",
-          subtitle: '8 AI-generated images + complete website',
+          subtitle: 'AI-generated images + complete website',
           paydexBanner: 'PayDex Banner (1500x500)',
           xBanner: 'X/Twitter Banner (1200x480)',
           logo: 'Logo (512x512)',
@@ -935,7 +935,7 @@ const translations = {
       v2: {
         page: {
           title: '启动你的Meme项目',
-          subtitle: 'AI驱动10分钟生成：8张图片 + 完整网站',
+          subtitle: 'AI驱动10分钟生成：图片 + 完整网站',
           formTitle: '项目信息',
         },
         form: {
@@ -963,7 +963,7 @@ const translations = {
         },
         whatYouGet: {
           title: '你将获得',
-          subtitle: '8张AI生成图片 + 完整网站',
+          subtitle: 'AI生成图片 + 完整网站',
           paydexBanner: 'PayDex Banner (1500x500)',
           xBanner: 'X/Twitter Banner (1200x480)',
           logo: 'Logo (512x512)',
@@ -990,7 +990,7 @@ const translations = {
         analysis: '分析',
         analysisDesc: 'AI分析项目并确定设计风格',
         images: '图片',
-        imagesDesc: '生成8张独特图片（logo、banner、背景、图标）',
+        imagesDesc: '生成独特图片（logo、banner、背景、图标）',
         website: '网站',
         websiteDesc: '创建带有你品牌的完整网站',
         deployment: '部署',

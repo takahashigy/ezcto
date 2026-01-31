@@ -36,7 +36,7 @@ const STEP_LABELS: Record<string, string> = {
 
 const STEP_DESCRIPTIONS: Record<string, string> = {
   analysis: "Claude Haiku is analyzing your project and creating a brand strategy...",
-  images: "Nanobanana is generating 8 high-quality images (PayDex Banner, X Banner, Logo, etc.)...",
+  images: "Nanobanana is generating high-quality images (PayDex Banner, X Banner, Logo, etc.)...",
   website: "Claude Opus is building your website with all generated assets...",
   deployment: "Saving all assets to the database and preparing for preview...",
 };

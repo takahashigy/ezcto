@@ -939,4 +939,12 @@
 - [x] 修改LaunchV2表单提交逻辑，检查用户角色
 - [x] admin用户跳过支付弹窗，直接创建项目并启动生成
 - [x] 普通用户正常显示支付弹窗
+- [x] 保存checkpoint
+
+## LaunchV2Preview重试功能
+- [x] 检测生成失败状态（isFailed）
+- [x] 在失败状态下显示“重试”按钮和提示信息
+- [x] 实现重试逻辑：调用triggerGeneration API
+- [x] 重试后自动refetch项目状态，重新开始轮询
+- [x] 添加“创建新项目”备选按钮
 - [ ] 测试并保存checkpoint

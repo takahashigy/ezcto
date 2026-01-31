@@ -83,6 +83,34 @@ export default function LaunchV2Preview() {
     }
   );
 
+  // Retry generation mutation
+  const retryGenerationMutation = trpc.launch.trigger.useMutation({
+    onSuccess: () => {
+      toast.success(language === 'zh' ? '重试已启动！' : 'Retry started!');
+      refetch(); // Refresh project status
+    },
+    onError: (error) => {
+      toast.error(`Retry failed: ${error.message}`);
+    },
+  });
+
+  // Handle retry
+  const handleRetry = async () => {
+    if (!projectId || !project) return;
+
+    try {
+      // Get stored image URL if exists
+      const storedImageUrl = localStorage.getItem(`project_${projectId}_imageUrl`);
+      
+      await retryGenerationMutation.mutateAsync({
+        projectId: projectId,
+        characterImageUrl: storedImageUrl || undefined,
+      });
+    } catch (error) {
+      console.error('[LaunchV2Preview] Retry error:', error);
+    }
+  };
+
   // Calculate module progress based on project status
   // Since we don't have real-time module tracking yet, we'll simulate progress
   const getModuleStatus = (index: number): ModuleStatus => {
@@ -345,15 +373,45 @@ export default function LaunchV2Preview() {
           )}
 
           {isFailed && (
-            <div className="mt-8 flex justify-center">
-              <Button
-                size="lg"
-                onClick={() => setLocation("/launch-v2")}
-                className="bg-[#2d3e2d] hover:bg-[#2d3e2d]/90 text-[#e8dcc4] font-bold border-4 border-[#2d3e2d] shadow-[4px_4px_0px_0px_rgba(45,62,45,1)]"
-              >
-                t("launch.preview.tryAgain")
-              </Button>
-            </div>
+            <Card className="retro-border bg-[#f5f0e8] border-4 border-[#2d3e2d] shadow-[8px_8px_0px_0px_rgba(45,62,45,1)] mt-8">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <p className="text-lg font-mono text-[#2d3e2d]">
+                    {language === 'zh' ? '生成失败，但不用担心！' : 'Generation failed, but don\'t worry!'}
+                  </p>
+                  <p className="text-sm font-mono text-[#2d3e2d]/70">
+                    {language === 'zh' ? '你可以直接重试，无需重新创建项目或支付。' : 'You can retry directly without recreating the project or paying again.'}
+                  </p>
+                  <div className="flex gap-4 justify-center">
+                    <Button
+                      size="lg"
+                      onClick={handleRetry}
+                      disabled={retryGenerationMutation.isPending}
+                      className="bg-[#2d3e2d] hover:bg-[#2d3e2d]/90 text-[#e8dcc4] font-bold font-mono border-4 border-[#2d3e2d] shadow-[4px_4px_0px_0px_rgba(45,62,45,1)]"
+                    >
+                      {retryGenerationMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          {language === 'zh' ? '重试中...' : 'Retrying...'}
+                        </>
+                      ) : (
+                        <>
+                          🔄 {language === 'zh' ? '重试生成' : 'Retry Generation'}
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={() => setLocation("/launch-v2")}
+                      className="font-bold font-mono border-4 border-[#2d3e2d] shadow-[4px_4px_0px_0px_rgba(45,62,45,1)]"
+                    >
+                      {language === 'zh' ? '创建新项目' : 'Create New Project'}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>

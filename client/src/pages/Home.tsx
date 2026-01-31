@@ -22,21 +22,7 @@ export default function Home() {
           </Link>
           
           <div className="flex items-center gap-6">
-            <Link href="/templates">
-              <Button variant="ghost" className="font-mono">
-                {t('nav.templates')}
-              </Button>
-            </Link>
-            <Link href="/supply">
-              <Button variant="ghost" className="font-mono">
-                {t('nav.supply')}
-              </Button>
-            </Link>
-            <Link href="/store">
-              <Button variant="ghost" className="font-mono">
-                {t('nav.store')}
-              </Button>
-            </Link>
+            {/* Temporarily hidden: Templates, Supply, Store */}
             {isAuthenticated ? (
               <>
                 <Link href="/dashboard">
@@ -300,11 +286,10 @@ export default function Home() {
             </div>
 
             {/* Module 2: IP Merchandise Supply Chain */}
-            <Link href="/supply" className="block">
-              <div className="module-card hover:border-primary/50 transition-all cursor-pointer">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Package className="w-8 h-8 text-primary" />
+            <div className="module-card opacity-75">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <Package className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold mb-2">{t('modules.supply.title')}</h3>
@@ -331,19 +316,16 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <Button className="w-full font-mono retro-border">
-                  {t('modules.supply.button')}
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                <Button className="w-full font-mono" variant="outline" disabled>
+                  {t('modules.supply.comingSoon')}
                 </Button>
               </div>
-            </Link>
 
             {/* Module 3: Official Meme Marketplace */}
-            <Link href="/store" className="block">
-              <div className="module-card hover:border-primary/50 transition-all cursor-pointer">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <ShoppingCart className="w-8 h-8 text-primary" />
+            <div className="module-card opacity-75">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold mb-2">{t('modules.store.title')}</h3>
@@ -370,12 +352,10 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <Button className="w-full font-mono retro-border">
-                  {t('modules.store.button')}
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                <Button className="w-full font-mono" variant="outline" disabled>
+                  {t('modules.store.comingSoon')}
                 </Button>
               </div>
-            </Link>
 
             {/* Module 4: Social Distribution Network */}
             <div className="module-card opacity-75">

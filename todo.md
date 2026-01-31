@@ -427,3 +427,11 @@
 - [ ] 测试完整发布流程
 - [ ] 验证子域名可访问性
 - [ ] 保存checkpoint
+
+## UI调整 - 隐藏未完成功能
+- [x] 隐藏顶部导航栏的Supply链接
+- [x] 隐藏顶部导航栏的Store链接
+- [x] 隐藏顶部导航栏的Templates链接
+- [x] 将Home页面Core Modules中IP实体化供应链按钮设为灰色失效状态
+- [x] 将Home页面Core Modules中EZSTORE官方商城按钮设为灰色失效状态
+- [x] 测试修改效果

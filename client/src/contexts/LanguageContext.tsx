@@ -116,20 +116,22 @@ const translations = {
         features: {
           c2m: 'C2M connects global supply chain',
           ai: 'AI effect image generation',
-          delivery: 'From design to global delivery',
+          global: 'From design to global delivery',
         },
         button: 'View Supply Chain',
+        comingSoon: 'Coming Soon',
       },
       store: {
         title: 'EZCTO Official Store',
         tag: 'COMING SOON',
         description: 'Meme physical economy "value discovery platform". Aggregate all quality Meme merchandise, hot sales list becomes "data oracle" measuring project real community cohesion and long-term potential.',
         features: {
-          platform: 'Aggregate sales platform',
-          alphab: '"Hot List" is "Alpha"',
-          ip: 'IP value discovery',
+          aggregation: 'Aggregate sales platform',
+          hotlist: '"Hot List" is "Alpha"',
+          value: 'IP value discovery',
         },
         button: 'Enter Store',
+        comingSoon: 'Coming Soon',
       },
       sdn: {
         title: 'Social Distribution Network (SDN)',
@@ -578,20 +580,22 @@ const translations = {
         features: {
           c2m: 'C2M对接全球供应链',
           ai: 'AI效果图生成',
-          delivery: '从设计到全球配送',
+          global: '从设计到全球配送',
         },
         button: '查看供应链',
+        comingSoon: 'Coming Soon',
       },
       store: {
         title: 'EZCTO官方商城',
         tag: 'COMING SOON',
         description: 'Meme实体经济的"价值发现平台"。聚合所有优质Meme周边，热销榜单成为衡量项目真实社区凝聚力和长期潜力的"数据预言机"。',
         features: {
-          platform: '聚合销售平台',
-          alphab: '"热销榜"即"Alpha榜"',
-          ip: 'IP价值发现金矿',
+          aggregation: '聚合销售平台',
+          hotlist: '"热销榜"即"Alpha榜"',
+          value: 'IP价值发现金矿',
         },
         button: '进入商城',
+        comingSoon: 'Coming Soon',
       },
       sdn: {
         title: '社交分发网络（SDN）',

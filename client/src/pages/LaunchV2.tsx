@@ -314,11 +314,13 @@ export default function LaunchV2() {
                     </label>
                   ) : (
                     <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Uploaded character"
-                        className="w-full h-64 object-contain rounded-lg border-4 border-[#2d3e2d] bg-white"
-                      />
+                      {imagePreview && (
+                        <img
+                          src={imagePreview}
+                          alt="Uploaded character"
+                          className="w-full h-64 object-contain rounded-lg border-4 border-[#2d3e2d] bg-white"
+                        />
+                      )}
                       <Button
                         type="button"
                         variant="destructive"

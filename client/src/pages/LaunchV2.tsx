@@ -131,7 +131,7 @@ export default function LaunchV2() {
       toast.success("Project created! Starting generation pipeline...");
 
       // Step 2: Navigate to preview page
-      setLocation(`/launch-v2/preview?projectId=${projectData.projectId}`);
+      setLocation(`/launch/preview?projectId=${projectData.projectId}`);
 
       // Step 3: Trigger the full generation pipeline (runs in background)
       launchTriggerMutation.mutate({

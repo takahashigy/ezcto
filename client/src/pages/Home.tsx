@@ -32,14 +32,9 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Link href="/launch">
-                  <Button variant="ghost" className="font-mono">
-                    Launch (Old)
-                  </Button>
-                </Link>
-                <Link href="/launch-v2">
                   <Button className="font-mono retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4]">
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Launch V2
+                    Launch
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>

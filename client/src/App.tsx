@@ -6,14 +6,12 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import Launch from "./pages/Launch";
 import LaunchV2 from "./pages/LaunchV2";
 import Templates from "./pages/Templates";
 import ProjectDetails from "./pages/ProjectDetails";
 import Supply from "./pages/Supply";
 import Store from "./pages/Store";
 import CustomOrder from "./pages/CustomOrder";
-import LaunchPreview from "./pages/LaunchPreview";
 import LaunchV2Preview from "./pages/LaunchV2Preview";
 
 function Router() {
@@ -22,10 +20,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/dashboard"} component={Dashboard} />
-      <Route path={"/launch"} component={Launch} />
-      <Route path={"/launch/preview"} component={LaunchPreview} />
-      <Route path={"/launch-v2"} component={LaunchV2} />
-      <Route path={"/launch-v2/preview"} component={LaunchV2Preview} />
+      <Route path={"/launch"} component={LaunchV2} />
+      <Route path={"/launch/preview"} component={LaunchV2Preview} />
       <Route path={"/templates"} component={Templates} />
       <Route path={"/supply"} component={Supply} />
       <Route path={"/store"} component={Store} />

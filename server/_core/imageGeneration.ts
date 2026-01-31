@@ -70,25 +70,48 @@ async function generateImageInternal(
   // Nanobanana API endpoint (using chat/completions)
   const apiUrl = "https://api.google-banana.com/v1/chat/completions";
 
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${nanobananaApiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gemini-3-pro-image-preview-2k",
-      messages: [
-        {
-          role: "user",
-          content: options.prompt,
-        },
-      ],
-    }),
-  });
+  console.log(`[Nanobanana] Calling API with prompt: ${options.prompt.substring(0, 100)}...`);
+  console.log(`[Nanobanana] API URL: ${apiUrl}`);
+  console.log(`[Nanobanana] API Key present: ${!!nanobananaApiKey}`);
+
+  let response;
+  try {
+    // Nanobanana can take 60+ seconds per image, so set a long timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 seconds
+
+    response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${nanobananaApiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gemini-3-pro-image-preview-2k",
+        messages: [
+          {
+            role: "user",
+            content: options.prompt,
+          },
+        ],
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+  } catch (fetchError: any) {
+    console.error(`[Nanobanana] Fetch error:`, fetchError);
+    console.error(`[Nanobanana] Error message: ${fetchError.message}`);
+    console.error(`[Nanobanana] Error stack:`, fetchError.stack);
+    throw new Error(`Nanobanana API fetch failed: ${fetchError.message}`);
+  }
+
+  console.log(`[Nanobanana] Response status: ${response.status} ${response.statusText}`);
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
+    console.error(`[Nanobanana] API error response:`, detail);
     throw new Error(
       `Nanobanana image generation failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`
     );

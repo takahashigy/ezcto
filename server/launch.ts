@@ -247,8 +247,30 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               featureIcons: [],
             };
 
+            let completedImages = 0;
+            const totalImages = imageGenerationTasks.length;
+
             for (const task of imageGenerationTasks) {
-              console.log(`[Launch] Generating ${task.type}...`);
+              console.log(`[Launch] Generating ${task.type}... (${completedImages + 1}/${totalImages})`);
+              
+              // Update progress before generating
+              const progressPercent = 30 + Math.floor((completedImages / totalImages) * 40); // 30-70%
+              if (historyId) {
+                await updateGenerationProgress(historyId, {
+                  currentStep: 'images',
+                  steps,
+                  progress: { 
+                    current: progressPercent, 
+                    total: 100, 
+                    message: `Generating ${task.type}... (${completedImages + 1}/${totalImages})` 
+                  },
+                });
+              }
+              broadcastProgress(input.projectId, { 
+                progress: progressPercent, 
+                message: `Generating ${task.type}... (${completedImages + 1}/${totalImages})` 
+              });
+
               const result = await generateImage({
                 prompt: task.prompt,
                 size: task.size as any,
@@ -283,6 +305,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               }
 
               console.log(`[Launch] Saved ${task.type} to database`);
+              completedImages++;
             }
 
             return results;

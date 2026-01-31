@@ -8,6 +8,7 @@ import { executeLaunch } from "./launch";
 import { analyzeProject } from "./aiAnalyzer";
 import { generateProjectAssets } from "./assetGenerator";
 import { generateWebsiteHTML } from "./websiteTemplate";
+import { generateAssetsWithClaude } from "./claudeAssetGenerator";
 import { createCheckoutSession, createSubscriptionCheckoutSession } from "./stripe";
 import { ALL_PRODUCTS } from "./products";
 import { storagePut } from "./storage";
@@ -308,45 +309,18 @@ export const appRouter = router({
         console.log(`[GenerateWebsite] Project created with ID: ${projectId}`);
 
         try {
-          // 2. AI Analysis
-          console.log(`[GenerateWebsite] Analyzing project...`);
-          const analysis = await analyzeProject(
-            input.memeImageUrl,
-            input.projectName,
-            input.ticker,
-            input.description
-          );
-          console.log(`[GenerateWebsite] Analysis complete:`, analysis);
-
-          // 3. Generate Assets
-          console.log(`[GenerateWebsite] Generating assets...`);
-          const assets = await generateProjectAssets(
+          // 2-4. Claude-coordinated generation (Analysis + Assets + Website)
+          console.log(`[GenerateWebsite] Starting Claude-coordinated generation...`);
+          const claudeAssets = await generateAssetsWithClaude(
             input.projectName,
             input.ticker,
             input.description,
             input.memeImageUrl,
-            analysis,
             projectId
           );
-          console.log(`[GenerateWebsite] Assets generated:`, assets);
+          console.log(`[GenerateWebsite] Claude generation complete`);
 
-          // 4. Generate Website HTML
-          console.log(`[GenerateWebsite] Generating website HTML...`);
-          const websiteHTML = generateWebsiteHTML(
-            {
-              projectName: input.projectName,
-              ticker: input.ticker,
-              description: input.description,
-              logoUrl: assets.logoVariants.original.url,
-              bannerUrl: assets.banner.url,
-              twitterUrl: input.socialLinks?.twitter,
-              telegramUrl: input.socialLinks?.telegram,
-              discordUrl: input.socialLinks?.discord,
-              websiteUrl: input.socialLinks?.website,
-              contractAddress: input.contractAddress,
-            },
-            analysis
-          );
+          const websiteHTML = claudeAssets.websiteHTML;
 
           // 5. Upload website to S3
           console.log(`[GenerateWebsite] Uploading website to S3...`);
@@ -363,15 +337,22 @@ export const appRouter = router({
           await db.createAsset({
             projectId,
             assetType: "logo",
-            fileUrl: assets.logoVariants.original.url,
-            fileKey: assets.logoVariants.original.key,
+            fileUrl: claudeAssets.logo.url,
+            fileKey: claudeAssets.logo.key,
           });
 
           await db.createAsset({
             projectId,
             assetType: "banner",
-            fileUrl: assets.banner.url,
-            fileKey: assets.banner.key,
+            fileUrl: claudeAssets.banner.url,
+            fileKey: claudeAssets.banner.key,
+          });
+
+          await db.createAsset({
+            projectId,
+            assetType: "poster",
+            fileUrl: claudeAssets.poster.url,
+            fileKey: claudeAssets.poster.key,
           });
 
           await db.createAsset({
@@ -385,12 +366,16 @@ export const appRouter = router({
           await db.updateProject(projectId, {
             status: "completed",
             deploymentStatus: "not_deployed",
-            aiAnalysis: analysis,
+            aiAnalysis: {
+              theme: claudeAssets.theme,
+              content: claudeAssets.content,
+            } as any,
             metadata: {
               generatedAt: new Date().toISOString(),
               assets: {
-                logo: assets.logoVariants.original.url,
-                banner: assets.banner.url,
+                logo: claudeAssets.logo.url,
+                banner: claudeAssets.banner.url,
+                poster: claudeAssets.poster.url,
                 website: websiteUrl,
               },
             },
@@ -402,10 +387,14 @@ export const appRouter = router({
             success: true,
             projectId,
             websiteUrl,
-            analysis,
+            analysis: {
+              theme: claudeAssets.theme,
+              content: claudeAssets.content,
+            },
             assets: {
-              logo: assets.logoVariants.original.url,
-              banner: assets.banner.url,
+              logo: claudeAssets.logo.url,
+              banner: claudeAssets.banner.url,
+              poster: claudeAssets.poster.url,
             },
           };
         } catch (error) {

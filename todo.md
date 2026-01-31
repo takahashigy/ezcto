@@ -477,3 +477,14 @@
 - [x] 测试图像生成功能（Banner、Logo、Poster）
 - [x] 编写vitest测试验证API集成
 - [x] 保存checkpoint
+
+## Claude 3.7 Sonnet智能协调层集成
+- [x] 添加Claude API密钥到环境变量
+- [x] 创建Claude API集成模块（server/_core/claude.ts）
+- [x] 设计多模型协作流程架构
+- [x] 重构项目生成流程使用Claude分析用户输入
+- [x] 实现Claude生成Nanobanana图像prompt
+- [x] 实现Claude生成网站代码
+- [x] 测试完整的用户输入→Claude分析→图像生成→代码生成流程
+- [x] 编写vitest测试验证Claude API集成
+- [x] 保存checkpoint

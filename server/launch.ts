@@ -3,6 +3,7 @@ import { broadcastProgress } from "./_core/progressStream";
 import { analyzeProjectInput, generateWebsiteCode } from "./_core/claude";
 import { generateImage } from "./_core/imageGeneration";
 import { retryWithBackoff } from "./_core/retry";
+import { generateSubdomain, deployWebsite } from "./_core/deployment";
 import { 
   shouldSkipModule, 
   markModuleCompleted, 
@@ -389,14 +390,43 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       }
     }
 
-    // ========== FINALIZATION ==========
+    // ========== FINALIZATION: DEPLOY TO SUBDOMAIN ==========
+    steps = updateStep(steps, 'deployment', { status: 'in_progress', startTime: new Date().toISOString() });
+    await updateGenerationProgress(historyId, {
+      currentStep: 'deployment',
+      steps,
+      progress: { current: 95, total: 100, message: 'Deploying website to subdomain...' },
+    });
+    broadcastProgress(input.projectId, { progress: 95, message: "Deploying website to subdomain..." });
+
+    // Generate subdomain and deploy
+    const subdomain = generateSubdomain(input.name, input.ticker);
+    const deploymentResult = await deployWebsite(input.projectId, subdomain, websiteHTML);
+
+    if (deploymentResult.success) {
+      // Update project with deployment info
+      await db.updateProject(input.projectId, {
+        subdomain: deploymentResult.subdomain,
+        deploymentUrl: deploymentResult.deploymentUrl,
+        deploymentStatus: 'deployed',
+      });
+      console.log(`[Launch] Website deployed to ${deploymentResult.deploymentUrl}`);
+    } else {
+      // Deployment failed, but generation succeeded
+      await db.updateProject(input.projectId, {
+        subdomain: deploymentResult.subdomain,
+        deploymentStatus: 'failed',
+      });
+      console.error(`[Launch] Deployment failed: ${deploymentResult.error}`);
+    }
+
     steps = updateStep(steps, 'deployment', { status: 'completed', endTime: new Date().toISOString() });
     await updateGenerationProgress(historyId, {
       currentStep: 'deployment',
       steps,
-      progress: { current: 100, total: 100, message: 'All assets generated successfully!' },
+      progress: { current: 100, total: 100, message: 'All assets generated and deployed!' },
     });
-    broadcastProgress(input.projectId, { progress: 100, message: "All assets generated successfully!" });
+    broadcastProgress(input.projectId, { progress: 100, message: "All assets generated and deployed!" });
 
     // 更新项目状态为completed
     await db.updateProjectStatus(input.projectId, "completed");

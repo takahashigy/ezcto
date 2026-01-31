@@ -99,6 +99,13 @@
       "when": 1769867899885,
       "tag": "0013_empty_power_man",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1769877710582,
+      "tag": "0014_loud_spiral",
+      "breakpoints": true
     }
   ]
 }

@@ -25,6 +25,7 @@ export default function LaunchV2() {
     ticker: "",
     description: "",
     tokenomics: "",
+    contractAddress: "",
     twitter: "",
     telegram: "",
     discord: "",
@@ -124,6 +125,7 @@ export default function LaunchV2() {
         ticker: formData.ticker,
         description: formData.description,
         tokenomics: formData.tokenomics || undefined,
+        contractAddress: formData.contractAddress || undefined,
       });
 
       toast.success("Project created! Starting generation pipeline...");
@@ -344,6 +346,24 @@ export default function LaunchV2() {
                     className="border-2 border-[#2d3e2d] min-h-[100px]"
                     disabled={isGenerating}
                   />
+                </div>
+
+                {/* Contract Address */}
+                <div className="space-y-2">
+                  <Label htmlFor="contractAddress" className="text-[#2d3e2d] font-semibold">
+                    Contract Address (CA) - Optional
+                  </Label>
+                  <Input
+                    id="contractAddress"
+                    value={formData.contractAddress}
+                    onChange={(e) => setFormData({ ...formData, contractAddress: e.target.value })}
+                    placeholder="0x1234567890abcdef..."
+                    className="border-2 border-[#2d3e2d] font-mono text-sm"
+                    disabled={isGenerating}
+                  />
+                  <p className="text-sm text-[#2d3e2d]/70">
+                    If provided, will be displayed prominently on your generated website with one-click copy
+                  </p>
                 </div>
 
                 {/* Social Links */}

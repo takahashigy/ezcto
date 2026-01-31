@@ -31,6 +31,7 @@ export const projects = mysqlTable("projects", {
   ticker: varchar("ticker", { length: 50 }),
   website: varchar("website", { length: 500 }),
   tokenomics: text("tokenomics"),
+  contractAddress: varchar("contractAddress", { length: 100 }),
   status: mysqlEnum("status", ["draft", "generating", "completed", "failed"]).default("draft").notNull(),
   styleTemplate: varchar("styleTemplate", { length: 100 }),
   userImageUrl: varchar("userImageUrl", { length: 1000 }),

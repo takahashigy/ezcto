@@ -116,6 +116,7 @@ function generateHeroSection(
       <h1>${escapeHTML(data.projectName)}</h1>
       <p class="ticker">$${escapeHTML(data.ticker)}</p>
       <p class="tagline">${escapeHTML(data.description)}</p>
+      ${data.contractAddress ? generateContractAddressSection(data.contractAddress) : ''}
       ${generateSocialButtons(data)}
     </div>
   </section>`;
@@ -132,6 +133,7 @@ function generateHeroSection(
       <h1 class="comic-text">${escapeHTML(data.projectName)}</h1>
       <p class="ticker">$${escapeHTML(data.ticker)}</p>
       <p class="tagline">${escapeHTML(data.description)}</p>
+      ${data.contractAddress ? generateContractAddressSection(data.contractAddress) : ''}
       ${generateSocialButtons(data)}
     </div>
   </section>`;
@@ -144,6 +146,7 @@ function generateHeroSection(
       <h1 class="neon-text">${escapeHTML(data.projectName)}</h1>
       <p class="ticker glitch">$${escapeHTML(data.ticker)}</p>
       <p class="tagline">${escapeHTML(data.description)}</p>
+      ${data.contractAddress ? generateContractAddressSection(data.contractAddress) : ''}
       ${generateSocialButtons(data)}
     </div>
   </section>`;
@@ -157,10 +160,32 @@ function generateHeroSection(
       <h1 class="terminal-text">&gt; ${escapeHTML(data.projectName)}</h1>
       <p class="ticker">$${escapeHTML(data.ticker)}</p>
       <p class="tagline">${escapeHTML(data.description)}</p>
+      ${data.contractAddress ? generateContractAddressSection(data.contractAddress) : ''}
       ${generateSocialButtons(data)}
     </div>
   </section>`;
   }
+}
+
+/**
+ * Generate Contract Address section with copy functionality
+ */
+function generateContractAddressSection(contractAddress: string): string {
+  return `
+    <div class="contract-address-section">
+      <div class="contract-label">Contract Address (CA)</div>
+      <div class="contract-box" onclick="copyToClipboard('${escapeHTML(contractAddress)}')">
+        <code class="contract-code">${escapeHTML(contractAddress)}</code>
+        <button class="copy-btn" title="Click to copy">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 /**
@@ -736,6 +761,101 @@ function generateCustomCSS(
       margin-top: 1rem;
     }
 
+    /* Contract Address Section */
+    .contract-address-section {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      border: 2px solid var(--accent);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .contract-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .contract-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .contract-box:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .contract-code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--text);
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .copy-btn.copied {
+      background: #10b981;
+    }
+
+    .copy-btn svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .contract-address-section {
+        padding: 1rem;
+      }
+
+      .contract-box {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .contract-code {
+        font-size: 0.75rem;
+        text-align: center;
+      }
+
+      .copy-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     /* Animations */
     @keyframes fadeInUp {
       from {
@@ -833,7 +953,30 @@ function generateJavaScript(): string {
       observer.observe(section);
     });
 
-    // Copy contract address (if exists)
+    // Copy contract address function
+    window.copyToClipboard = function(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Find the clicked button
+        const buttons = document.querySelectorAll('.copy-btn');
+        buttons.forEach(btn => {
+          const copyText = btn.querySelector('.copy-text');
+          if (copyText) {
+            const originalText = copyText.textContent;
+            copyText.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+              copyText.textContent = originalText;
+              btn.classList.remove('copied');
+            }, 2000);
+          }
+        });
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy address');
+      });
+    };
+
+    // Copy contract address (footer - legacy support)
     const contractElement = document.querySelector('.contract');
     if (contractElement) {
       contractElement.style.cursor = 'pointer';

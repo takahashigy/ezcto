@@ -18,6 +18,8 @@ import { uploadToR2 } from "./cloudflareR2";
 import { cryptoRouter } from "./routers/crypto";
 import { enhanceDescription } from "./_core/claude";
 import { checkSlugAvailability } from "./_core/deployment";
+import { verifyBSCPayment, verifySolanaPayment, pollPaymentConfirmation } from "./_core/paymentVerification";
+import { calculatePrice } from "../shared/paymentConfig";
 
 export const appRouter = router({
   system: systemRouter,
@@ -776,6 +778,63 @@ export const appRouter = router({
         return result;
       }),
 
+    // Verify crypto payment
+    verifyPayment: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        txHash: z.string(),
+        chain: z.enum(['bsc', 'solana']),
+        walletAddress: z.string(),
+        hasDiscount: z.boolean(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+
+        // Check if already paid
+        if (project.paymentStatus === 'paid') {
+          return { success: true, message: "Project already paid" };
+        }
+
+        // Calculate expected amount
+        const expectedAmount = calculatePrice(input.hasDiscount);
+
+        // Verify payment on blockchain
+        const result = await pollPaymentConfirmation(
+          input.txHash,
+          input.chain,
+          expectedAmount,
+          input.walletAddress,
+          30, // max 30 attempts
+          2000 // 2 seconds interval
+        );
+
+        if (!result.success) {
+          throw new Error(result.error || 'Payment verification failed');
+        }
+
+        // Update project payment status
+        await db.updateProject(input.projectId, {
+          paymentStatus: 'paid',
+          paymentAmount: result.amount?.toString(),
+          paymentCurrency: input.chain === 'bsc' ? 'USDT' : 'USDC',
+          paymentTxHash: input.txHash,
+          paymentWalletAddress: input.walletAddress,
+          paidAt: new Date(),
+        });
+
+        return { 
+          success: true, 
+          message: "Payment verified successfully",
+          amount: result.amount,
+        };
+      }),
+
     trigger: protectedProcedure
       .input(z.object({ 
         projectId: z.number(),
@@ -788,6 +847,11 @@ export const appRouter = router({
         }
         if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
           throw new Error("Unauthorized");
+        }
+
+        // Check payment status
+        if (project.paymentStatus !== 'paid') {
+          throw new Error("Payment required. Please complete payment before starting generation.");
         }
 
         // Execute launch in background (non-blocking)

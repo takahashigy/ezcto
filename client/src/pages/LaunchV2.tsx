@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
+import { CryptoPaymentModal } from "@/components/CryptoPaymentModal";
 
 export default function LaunchV2() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -44,10 +45,14 @@ export default function LaunchV2() {
   const [isUploading, setIsUploading] = useState(false);
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
+  const [hasDiscount, setHasDiscount] = useState(false);
 
   const createProjectMutation = trpc.projects.create.useMutation();
   const launchTriggerMutation = trpc.launch.trigger.useMutation();
   const uploadImageMutation = trpc.upload.characterImage.useMutation();
+  const verifyPaymentMutation = trpc.launch.verifyPayment.useMutation();
   const checkSlugQuery = trpc.launch.checkSlug.useQuery(
     { slug: formData.slug },
     { enabled: false } // Manual trigger only
@@ -137,23 +142,18 @@ export default function LaunchV2() {
         contractAddress: formData.contractAddress || undefined,
       });
 
-      toast.success("Project created! Starting generation pipeline...");
+      toast.success("Project created!");
+      setCurrentProjectId(projectData.projectId);
 
-      // Step 2: Save to localStorage for recovery
-      localStorage.setItem('currentGeneratingProject', JSON.stringify({
-        projectId: projectData.projectId,
-        projectName: formData.projectName,
-        timestamp: Date.now(),
-      }));
+      // Step 3: Show payment modal
+      setIsGenerating(false);
+      setShowPaymentModal(true);
+      toast.info(language === 'zh' ? '请完成支付以开始生成' : 'Please complete payment to start generation');
 
-      // Step 3: Navigate to preview page
-      setLocation(`/launch/preview?projectId=${projectData.projectId}`);
-
-      // Step 4: Trigger the full generation pipeline (runs in background)
-      launchTriggerMutation.mutate({
-        projectId: projectData.projectId,
-        characterImageUrl: characterImageUrl || undefined,
-      });
+      // Store image URL for later use
+      if (characterImageUrl) {
+        localStorage.setItem(`project_${projectData.projectId}_imageUrl`, characterImageUrl);
+      }
     } catch (error) {
       console.error("[LaunchV2] Generation error:", error);
       toast.error(`Failed to start generation: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -570,6 +570,62 @@ export default function LaunchV2() {
           </Card>
         </div>
       </div>
+
+      {/* Crypto Payment Modal */}
+      {currentProjectId && (
+        <CryptoPaymentModal
+          open={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentSuccess={async (txHash, chain) => {
+            try {
+              toast.info(language === 'zh' ? '验证支付中...' : 'Verifying payment...');
+
+              // Get wallet address from useWeb3 hook
+              const walletAddress = (window as any).ethereum?.selectedAddress || '';
+
+              // Verify payment on blockchain
+              const result = await verifyPaymentMutation.mutateAsync({
+                projectId: currentProjectId,
+                txHash,
+                chain,
+                walletAddress,
+                hasDiscount,
+              });
+
+              toast.success(language === 'zh' ? '支付验证成功！' : 'Payment verified successfully!');
+              setShowPaymentModal(false);
+
+              // Navigate to preview page
+              setLocation(`/launch/preview?projectId=${currentProjectId}`);
+
+              // Save to localStorage for recovery
+              localStorage.setItem('currentGeneratingProject', JSON.stringify({
+                projectId: currentProjectId,
+                projectName: formData.projectName,
+                timestamp: Date.now(),
+              }));
+
+              // Retrieve stored image URL
+              const storedImageUrl = localStorage.getItem(`project_${currentProjectId}_imageUrl`);
+
+              // Trigger generation
+              launchTriggerMutation.mutate({
+                projectId: currentProjectId,
+                characterImageUrl: storedImageUrl || undefined,
+              });
+
+              toast.success(language === 'zh' ? '开始生成...' : 'Starting generation...');
+            } catch (error) {
+              console.error('[Payment] Verification failed:', error);
+              toast.error(
+                language === 'zh'
+                  ? `支付验证失败: ${error instanceof Error ? error.message : '未知错误'}`
+                  : `Payment verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+              );
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

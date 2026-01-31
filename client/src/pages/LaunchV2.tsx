@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
-import { Rocket, Loader2, ArrowLeft, Sparkles } from "lucide-react";
+import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -31,10 +31,52 @@ export default function LaunchV2() {
     website: "",
   });
 
+  // Image upload state
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+
   const [isGenerating, setIsGenerating] = useState(false);
 
   const createProjectMutation = trpc.projects.create.useMutation();
   const launchTriggerMutation = trpc.launch.trigger.useMutation();
+  const uploadImageMutation = trpc.upload.characterImage.useMutation();
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image size must be less than 10MB");
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    setUploadedImage(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    toast.success("Image selected! It will be uploaded when you submit.");
+  };
+
+  const removeImage = () => {
+    setUploadedImage(null);
+    setImagePreview("");
+    setUploadedImageUrl("");
+    toast.info("Image removed");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +95,30 @@ export default function LaunchV2() {
     toast.info("🚀 Starting AI generation... This will take 3-5 minutes");
 
     try {
-      // Step 1: Create project record
+      // Step 1: Upload image if provided
+      let characterImageUrl = "";
+      if (uploadedImage && imagePreview) {
+        setIsUploading(true);
+        toast.info("Uploading image...");
+
+        const uploadResult = await uploadImageMutation.mutateAsync({
+          fileName: uploadedImage.name,
+          fileType: uploadedImage.type,
+          base64Data: imagePreview,
+          removeBackground: false,
+        });
+
+        if (!uploadResult.success) {
+          throw new Error("Failed to upload image");
+        }
+
+        characterImageUrl = uploadResult.url;
+        setUploadedImageUrl(characterImageUrl);
+        setIsUploading(false);
+        toast.success("Image uploaded!");
+      }
+
+      // Step 2: Create project record
       const projectData = await createProjectMutation.mutateAsync({
         name: formData.projectName,
         ticker: formData.ticker,
@@ -69,6 +134,7 @@ export default function LaunchV2() {
       // Step 3: Trigger the full generation pipeline (runs in background)
       launchTriggerMutation.mutate({
         projectId: projectData.projectId,
+        characterImageUrl: characterImageUrl || undefined,
       });
     } catch (error) {
       console.error("[LaunchV2] Generation error:", error);
@@ -211,6 +277,58 @@ export default function LaunchV2() {
                   <p className="text-sm text-[#2d3e2d]/60">
                     {formData.description.length} / 20 characters minimum
                   </p>
+                </div>
+
+                {/* Character Image Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="meme-image" className="text-[#2d3e2d] font-semibold">
+                    Character Image (Optional)
+                  </Label>
+                  <p className="text-sm text-[#2d3e2d]/70 mb-2">
+                    Upload a character image for AI to analyze and generate themed assets
+                  </p>
+                  {!uploadedImage ? (
+                    <label
+                      htmlFor="meme-image"
+                      className="flex flex-col items-center justify-center w-full h-48 border-4 border-dashed border-[#2d3e2d] rounded-lg cursor-pointer bg-[#e8dcc4]/30 hover:bg-[#e8dcc4]/50 transition-colors"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-12 h-12 mb-3 text-[#2d3e2d]" />
+                        <p className="mb-2 text-sm text-[#2d3e2d] font-semibold">
+                          <span className="font-bold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-[#2d3e2d]/60">
+                          PNG, JPG, GIF (MAX. 10MB)
+                        </p>
+                      </div>
+                      <input
+                        id="meme-image"
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={isGenerating}
+                      />
+                    </label>
+                  ) : (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Uploaded character"
+                        className="w-full h-64 object-contain rounded-lg border-4 border-[#2d3e2d] bg-white"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={removeImage}
+                        disabled={isGenerating}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Tokenomics */}

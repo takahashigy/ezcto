@@ -775,7 +775,10 @@ export const appRouter = router({
   // Launch Automation Engine
   launch: router({
     trigger: protectedProcedure
-      .input(z.object({ projectId: z.number() }))
+      .input(z.object({ 
+        projectId: z.number(),
+        characterImageUrl: z.string().optional(),
+      }))
       .mutation(async ({ input, ctx }) => {
         const project = await db.getProjectById(input.projectId);
         if (!project) {
@@ -792,6 +795,7 @@ export const appRouter = router({
           description: project.description || undefined,
           ticker: project.ticker || undefined,
           styleTemplate: project.styleTemplate || undefined,
+          userImageUrl: input.characterImageUrl,
         }).catch(error => {
           console.error("[Launch] Background execution failed:", error);
         });

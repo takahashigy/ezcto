@@ -133,6 +133,8 @@ export const appRouter = router({
             throw new Error("FREE_QUOTA_EXCEEDED: Please unlock your previous project before creating a new one.");
           }
         }
+        // Admin projects are automatically marked as paid for testing
+        const isAdmin = user.role === 'admin';
         const project = await db.createProject({
           userId: ctx.user.id,
           name: input.name,
@@ -145,7 +147,10 @@ export const appRouter = router({
           userImageKey: input.userImageKey,
           userImages: input.userImages ? JSON.parse(input.userImages) : null,
           status: "draft",
-          paymentStatus: "unpaid", // All new projects start as unpaid
+          paymentStatus: isAdmin ? "paid" : "unpaid",
+          paymentAmount: isAdmin ? "0" : null,
+          paymentCurrency: isAdmin ? "TEST" : null,
+          paidAt: isAdmin ? new Date() : null,
         });
         const projectId = project.id;
         

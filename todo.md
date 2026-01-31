@@ -914,4 +914,10 @@
 - [x] 添加区块链浏览器链接（BSC/Solana）
 - [x] 添加项目预览链接
 - [x] 在导航中添加"Payment History"入口
-- [ ] 测试并保存checkpoint
+- [x] 测试并保存checkpoint
+
+## Admin测试豁免
+- [x] 修改项目创建逻辑，admin账号创建的项目自动标记为paid
+- [x] admin项目自动设置paymentAmount为"0"，paymentCurrency为"TEST"
+- [ ] 测试admin账号创建项目并生成
+- [ ] 保存checkpoint

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useWeb3 } from '../hooks/useWeb3';
+import { useWeb3, type WalletType } from '../hooks/useWeb3';
 import { WEB3_CONFIG } from '../../../shared/web3Config';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
@@ -20,7 +20,8 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     balance,
     isConnecting,
     error: web3Error,
-    isMetaMaskInstalled,
+    selectedWallet,
+    availableWallets,
     connectWallet,
     switchToBSC,
     sendPayment,
@@ -29,14 +30,18 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
   const { toast } = useToast();
   const [txHash, setTxHash] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showWalletSelect, setShowWalletSelect] = useState(false);
 
   const createPaymentMutation = trpc.crypto.createPayment.useMutation();
   const verifyPaymentMutation = trpc.crypto.verifyPayment.useMutation();
 
-  const handleConnect = async () => {
-    const success = await connectWallet();
-    if (success && !isCorrectChain) {
-      await switchToBSC();
+  const handleWalletSelect = async (walletType: WalletType) => {
+    const success = await connectWallet(walletType);
+    if (success) {
+      setShowWalletSelect(false);
+      if (!isCorrectChain) {
+        await switchToBSC();
+      }
     }
   };
 
@@ -101,17 +106,24 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     }
   };
 
-  if (!isMetaMaskInstalled) {
+  if (availableWallets.length === 0) {
     return (
       <Card className="p-6">
         <div className="flex items-start gap-4">
           <AlertCircle className="h-6 w-6 text-destructive flex-shrink-0 mt-1" />
           <div>
-            <h3 className="font-semibold mb-2">MetaMask Required</h3>
+            <h3 className="font-semibold mb-2">No Wallet Detected</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Please install MetaMask to pay with crypto.
+              Please install a Web3 wallet to pay with crypto. We support:
             </p>
-            <Button asChild variant="outline">
+            <div className="space-y-2 text-sm">
+              <div>• MetaMask</div>
+              <div>• Binance Wallet</div>
+              <div>• OKX Wallet</div>
+              <div>• TokenPocket</div>
+              <div>• Trust Wallet</div>
+            </div>
+            <Button asChild variant="outline" className="mt-4">
               <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer">
                 Install MetaMask
                 <ExternalLink className="ml-2 h-4 w-4" />
@@ -159,24 +171,48 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         )}
 
         {!isConnected ? (
-          <Button 
-            onClick={handleConnect} 
-            disabled={isConnecting}
-            className="w-full"
-            size="lg"
-          >
-            {isConnecting ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Connecting...
-              </>
-            ) : (
-              <>
+          <>
+            {!showWalletSelect ? (
+              <Button 
+                onClick={() => setShowWalletSelect(true)} 
+                disabled={isConnecting}
+                className="w-full"
+                size="lg"
+              >
                 <Wallet className="mr-2 h-5 w-5" />
                 Connect Wallet
-              </>
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground mb-3">Select your wallet:</p>
+                {availableWallets.map((wallet) => (
+                  <Button
+                    key={wallet.type}
+                    onClick={() => handleWalletSelect(wallet.type)}
+                    disabled={isConnecting}
+                    variant="outline"
+                    className="w-full justify-start"
+                    size="lg"
+                  >
+                    {isConnecting ? (
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                      <span className="mr-2 text-xl">{wallet.icon}</span>
+                    )}
+                    {wallet.name}
+                  </Button>
+                ))}
+                <Button
+                  onClick={() => setShowWalletSelect(false)}
+                  variant="ghost"
+                  className="w-full"
+                  size="sm"
+                >
+                  Cancel
+                </Button>
+              </div>
             )}
-          </Button>
+          </>
         ) : !isCorrectChain ? (
           <div className="space-y-3">
             <div className="flex items-start gap-2 text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg">
@@ -190,11 +226,18 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         ) : (
           <div className="space-y-3">
             <div className="bg-muted/30 rounded-lg p-3 space-y-2 text-sm">
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Connected:</span>
-                <span className="font-mono text-xs">
-                  {account?.slice(0, 6)}...{account?.slice(-4)}
-                </span>
+                <div className="flex items-center gap-2">
+                  {selectedWallet && (
+                    <span className="text-lg">
+                      {availableWallets.find(w => w.type === selectedWallet)?.icon}
+                    </span>
+                  )}
+                  <span className="font-mono text-xs">
+                    {account?.slice(0, 6)}...{account?.slice(-4)}
+                  </span>
+                </div>
               </div>
               {balance && (
                 <div className="flex justify-between">

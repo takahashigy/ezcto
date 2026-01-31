@@ -450,3 +450,14 @@
 - [x] 添加交易状态追踪UI
 - [x] 测试完整支付和部署流程
 - [x] 编写vitest测试
+
+## 多钱包支持升级
+- [x] 安装WalletConnect和多钱包支持库
+- [x] 重构useWeb3 hook支持多钱包检测和连接
+- [x] 添加Binance Wallet支持
+- [x] 添加OKX Wallet支持
+- [x] 添加TokenPocket支持
+- [x] 添加Trust Wallet支持
+- [x] 更新CryptoPayment组件添加钱包选择UI
+- [x] 测试所有钱包的连接和支付功能
+- [x] 保存checkpoint

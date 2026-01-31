@@ -2,6 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { BrowserProvider, formatEther, parseEther } from 'ethers';
 import { WEB3_CONFIG } from '../../../shared/web3Config';
 
+export type WalletType = 'metamask' | 'binance' | 'okx' | 'tokenpocket' | 'trustwallet';
+
+export interface WalletInfo {
+  type: WalletType;
+  name: string;
+  icon: string;
+  isInstalled: boolean;
+  provider?: any;
+}
+
 export interface Web3State {
   account: string | null;
   chainId: number | null;
@@ -21,20 +31,99 @@ export function useWeb3() {
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<WalletType | null>(null);
+  const [availableWallets, setAvailableWallets] = useState<WalletInfo[]>([]);
 
-  // Check if MetaMask is installed
-  const isMetaMaskInstalled = typeof window !== 'undefined' && typeof window.ethereum !== 'undefined';
+  // Detect all available wallets
+  const detectWallets = useCallback(() => {
+    const wallets: WalletInfo[] = [];
+    
+    if (typeof window === 'undefined') return wallets;
 
-  // Initialize provider
-  useEffect(() => {
-    if (isMetaMaskInstalled && window.ethereum) {
-      const browserProvider = new BrowserProvider(window.ethereum as never);
-      setProvider(browserProvider);
+    // MetaMask
+    if (window.ethereum?.isMetaMask && !window.ethereum.isBinance && !window.ethereum.isOkxWallet) {
+      wallets.push({
+        type: 'metamask',
+        name: 'MetaMask',
+        icon: '🦊',
+        isInstalled: true,
+        provider: window.ethereum,
+      });
     }
-  }, [isMetaMaskInstalled]);
+
+    // Binance Wallet
+    if (window.BinanceChain || window.ethereum?.isBinance) {
+      wallets.push({
+        type: 'binance',
+        name: 'Binance Wallet',
+        icon: '🔶',
+        isInstalled: true,
+        provider: window.BinanceChain || window.ethereum,
+      });
+    }
+
+    // OKX Wallet
+    if (window.okxwallet || window.ethereum?.isOkxWallet) {
+      wallets.push({
+        type: 'okx',
+        name: 'OKX Wallet',
+        icon: '⭕',
+        isInstalled: true,
+        provider: window.okxwallet || window.ethereum,
+      });
+    }
+
+    // TokenPocket
+    if (window.tokenpocket || window.ethereum?.isTokenPocket) {
+      wallets.push({
+        type: 'tokenpocket',
+        name: 'TokenPocket',
+        icon: '🎫',
+        isInstalled: true,
+        provider: window.tokenpocket || window.ethereum,
+      });
+    }
+
+    // Trust Wallet
+    if (window.trustwallet || window.ethereum?.isTrust) {
+      wallets.push({
+        type: 'trustwallet',
+        name: 'Trust Wallet',
+        icon: '🛡️',
+        isInstalled: true,
+        provider: window.trustwallet || window.ethereum,
+      });
+    }
+
+    // Fallback: Generic ethereum provider
+    if (wallets.length === 0 && window.ethereum) {
+      wallets.push({
+        type: 'metamask',
+        name: 'Web3 Wallet',
+        icon: '💼',
+        isInstalled: true,
+        provider: window.ethereum,
+      });
+    }
+
+    return wallets;
+  }, []);
+
+  useEffect(() => {
+    const wallets = detectWallets();
+    setAvailableWallets(wallets);
+  }, [detectWallets]);
+
+  const getWalletProvider = useCallback((walletType?: WalletType) => {
+    const type = walletType || selectedWallet;
+    if (!type) return null;
+
+    const wallet = availableWallets.find(w => w.type === type);
+    return wallet?.provider || null;
+  }, [selectedWallet, availableWallets]);
 
   // Update account info
-  const updateAccountInfo = useCallback(async (accounts: string[]) => {
+  const updateAccountInfo = useCallback(async (walletProvider: any, accounts: string[]) => {
     if (accounts.length === 0) {
       setState({
         account: null,
@@ -47,8 +136,7 @@ export function useWeb3() {
     }
 
     const account = accounts[0];
-    if (!window.ethereum) return;
-    const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' }) as string;
+    const chainIdHex = await walletProvider.request({ method: 'eth_chainId' }) as string;
     const chainId = parseInt(chainIdHex, 16);
     const isCorrectChain = chainId === WEB3_CONFIG.BSC.chainIdDecimal;
 
@@ -72,51 +160,41 @@ export function useWeb3() {
     });
   }, [provider]);
 
-  // Listen to account and chain changes
-  useEffect(() => {
-    if (!isMetaMaskInstalled || !window.ethereum) return;
-
-    const ethereum = window.ethereum;
-
-    const handleAccountsChanged = (accounts: unknown) => {
-      updateAccountInfo(accounts as string[]);
-    };
-
-    const handleChainChanged = () => {
-      window.location.reload(); // Recommended by MetaMask
-    };
-
-    ethereum.on('accountsChanged', handleAccountsChanged);
-    ethereum.on('chainChanged', handleChainChanged);
-
-    // Check if already connected
-    ethereum.request({ method: 'eth_accounts' })
-      .then((accounts) => handleAccountsChanged(accounts))
-      .catch(console.error);
-
-    return () => {
-      if (ethereum.removeListener) {
-        ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        ethereum.removeListener('chainChanged', handleChainChanged);
-      }
-    };
-  }, [isMetaMaskInstalled, updateAccountInfo]);
-
   // Connect wallet
-  const connectWallet = useCallback(async () => {
-    if (!isMetaMaskInstalled || !window.ethereum) {
-      setError('Please install MetaMask to continue');
-      return false;
-    }
-
+  const connectWallet = useCallback(async (walletType: WalletType) => {
     setIsConnecting(true);
     setError(null);
 
     try {
-      const accounts = await window.ethereum.request({
+      const walletProvider = getWalletProvider(walletType);
+      
+      if (!walletProvider) {
+        throw new Error(`${walletType} wallet is not installed`);
+      }
+
+      const accounts = await walletProvider.request({
         method: 'eth_requestAccounts',
       }) as string[];
-      await updateAccountInfo(accounts);
+
+      if (accounts.length === 0) {
+        throw new Error('No accounts found');
+      }
+
+      setSelectedWallet(walletType);
+      const browserProvider = new BrowserProvider(walletProvider);
+      setProvider(browserProvider);
+      
+      await updateAccountInfo(walletProvider, accounts);
+
+      // Setup event listeners
+      walletProvider.on('accountsChanged', (newAccounts: string[]) => {
+        updateAccountInfo(walletProvider, newAccounts);
+      });
+
+      walletProvider.on('chainChanged', () => {
+        window.location.reload();
+      });
+
       setIsConnecting(false);
       return true;
     } catch (err: unknown) {
@@ -125,23 +203,24 @@ export function useWeb3() {
       setIsConnecting(false);
       return false;
     }
-  }, [isMetaMaskInstalled, updateAccountInfo]);
+  }, [getWalletProvider, updateAccountInfo]);
 
   // Switch to BSC network
   const switchToBSC = useCallback(async () => {
-    if (!isMetaMaskInstalled || !window.ethereum) return false;
+    const walletProvider = getWalletProvider();
+    if (!walletProvider) return false;
 
     try {
-      await window.ethereum.request({
+      await walletProvider.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: WEB3_CONFIG.BSC.chainId }],
       });
       return true;
     } catch (switchError: unknown) {
-      // This error code indicates that the chain has not been added to MetaMask
+      // This error code indicates that the chain has not been added
       if ((switchError as { code?: number }).code === 4902) {
         try {
-          await window.ethereum.request({
+          await walletProvider.request({
             method: 'wallet_addEthereumChain',
             params: [
               {
@@ -164,7 +243,7 @@ export function useWeb3() {
       setError('Failed to switch to BSC network');
       return false;
     }
-  }, [isMetaMaskInstalled]);
+  }, [getWalletProvider]);
 
   // Send payment
   const sendPayment = useCallback(async (amountInBNB: string) => {
@@ -193,7 +272,8 @@ export function useWeb3() {
     provider,
     isConnecting,
     error,
-    isMetaMaskInstalled,
+    selectedWallet,
+    availableWallets,
     connectWallet,
     switchToBSC,
     sendPayment,
@@ -205,9 +285,17 @@ declare global {
   interface Window {
     ethereum?: {
       isMetaMask?: boolean;
+      isBinance?: boolean;
+      isOkxWallet?: boolean;
+      isTokenPocket?: boolean;
+      isTrust?: boolean;
       request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
       on: (event: string, handler: (...args: unknown[]) => void) => void;
       removeListener?: (event: string, handler: (...args: unknown[]) => void) => void;
     };
+    BinanceChain?: any;
+    okxwallet?: any;
+    tokenpocket?: any;
+    trustwallet?: any;
   }
 }

@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedProject, setSelectedProject] = useState<{ id: number; name: string; subdomain?: string } | null>(null);
-  const [activeTab, setActiveTab] = useState<'projects' | 'orders'>('projects');
+
   const previousProjectsRef = useRef<typeof projects>(undefined);
 
   const { data: projects, isLoading: projectsLoading } = trpc.projects.list.useQuery(undefined, {
@@ -31,9 +31,7 @@ export default function Dashboard() {
     refetchInterval: 3000, // 每3秒轮询一次，检查项目状态更新
   });
 
-  const { data: orders, isLoading: ordersLoading } = trpc.customOrder.list.useQuery(undefined, {
-    enabled: isAuthenticated && activeTab === 'orders',
-  });
+
 
   // 监听项目状态变化，显示成功通知
   useEffect(() => {
@@ -124,29 +122,7 @@ export default function Dashboard() {
             </Link>
           </div>
           
-          {/* Tabs */}
-          <div className="flex gap-2 border-b-2 border-border">
-            <button
-              onClick={() => setActiveTab('projects')}
-              className={`px-6 py-3 font-mono font-bold transition-colors ${
-                activeTab === 'projects'
-                  ? 'border-b-2 border-primary text-primary -mb-0.5'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {t('dashboard.tabs.projects')}
-            </button>
-            <button
-              onClick={() => setActiveTab('orders')}
-              className={`px-6 py-3 font-mono font-bold transition-colors ${
-                activeTab === 'orders'
-                  ? 'border-b-2 border-primary text-primary -mb-0.5'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {t('dashboard.tabs.orders')}
-            </button>
-          </div>
+
         </div>
 
         {/* Stats Overview */}
@@ -183,19 +159,16 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Tab Content */}
-        {activeTab === 'projects' ? (
-          <>
-            {/* Generation History */}
-            <div className="space-y-6 mb-12">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">{t('dashboard.page.generationHistory')}</h2>
-              </div>
-              <GenerationHistorySection />
-            </div>
+        {/* Generation History */}
+        <div className="space-y-6 mb-12">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">{t('dashboard.page.generationHistory')}</h2>
+          </div>
+          <GenerationHistorySection />
+        </div>
 
-            {/* Projects List */}
-            <div className="space-y-6">
+        {/* Projects List */}
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">{t('dashboard.page.yourProjects')}</h2>
           </div>
@@ -311,103 +284,7 @@ export default function Dashboard() {
               ))}
             </div>
           )}
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Orders List */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">{t('dashboard.orders.title')}</h2>
-              </div>
-
-              {ordersLoading ? (
-                <div className="text-center py-12">
-                  <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-                </div>
-              ) : !orders || orders.length === 0 ? (
-                <Card className="module-card text-center py-12">
-                  <CardContent>
-                    <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-bold mb-2">{t('dashboard.orders.empty')}</h3>
-                    <p className="text-muted-foreground mb-6">
-                      {t('dashboard.orders.emptyDescription')}
-                    </p>
-                    <Link href="/supply">
-                      <Button size="lg" className="font-mono retro-border">
-                        <Package className="mr-2 h-5 w-5" />
-                        {t('dashboard.orders.emptyButton')}
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid gap-6">
-                  {orders.map((order: any) => (
-                    <Card key={order.id} className="module-card">
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-2xl mb-2">
-                              {t('dashboard.orders.orderNumber')} #{order.id}
-                            </CardTitle>
-                            <CardDescription className="text-base">
-                              {new Date(order.createdAt).toLocaleDateString()}
-                            </CardDescription>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid md:grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <div className="text-sm text-muted-foreground mb-1">{t('dashboard.orders.productType')}</div>
-                            <div className="font-mono font-bold">{t(`customOrder.productTypes.${order.productType}`)}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground mb-1">{t('dashboard.orders.quantity')}</div>
-                            <div className="font-mono">{order.quantity.toLocaleString()}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground mb-1">{t('dashboard.orders.budget')}</div>
-                            <div className="font-mono">{t(`customOrder.budgets.${order.budget}`)}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground mb-1">{t('dashboard.orders.contact')}</div>
-                            <div className="font-mono">{order.contactName} ({order.contactEmail})</div>
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="text-sm text-muted-foreground mb-1">{t('dashboard.orders.description')}</div>
-                          <div className="text-sm">{order.description}</div>
-                        </div>
-
-                        {order.fileUrls && order.fileUrls.length > 0 && (
-                          <div>
-                            <div className="text-sm text-muted-foreground mb-2">{t('dashboard.orders.files')}</div>
-                            <div className="flex flex-wrap gap-2">
-                              {order.fileUrls.map((file: any, index: number) => (
-                                <a
-                                  key={index}
-                                  href={file.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-sm text-primary hover:underline font-mono"
-                                >
-                                  {file.name || `File ${index + 1}`}
-                                </a>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        )}
+        </div>
       </div>
 
       {/* Publish Modal */}

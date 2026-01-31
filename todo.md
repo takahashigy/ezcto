@@ -551,4 +551,13 @@
 - [x] 更新routers.ts中的generateWebsite mutation适配新的资产结构
 - [x] 实现营销素材打包下载功能（已有downloadProjectZip API）
 - [x] 测试完整生成流程并验证图片质量
-- [ ] 向用户交付更新后的系统
+- [x] 向用户交付更新后的系统
+
+## Dashboard界面优化（匹配新的8张图片输出）
+- [x] 移除My Orders标签页和相关代码
+- [x] 更新ProjectDetails页面展示新的资产类型（PayDex Banner、X Banner、Hero Background、Feature Icons、Community Scene）
+- [x] 优化资产预览布局（区分营销素材和网站装饰素材）
+- [x] 添加"Download Marketing Kit"按钮（打包PayDex Banner、X Banner、Logo）
+- [x] 优化视觉层次和信息架构
+- [x] 测试优化后的Dashboard功能
+- [ ] 保存checkpoint

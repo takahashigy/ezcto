@@ -23,6 +23,10 @@ export type ProgressEvent = {
   message: string;
   step?: string;
   error?: string;
+  // Extended log fields
+  category?: "analysis" | "images" | "website" | "deployment" | "system";
+  level?: "info" | "success" | "error" | "warning";
+  timestamp?: string;
 };
 
 export type ProgressStream = {

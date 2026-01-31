@@ -807,3 +807,13 @@
 - [x] 统一卡片样式为module-card
 - [x] 统一边框颜色为border-border
 - [ ] 保存checkpoint
+
+## Launch实时预览侧边栏
+- [x] 创建LiveLogSidebar组件（可展开/收起）
+- [x] 实现实时日志显示（代码执行、图片生成进度）
+- [x] 添加日志分类（Analysis、Images、Website、Deployment）
+- [x] 实现自动滚动到最新日志
+- [x] 集成到LaunchV2Preview页面
+- [x] 扩展SSE支持category和level字段
+- [x] 更新launch.ts中的broadcastProgress调用
+- [ ] 保存checkpoint

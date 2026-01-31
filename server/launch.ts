@@ -124,7 +124,13 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
         steps,
         progress: { current: 10, total: 100, message: 'Claude Opus analyzing project...' },
       });
-      broadcastProgress(input.projectId, { progress: 10, message: "Claude Opus analyzing project..." });
+      broadcastProgress(input.projectId, { 
+        progress: 10, 
+        message: "Claude Opus analyzing project...",
+        category: "analysis",
+        level: "info",
+        timestamp: new Date().toISOString()
+      });
       
       // Retry module up to 3 times
       try {
@@ -145,7 +151,10 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               console.log(`[Launch] ANALYSIS module retry ${attempt}/3: ${error.message}`);
               broadcastProgress(input.projectId, { 
                 progress: 10, 
-                message: `Retrying analysis (${attempt}/3)...` 
+                message: `Retrying analysis (${attempt}/3)...`,
+                category: "analysis",
+                level: "warning",
+                timestamp: new Date().toISOString()
               });
             },
           }
@@ -217,7 +226,13 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
         steps,
         progress: { current: 30, total: 100, message: 'Generating images with Nanobanana...' },
       });
-      broadcastProgress(input.projectId, { progress: 30, message: "Generating images with Nanobanana..." });
+      broadcastProgress(input.projectId, { 
+        progress: 30, 
+        message: "Generating images with Nanobanana...",
+        category: "images",
+        level: "info",
+        timestamp: new Date().toISOString()
+      });
       
       // Retry module up to 3 times
       try {
@@ -305,7 +320,10 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               }
               broadcastProgress(input.projectId, { 
                 progress: progressPercent, 
-                message: `Generated ${completedCount}/${totalImages} images` 
+                message: `Generated ${completedCount}/${totalImages} images`,
+                category: "images",
+                level: "info",
+                timestamp: new Date().toISOString()
               });
 
               return { task, assetData };
@@ -372,7 +390,13 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
         steps,
         progress: { current: 80, total: 100, message: 'Generating website code...' },
       });
-      broadcastProgress(input.projectId, { progress: 80, message: "Generating website code..." });
+      broadcastProgress(input.projectId, { 
+        progress: 80, 
+        message: "Generating website code...",
+        category: "website",
+        level: "info",
+        timestamp: new Date().toISOString()
+      });
       
       // Retry module up to 3 times
       try {
@@ -435,7 +459,13 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       steps,
       progress: { current: 95, total: 100, message: 'Deploying website to subdomain...' },
     });
-    broadcastProgress(input.projectId, { progress: 95, message: "Deploying website to subdomain..." });
+    broadcastProgress(input.projectId, { 
+      progress: 95, 
+      message: "Deploying website to subdomain...",
+      category: "deployment",
+      level: "info",
+      timestamp: new Date().toISOString()
+    });
 
     // Generate subdomain and deploy
     const subdomain = generateSubdomain(input.name, input.ticker);
@@ -464,7 +494,13 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       steps,
       progress: { current: 100, total: 100, message: 'All assets generated and deployed!' },
     });
-    broadcastProgress(input.projectId, { progress: 100, message: "All assets generated and deployed!" });
+    broadcastProgress(input.projectId, { 
+      progress: 100, 
+      message: "All assets generated and deployed!",
+      category: "deployment",
+      level: "success",
+      timestamp: new Date().toISOString()
+    });
 
     // 更新项目状态为completed
     await db.updateProjectStatus(input.projectId, "completed");

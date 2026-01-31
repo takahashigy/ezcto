@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, CheckCircle2, XCircle, ArrowLeft, ExternalLink, Sparkles } from "lucide-react";
+import { LiveLogSidebar } from "@/components/LiveLogSidebar";
 import { toast } from "sonner";
 
 type ModuleStatus = "pending" | "in_progress" | "completed" | "failed";
@@ -20,6 +21,13 @@ export default function LaunchV2Preview() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [projectId, setProjectId] = useState<number | null>(null);
+  const [isLogSidebarOpen, setIsLogSidebarOpen] = useState(false);
+  const [logs, setLogs] = useState<Array<{
+    timestamp: string;
+    category: "analysis" | "images" | "website" | "deployment" | "system";
+    message: string;
+    level: "info" | "success" | "error" | "warning";
+  }>>([]);
 
   // Parse projectId from URL
   useEffect(() => {
@@ -32,6 +40,37 @@ export default function LaunchV2Preview() {
       setLocation("/dashboard");
     }
   }, [setLocation]);
+
+  // Connect to SSE for real-time logs
+  useEffect(() => {
+    if (!projectId) return;
+
+    const eventSource = new EventSource(`/api/progress/${projectId}`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        const newLog = {
+          timestamp: new Date().toLocaleTimeString(),
+          category: data.category || "system",
+          message: data.message,
+          level: data.level || "info",
+        };
+        setLogs((prev) => [...prev, newLog]);
+      } catch (error) {
+        console.error("Failed to parse SSE data:", error);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE connection error:", error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [projectId]);
 
   // Poll project status
   const { data: project, refetch } = trpc.projects.getById.useQuery(
@@ -284,6 +323,13 @@ export default function LaunchV2Preview() {
           )}
         </div>
       </div>
+
+      {/* Live Log Sidebar */}
+      <LiveLogSidebar
+        logs={logs}
+        isOpen={isLogSidebarOpen}
+        onToggle={() => setIsLogSidebarOpen(!isLogSidebarOpen)}
+      />
     </div>
   );
 }

@@ -829,3 +829,18 @@
 - [x] 将LanguageContext中projectNamePlaceholder从DogeKing改为EZCTO
 - [x] 将LanguageContext中tickerPlaceholder从DOGE改为EZCTO
 - [ ] 保存checkpoint
+
+## Launch流程问题诊断
+- [ ] 检查devserver.log查看服务器错误
+- [ ] 检查browserConsole.log查看前端错误
+- [ ] 检查networkRequests.log查看API调用失败
+- [ ] 分析问题原因
+- [ ] 修复问题
+- [ ] 验证修复
+
+## 优化图片生成策略
+- [x] 修改launch.ts将8张图片并发改为分批生成（每批2张）
+- [x] 添加批次之间的2秒延迟，避免触发API速率限制
+- [x] 更新进度广播，显示当前生成的图片类型
+- [ ] 用户测试分批生成功能
+- [ ] 保存checkpoint

@@ -264,73 +264,90 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
 
             const totalImages = imageGenerationTasks.length;
 
-            console.log(`[Launch] Starting parallel generation of ${totalImages} images...`);
+            console.log(`[Launch] Starting batch generation of ${totalImages} images (2 images per batch)...`);
 
-            // Track completed images with a Set to avoid race conditions
+            // Track completed images
             const completedImageTypes = new Set<string>();
+            const completedTasks: Array<{ task: any; assetData: any }> = [];
 
-            // Generate all images in parallel
-            const imagePromises = imageGenerationTasks.map(async (task, index) => {
-              console.log(`[Launch] Starting generation of ${task.type}...`);
-              
-              const result = await generateImage({
-                prompt: task.prompt,
-                size: task.size as any,
-              });
+            // Generate images in batches of 2 to avoid rate limits
+            const BATCH_SIZE = 2;
+            const BATCH_DELAY_MS = 2000; // 2 seconds delay between batches
 
-              const assetData = {
-                url: result.url!,
-                key: `projects/${input.projectId}/${task.type}.png`,
-              };
+            for (let i = 0; i < imageGenerationTasks.length; i += BATCH_SIZE) {
+              const batch = imageGenerationTasks.slice(i, i + BATCH_SIZE);
+              console.log(`[Launch] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(imageGenerationTasks.length / BATCH_SIZE)}...`);
 
-              // Save to database immediately
-              const assetTypeDb = task.type === 'paydexBanner' ? 'paydex_banner'
-                : task.type === 'xBanner' ? 'x_banner'
-                : task.type === 'heroBackground' ? 'hero_background'
-                : task.type === 'communityScene' ? 'community_scene'
-                : task.type === 'featureIcon' ? 'feature_icon'
-                : task.type;
-
-              await db.createAsset({
-                projectId: input.projectId,
-                assetType: assetTypeDb as any,
-                fileUrl: assetData.url,
-                fileKey: assetData.key,
-                metadata: task.type === 'featureIcon' ? { index: (task as any).index } : undefined,
-              });
-
-              console.log(`[Launch] Saved ${task.type} to database`);
-              
-              // Update progress after each image completes
-              const taskKey = task.type === 'featureIcon' ? `${task.type}_${(task as any).index}` : task.type;
-              completedImageTypes.add(taskKey);
-              const completedCount = completedImageTypes.size;
-              const progressPercent = 30 + Math.floor((completedCount / totalImages) * 40); // 30-70%
-              
-              if (historyId) {
-                await updateGenerationProgress(historyId, {
-                  currentStep: 'images',
-                  steps,
-                  progress: { 
-                    current: progressPercent, 
-                    total: 100, 
-                    message: `Generated ${completedCount}/${totalImages} images` 
-                  },
+              // Generate images in current batch (parallel within batch)
+              const batchPromises = batch.map(async (task) => {
+                console.log(`[Launch] Starting generation of ${task.type}...`);
+                
+                const result = await generateImage({
+                  prompt: task.prompt,
+                  size: task.size as any,
                 });
-              }
-              broadcastProgress(input.projectId, { 
-                progress: progressPercent, 
-                message: `Generated ${completedCount}/${totalImages} images`,
-                category: "images",
-                level: "info",
-                timestamp: new Date().toISOString()
+
+                const assetData = {
+                  url: result.url!,
+                  key: `projects/${input.projectId}/${task.type}.png`,
+                };
+
+                // Save to database immediately
+                const assetTypeDb = task.type === 'paydexBanner' ? 'paydex_banner'
+                  : task.type === 'xBanner' ? 'x_banner'
+                  : task.type === 'heroBackground' ? 'hero_background'
+                  : task.type === 'communityScene' ? 'community_scene'
+                  : task.type === 'featureIcon' ? 'feature_icon'
+                  : task.type;
+
+                await db.createAsset({
+                  projectId: input.projectId,
+                  assetType: assetTypeDb as any,
+                  fileUrl: assetData.url,
+                  fileKey: assetData.key,
+                  metadata: task.type === 'featureIcon' ? { index: (task as any).index } : undefined,
+                });
+
+                console.log(`[Launch] Saved ${task.type} to database`);
+                
+                // Update progress after each image completes
+                const taskKey = task.type === 'featureIcon' ? `${task.type}_${(task as any).index}` : task.type;
+                completedImageTypes.add(taskKey);
+                const completedCount = completedImageTypes.size;
+                const progressPercent = 30 + Math.floor((completedCount / totalImages) * 40); // 30-70%
+                
+                if (historyId) {
+                  await updateGenerationProgress(historyId, {
+                    currentStep: 'images',
+                    steps,
+                    progress: { 
+                      current: progressPercent, 
+                      total: 100, 
+                      message: `Generated ${completedCount}/${totalImages} images` 
+                    },
+                  });
+                }
+                broadcastProgress(input.projectId, { 
+                  progress: progressPercent, 
+                  message: `Generated ${completedCount}/${totalImages} images (${task.type})`,
+                  category: "images",
+                  level: "success",
+                  timestamp: new Date().toISOString()
+                });
+
+                return { task, assetData };
               });
 
-              return { task, assetData };
-            });
+              // Wait for current batch to complete
+              const batchResults = await Promise.all(batchPromises);
+              completedTasks.push(...batchResults);
 
-            // Wait for all images to complete
-            const completedTasks = await Promise.all(imagePromises);
+              // Add delay between batches (except for the last batch)
+              if (i + BATCH_SIZE < imageGenerationTasks.length) {
+                console.log(`[Launch] Waiting ${BATCH_DELAY_MS}ms before next batch...`);
+                await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
+              }
+            }
 
             // Organize results
             for (const { task, assetData } of completedTasks) {

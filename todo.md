@@ -698,3 +698,6 @@
 - [x] 在前端Your Projects列表添加删除按钮
 - [x] 添加删除确认对话框
 - [x] 测试删除项目功能
+
+## 修复HTML嵌套错误
+- [x] 修复Dashboard中AlertDialog的HTML嵌套问题（p标签不能包含ul标签）

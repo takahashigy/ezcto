@@ -361,18 +361,23 @@ export default function Dashboard() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Project</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete <strong>{projectToDelete?.name}</strong>?
-              <br />
-              <br />
-              This will permanently delete:
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>The project and all its metadata</li>
-                <li>All generated assets (logo, banner, PFP, poster, website)</li>
-                <li>All generation history records</li>
-              </ul>
-              <br />
-              <strong className="text-destructive">This action cannot be undone.</strong>
+            <AlertDialogDescription asChild>
+              <div>
+                <p>
+                  Are you sure you want to delete <strong>{projectToDelete?.name}</strong>?
+                </p>
+                <p className="mt-4">
+                  This will permanently delete:
+                </p>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>The project and all its metadata</li>
+                  <li>All generated assets (logo, banner, PFP, poster, website)</li>
+                  <li>All generation history records</li>
+                </ul>
+                <p className="mt-4">
+                  <strong className="text-destructive">This action cannot be undone.</strong>
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

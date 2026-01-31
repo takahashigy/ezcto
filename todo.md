@@ -470,3 +470,10 @@
 - [x] 在ProjectDetails页面添加钱包按钮
 - [x] 测试所有页面的钱包连接功能
 - [x] 保存checkpoint
+
+## Nanobanana API集成
+- [x] 添加Nanobanana API密钥到环境变量
+- [x] 更新imageGeneration.ts集成Nanobanana API
+- [x] 测试图像生成功能（Banner、Logo、Poster）
+- [x] 编写vitest测试验证API集成
+- [x] 保存checkpoint

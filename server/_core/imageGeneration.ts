@@ -1,5 +1,5 @@
 /**
- * Image generation helper using internal ImageService
+ * Image generation helper using Nanobanana API
  *
  * Example usage:
  *   const { url: imageUrl } = await generateImage({
@@ -16,7 +16,6 @@
  *   });
  */
 import { storagePut } from "server/storage";
-import { ENV } from "./env";
 
 export type GenerateImageOptions = {
   prompt: string;
@@ -34,58 +33,65 @@ export type GenerateImageResponse = {
 export async function generateImage(
   options: GenerateImageOptions
 ): Promise<GenerateImageResponse> {
-  if (!ENV.forgeApiUrl) {
-    throw new Error("BUILT_IN_FORGE_API_URL is not configured");
-  }
-  if (!ENV.forgeApiKey) {
-    throw new Error("BUILT_IN_FORGE_API_KEY is not configured");
+  const nanobananaApiKey = process.env.NANOBANANA_API_KEY;
+  
+  if (!nanobananaApiKey) {
+    throw new Error("NANOBANANA_API_KEY is not configured");
   }
 
-  // Build the full URL by appending the service path to the base URL
-  const baseUrl = ENV.forgeApiUrl.endsWith("/")
-    ? ENV.forgeApiUrl
-    : `${ENV.forgeApiUrl}/`;
-  const fullUrl = new URL(
-    "images.v1.ImageService/GenerateImage",
-    baseUrl
-  ).toString();
+  // Nanobanana API endpoint
+  const apiUrl = "https://api.google-banana.com/v1/images/generations";
 
-  const response = await fetch(fullUrl, {
+  const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
-      accept: "application/json",
-      "content-type": "application/json",
-      "connect-protocol-version": "1",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${nanobananaApiKey}`,
     },
     body: JSON.stringify({
+      model: "gemini-3-pro-image-preview-2k",
       prompt: options.prompt,
-      original_images: options.originalImages || [],
+      n: 1,
+      size: "1024x1024",
+      response_format: "url", // Changed from b64_json to url
     }),
   });
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
     throw new Error(
-      `Image generation request failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`
+      `Nanobanana image generation failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`
     );
   }
 
   const result = (await response.json()) as {
-    image: {
-      b64Json: string;
-      mimeType: string;
-    };
+    data: Array<{
+      url: string;
+    }>;
   };
-  const base64Data = result.image.b64Json;
-  const buffer = Buffer.from(base64Data, "base64");
+
+  if (!result.data || result.data.length === 0) {
+    throw new Error("No image data returned from Nanobanana API");
+  }
+
+  // Nanobanana returns the image URL directly
+  const imageUrl = result.data[0].url;
+
+  // Download the image and upload to our S3
+  const imageResponse = await fetch(imageUrl);
+  if (!imageResponse.ok) {
+    throw new Error(`Failed to download generated image from ${imageUrl}`);
+  }
+
+  const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
 
   // Save to S3
   const { url } = await storagePut(
     `generated/${Date.now()}.png`,
-    buffer,
-    result.image.mimeType
+    imageBuffer,
+    "image/png"
   );
+
   return {
     url,
   };

@@ -145,14 +145,40 @@ export default function LaunchV2() {
       toast.success("Project created!");
       setCurrentProjectId(projectData.projectId);
 
-      // Step 3: Show payment modal
-      setIsGenerating(false);
-      setShowPaymentModal(true);
-      toast.info(language === 'zh' ? '请完成支付以开始生成' : 'Please complete payment to start generation');
+      // Step 3: Check if user is admin
+      if (user?.role === 'admin') {
+        // Admin users skip payment and start generation immediately
+        toast.info(language === 'zh' ? '🔑 Admin权限：跳过支付，直接开始生成...' : '🔑 Admin privilege: Skipping payment, starting generation...');
+        
+        try {
+          await triggerGenerationMutation.mutateAsync({
+            projectId: projectData.projectId,
+            characterImageUrl: characterImageUrl || undefined,
+            socialLinks: {
+              twitter: formData.twitter || undefined,
+              telegram: formData.telegram || undefined,
+              discord: formData.discord || undefined,
+              website: formData.website || undefined,
+            },
+          });
 
-      // Store image URL for later use
-      if (characterImageUrl) {
-        localStorage.setItem(`project_${projectData.projectId}_imageUrl`, characterImageUrl);
+          toast.success(language === 'zh' ? '生成已启动！正在跳转...' : 'Generation started! Redirecting...');
+          setLocation(`/launch-preview/${projectData.projectId}`);
+        } catch (genError) {
+          console.error("[LaunchV2] Admin generation error:", genError);
+          toast.error(`Failed to start generation: ${genError instanceof Error ? genError.message : 'Unknown error'}`);
+          setIsGenerating(false);
+        }
+      } else {
+        // Regular users: show payment modal
+        setIsGenerating(false);
+        setShowPaymentModal(true);
+        toast.info(language === 'zh' ? '请完成支付以开始生成' : 'Please complete payment to start generation');
+
+        // Store image URL for later use
+        if (characterImageUrl) {
+          localStorage.setItem(`project_${projectData.projectId}_imageUrl`, characterImageUrl);
+        }
       }
     } catch (error) {
       console.error("[LaunchV2] Generation error:", error);

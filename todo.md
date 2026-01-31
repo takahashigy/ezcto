@@ -933,4 +933,10 @@
 - [x] 修改副标题文案：将"8张图片+完整网站"改为"图片+网站"
 - [x] 修改LanguageContext中的中英文翻译
 - [x] 修改GenerationPreview中的描述文案
-- [ ] 保存checkpoint
+- [x] 保存checkpoint
+
+## Admin跳过支付检查
+- [x] 修改LaunchV2表单提交逻辑，检查用户角色
+- [x] admin用户跳过支付弹窗，直接创建项目并启动生成
+- [x] 普通用户正常显示支付弹窗
+- [ ] 测试并保存checkpoint

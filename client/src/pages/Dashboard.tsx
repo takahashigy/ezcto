@@ -205,6 +205,59 @@ export default function Dashboard() {
           <GenerationHistorySection />
         </div>
 
+        {/* In Progress Projects */}
+        {projects && projects.filter(p => p.status === 'generating').length > 0 && (
+          <div className="space-y-6 mb-12">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-accent" />
+                {t('dashboard.page.inProgressProjects')}
+              </h2>
+            </div>
+            <div className="grid gap-6">
+              {projects.filter(p => p.status === 'generating').map((project: any) => (
+                <Card key={project.id} className="module-card border-accent border-2 bg-accent/5">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-2xl mb-2 flex items-center gap-2">
+                          {project.name}
+                          <span className="px-3 py-1 text-xs font-mono font-bold border-2 border-accent bg-accent/10 text-accent">
+                            GENERATING
+                          </span>
+                        </CardTitle>
+                        <CardDescription className="text-base">
+                          {project.description || t('dashboard.project.noDescription')}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="flex-1">
+                        <div className="text-sm text-muted-foreground mb-2">
+                          {t('dashboard.inProgress.message')}
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div className="bg-accent h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Link href={`/launch/preview?projectId=${project.id}`}>
+                        <Button className="font-mono retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {t('dashboard.inProgress.viewProgress')}
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Projects List */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">

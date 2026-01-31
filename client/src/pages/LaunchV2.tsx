@@ -130,10 +130,17 @@ export default function LaunchV2() {
 
       toast.success("Project created! Starting generation pipeline...");
 
-      // Step 2: Navigate to preview page
+      // Step 2: Save to localStorage for recovery
+      localStorage.setItem('currentGeneratingProject', JSON.stringify({
+        projectId: projectData.projectId,
+        projectName: formData.projectName,
+        timestamp: Date.now(),
+      }));
+
+      // Step 3: Navigate to preview page
       setLocation(`/launch/preview?projectId=${projectData.projectId}`);
 
-      // Step 3: Trigger the full generation pipeline (runs in background)
+      // Step 4: Trigger the full generation pipeline (runs in background)
       launchTriggerMutation.mutate({
         projectId: projectData.projectId,
         characterImageUrl: characterImageUrl || undefined,

@@ -131,6 +131,23 @@ export default function LaunchV2Preview() {
   const isCompleted = completedModules === totalModules;
   const isFailed = project?.status === "failed";
 
+  // Clear localStorage when project is completed or failed
+  useEffect(() => {
+    if ((isCompleted || isFailed) && projectId) {
+      const stored = localStorage.getItem('currentGeneratingProject');
+      if (stored) {
+        try {
+          const { projectId: storedId } = JSON.parse(stored);
+          if (storedId === projectId) {
+            localStorage.removeItem('currentGeneratingProject');
+          }
+        } catch (error) {
+          console.error('Failed to parse stored project:', error);
+        }
+      }
+    }
+  }, [isCompleted, isFailed, projectId]);
+
   // Redirect to project details when completed
   useEffect(() => {
     if (isCompleted && projectId) {

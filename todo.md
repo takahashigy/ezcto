@@ -844,3 +844,13 @@
 - [x] 更新进度广播，显示当前生成的图片类型
 - [ ] 用户测试分批生成功能
 - [ ] 保存checkpoint
+
+## 进行中项目恢复功能
+- [x] 在Dashboard添加"进行中的项目"卡片，显示status='generating'的项目
+- [x] 添加"查看进度"按钮，跳转到/launch/preview页面
+- [x] 在LaunchV2表单提交时保存projectId到localStorage
+- [x] 在App.tsx添加检查localStorage的逻辑
+- [x] 显示toast提示用户有未完成的项目
+- [x] 在LaunchV2Preview添加清除localStorage的逻辑
+- [ ] 用户测试完整流程
+- [ ] 保存checkpoint

@@ -474,7 +474,12 @@ const translations = {
         systemOnline: 'SYSTEM ONLINE',
         newProject: 'New Project',
         generationHistory: 'Generation History',
+        inProgressProjects: 'In Progress',
         yourProjects: 'Your Projects',
+      },
+      inProgress: {
+        message: 'AI is generating your project assets...',
+        viewProgress: 'View Progress',
       },
       orders: {
         title: 'My Custom Orders',
@@ -1006,7 +1011,12 @@ const translations = {
         systemOnline: '系统在线',
         newProject: '新建项目',
         generationHistory: '生成历史',
+        inProgressProjects: '进行中的项目',
         yourProjects: '你的项目',
+      },
+      inProgress: {
+        message: 'AI正在生成你的项目资产...',
+        viewProgress: '查看进度',
       },
       orders: {
         title: '我的定制订单',

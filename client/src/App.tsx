@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
@@ -9,9 +9,54 @@ import Dashboard from "./pages/Dashboard";
 import LaunchV2 from "./pages/LaunchV2";
 import ProjectDetails from "./pages/ProjectDetails";
 import LaunchV2Preview from "./pages/LaunchV2Preview";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
+  const [location, setLocation] = useLocation();
+
+  // Check for unfinished project on mount
+  useEffect(() => {
+    const checkUnfinishedProject = () => {
+      const stored = localStorage.getItem('currentGeneratingProject');
+      if (!stored) return;
+
+      try {
+        const { projectId, projectName, timestamp } = JSON.parse(stored);
+        
+        // Only show if timestamp is within last 24 hours
+        const hoursSince = (Date.now() - timestamp) / (1000 * 60 * 60);
+        if (hoursSince > 24) {
+          localStorage.removeItem('currentGeneratingProject');
+          return;
+        }
+
+        // Don't show if already on preview page
+        if (location.includes('/launch/preview')) return;
+
+        // Show toast with action
+        toast.info(
+          `You have a project "${projectName}" in progress`,
+          {
+            description: 'Click to continue viewing the generation progress',
+            duration: 10000,
+            action: {
+              label: 'View Progress',
+              onClick: () => setLocation(`/launch/preview?projectId=${projectId}`),
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Failed to parse stored project:', error);
+        localStorage.removeItem('currentGeneratingProject');
+      }
+    };
+
+    // Check after a short delay to ensure auth is loaded
+    const timer = setTimeout(checkUnfinishedProject, 1000);
+    return () => clearTimeout(timer);
+  }, [location, setLocation]);
+
   return (
     <Switch>
       <Route path={"/"} component={Home} />

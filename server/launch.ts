@@ -4,6 +4,7 @@ import { analyzeProjectInput, generateWebsiteCode } from "./_core/claude";
 import { generateImage } from "./_core/imageGeneration";
 import { retryWithBackoff } from "./_core/retry";
 import { generateSubdomain, deployWebsite } from "./_core/deployment";
+import { uploadImageBatch } from "./_core/imageUpload";
 import { 
   shouldSkipModule, 
   markModuleCompleted, 
@@ -37,8 +38,7 @@ export interface LaunchOutput {
     xBanner?: string;
     logo?: string;
     heroBackground?: string;
-    featureIcons?: string[];
-    communityScene?: string;
+    featureIcon?: string; // Changed from array to single icon
     website?: string;
   };
   status: "completed" | "failed";
@@ -54,8 +54,7 @@ interface AnalysisResult {
   xBannerPrompt: string;
   logoPrompt: string;
   heroBackgroundPrompt: string;
-  communityScenePrompt: string;
-  featureIconPrompts: string[];
+  featureIconPrompt: string; // Changed from array to single prompt
 }
 
 interface ImageAssets {
@@ -63,8 +62,7 @@ interface ImageAssets {
   xBanner: { url: string; key: string };
   logo: { url: string; key: string };
   heroBackground: { url: string; key: string };
-  communityScene: { url: string; key: string };
-  featureIcons: Array<{ url: string; key: string }>;
+  featureIcon: { url: string; key: string }; // Changed from array to single icon
 }
 
 /**
@@ -209,14 +207,10 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
           url: existingAssets.find(a => a.assetType === 'hero_background')?.fileUrl ?? '',
           key: existingAssets.find(a => a.assetType === 'hero_background')?.fileKey ?? '',
         },
-        communityScene: {
-          url: existingAssets.find(a => a.assetType === 'community_scene')?.fileUrl ?? '',
-          key: existingAssets.find(a => a.assetType === 'community_scene')?.fileKey ?? '',
+        featureIcon: {
+          url: existingAssets.find(a => a.assetType === 'feature_icon')?.fileUrl ?? '',
+          key: existingAssets.find(a => a.assetType === 'feature_icon')?.fileKey ?? '',
         },
-        featureIcons: existingAssets
-          .filter(a => a.assetType === 'feature_icon')
-          .sort((a: any, b: any) => (a.metadata?.index || 0) - (b.metadata?.index || 0))
-          .map(a => ({ url: a.fileUrl ?? '', key: a.fileKey ?? '' })),
       };
     } else {
       console.log(`[Launch] Starting IMAGES module...`);
@@ -244,13 +238,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               { type: 'xBanner', prompt: analysisResult.xBannerPrompt, size: "1200x480" },
               { type: 'logo', prompt: analysisResult.logoPrompt, size: "512x512" },
               { type: 'heroBackground', prompt: analysisResult.heroBackgroundPrompt, size: "1920x1080" },
-              { type: 'communityScene', prompt: analysisResult.communityScenePrompt, size: "800x600" },
-              ...analysisResult.featureIconPrompts.map((prompt, index) => ({
-                type: 'featureIcon',
-                index,
-                prompt,
-                size: "256x256",
-              })),
+              { type: 'featureIcon', prompt: analysisResult.featureIconPrompt, size: "256x256" },
             ];
 
             const results: any = {
@@ -258,8 +246,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               xBanner: null,
               logo: null,
               heroBackground: null,
-              communityScene: null,
-              featureIcons: [],
+              featureIcon: null,
             };
 
             const totalImages = imageGenerationTasks.length;
@@ -351,11 +338,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
 
             // Organize results
             for (const { task, assetData } of completedTasks) {
-              if (task.type === 'featureIcon') {
-                results.featureIcons.push(assetData);
-              } else {
-                results[task.type] = assetData;
-              }
+              results[task.type] = assetData;
             }
 
             return results;
@@ -374,7 +357,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
         );
         
         await markModuleCompleted(input.projectId, 'images');
-        steps = updateStep(steps, 'images', { status: 'completed', endTime: new Date().toISOString(), data: { count: 8 } });
+        steps = updateStep(steps, 'images', { status: 'completed', endTime: new Date().toISOString(), data: { count: 5 } });
         await updateGenerationProgress(historyId, {
           currentStep: 'website',
           steps,
@@ -431,8 +414,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               xBannerUrl: imageAssets.xBanner.url,
               logoUrl: imageAssets.logo.url,
               heroBackgroundUrl: imageAssets.heroBackground.url,
-              featureIconUrls: imageAssets.featureIcons.map(i => i.url),
-              communitySceneUrl: imageAssets.communityScene.url,
+              featureIconUrl: imageAssets.featureIcon.url,
             });
           },
           {
@@ -474,8 +456,39 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     await updateGenerationProgress(historyId, {
       currentStep: 'deployment',
       steps,
-      progress: { current: 95, total: 100, message: 'Deploying website to subdomain...' },
+      progress: { current: 90, total: 100, message: 'Uploading images to R2...' },
     });
+    broadcastProgress(input.projectId, { 
+      progress: 90, 
+      message: "Uploading images to R2...",
+      category: "deployment",
+      level: "info",
+      timestamp: new Date().toISOString()
+    });
+
+    // Generate subdomain
+    const subdomain = generateSubdomain(input.name, input.ticker);
+
+    // Upload all images to R2 under {slug}/assets/
+    const imagesToUpload = [
+      { url: imageAssets.paydexBanner.url, name: 'paydex-banner.png' },
+      { url: imageAssets.xBanner.url, name: 'x-banner.png' },
+      { url: imageAssets.logo.url, name: 'logo.png' },
+      { url: imageAssets.heroBackground.url, name: 'hero-background.png' },
+      { url: imageAssets.featureIcon.url, name: 'feature-icon.png' },
+    ];
+
+    const uploadedImages = await uploadImageBatch(imagesToUpload, subdomain);
+    console.log(`[Launch] Uploaded ${Object.keys(uploadedImages).length} images to R2`);
+
+    // Replace image URLs in HTML with relative paths
+    let finalHTML = websiteHTML;
+    finalHTML = finalHTML.replace(imageAssets.paydexBanner.url, uploadedImages['paydex-banner.png'].url);
+    finalHTML = finalHTML.replace(imageAssets.xBanner.url, uploadedImages['x-banner.png'].url);
+    finalHTML = finalHTML.replace(imageAssets.logo.url, uploadedImages['logo.png'].url);
+    finalHTML = finalHTML.replace(imageAssets.heroBackground.url, uploadedImages['hero-background.png'].url);
+    finalHTML = finalHTML.replace(imageAssets.featureIcon.url, uploadedImages['feature-icon.png'].url);
+
     broadcastProgress(input.projectId, { 
       progress: 95, 
       message: "Deploying website to subdomain...",
@@ -484,9 +497,8 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       timestamp: new Date().toISOString()
     });
 
-    // Generate subdomain and deploy
-    const subdomain = generateSubdomain(input.name, input.ticker);
-    const deploymentResult = await deployWebsite(input.projectId, subdomain, websiteHTML);
+    // Deploy website with relative image paths
+    const deploymentResult = await deployWebsite(input.projectId, subdomain, finalHTML);
 
     if (deploymentResult.success) {
       // Update project with deployment info
@@ -540,8 +552,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
         xBanner: imageAssets.xBanner.url,
         logo: imageAssets.logo.url,
         heroBackground: imageAssets.heroBackground.url,
-        featureIcons: imageAssets.featureIcons.map(i => i.url),
-        communityScene: imageAssets.communityScene.url,
+        featureIcon: imageAssets.featureIcon.url,
         website: websiteHTML,
       },
       status: "completed",

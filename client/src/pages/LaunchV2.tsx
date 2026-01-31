@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
-import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X } from "lucide-react";
+import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X, Check, AlertCircle } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -30,7 +30,12 @@ export default function LaunchV2() {
     telegram: "",
     discord: "",
     website: "",
+    slug: "", // Custom subdomain
   });
+
+  // Slug validation state
+  const [slugCheckStatus, setSlugCheckStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [slugMessage, setSlugMessage] = useState('');
 
   // Image upload state
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -43,6 +48,10 @@ export default function LaunchV2() {
   const createProjectMutation = trpc.projects.create.useMutation();
   const launchTriggerMutation = trpc.launch.trigger.useMutation();
   const uploadImageMutation = trpc.upload.characterImage.useMutation();
+  const checkSlugQuery = trpc.launch.checkSlug.useQuery(
+    { slug: formData.slug },
+    { enabled: false } // Manual trigger only
+  );
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -269,6 +278,81 @@ export default function LaunchV2() {
                     maxLength={10}
                     required
                   />
+                </div>
+
+                {/* Custom Subdomain (Slug) */}
+                <div className="space-y-2">
+                  <Label htmlFor="slug" className="text-foreground font-semibold">
+                    {language === 'zh' ? '自定义子域名' : 'Custom Subdomain'} *
+                  </Label>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center border-2 border-border rounded-md overflow-hidden">
+                        <Input
+                          id="slug"
+                          value={formData.slug}
+                          onChange={(e) => {
+                            const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                            setFormData({ ...formData, slug: value });
+                            setSlugCheckStatus('idle');
+                          }}
+                          placeholder={language === 'zh' ? 'my-project' : 'my-project'}
+                          className="border-0 font-mono"
+                          disabled={isGenerating}
+                          required
+                        />
+                        <span className="px-3 text-sm text-muted-foreground font-mono">.ezcto.fun</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {language === 'zh' ? '3-63个字符，仅限小写字母、数字和连字符' : '3-63 characters, lowercase letters, numbers, and hyphens only'}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={async () => {
+                        if (!formData.slug || formData.slug.length < 3) {
+                          toast.error(language === 'zh' ? '子域名至少需要3个字符' : 'Subdomain must be at least 3 characters');
+                          return;
+                        }
+                        setSlugCheckStatus('checking');
+                        try {
+                          const result = await checkSlugQuery.refetch();
+                          if (result.data?.available) {
+                            setSlugCheckStatus('available');
+                            setSlugMessage(language === 'zh' ? '✓ 可用' : '✓ Available');
+                            toast.success(language === 'zh' ? '子域名可用！' : 'Subdomain is available!');
+                          } else {
+                            setSlugCheckStatus('taken');
+                            setSlugMessage(result.data?.message || (language === 'zh' ? '已被占用' : 'Already taken'));
+                            toast.error(language === 'zh' ? '子域名已被占用，请选择其他名称' : 'Subdomain is taken, please choose another');
+                          }
+                        } catch (error) {
+                          setSlugCheckStatus('idle');
+                          toast.error(language === 'zh' ? '检查失败，请重试' : 'Check failed, please try again');
+                        }
+                      }}
+                      disabled={isGenerating || slugCheckStatus === 'checking' || !formData.slug}
+                      className="font-mono font-semibold"
+                    >
+                      {slugCheckStatus === 'checking' ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : slugCheckStatus === 'available' ? (
+                        <Check className="w-4 h-4 text-green-600" />
+                      ) : slugCheckStatus === 'taken' ? (
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                      ) : (
+                        language === 'zh' ? '检查' : 'Check'
+                      )}
+                    </Button>
+                  </div>
+                  {slugMessage && (
+                    <p className={`text-sm font-semibold ${
+                      slugCheckStatus === 'available' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {slugMessage}
+                    </p>
+                  )}
                 </div>
 
                 {/* Description */}

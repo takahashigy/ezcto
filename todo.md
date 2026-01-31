@@ -854,3 +854,45 @@
 - [x] 在LaunchV2Preview添加清除localStorage的逻辑
 - [ ] 用户测试完整流程
 - [ ] 保存checkpoint
+
+## 减少图片生成数量
+- [x] 修改launch.ts将图片从8张减少到5张（PayDex Banner、X Banner、Logo、Hero Background、Feature Icon x1）
+- [x] 移除communityScene和多余的featureIcon生成
+- [x] 更新claude.ts、claudeAssetGenerator.ts、routers.ts中的相关代码
+- [ ] 更新网站模板代码，使用CSS装饰替代移除的图片
+- [ ] 用户测试生成流程
+- [ ] 保存checkpoint
+
+## 测试Launch V2完整流程
+- [ ] 准备测试数据（项目名称、描述、图片）
+- [ ] 通过tRPC调用launch.trigger提交测试项目
+- [ ] 监控生成进度和实时日志
+- [ ] 验证5张图片是否成功生成
+- [ ] 验证网站代码是否生成
+- [ ] 验证子域名部署是否成功
+- [ ] 保存checkpoint
+
+## 修复Launch V2的6个问题
+- [ ] 修复LaunchV2Preview页面UI风格（背景色、导航栏、Logo与首页一致）
+- [ ] 修复进度显示不匹配问题（图片生成时未进入第二步骤）
+- [ ] 实施方案A：使用assets.ezcto.fun作为R2公开访问域名
+- [ ] 修改deployment.ts移除Worker部署逻辑
+- [ ] 修改launch.ts使用assets.ezcto.fun生成URL
+- [ ] 修改storage.ts确保上传路径正确
+- [ ] 测试资产访问是否正常
+- [ ] 添加付款功能（299 USDT或BNB）
+- [ ] 调整收费模式（先付款后生成，失败不计费直到成功）
+- [ ] 保存checkpoint
+
+## 自定义子域名部署系统和图片R2存储
+- [x] 创建Cloudflare Worker路由逻辑（{slug}.ezcto.fun → R2 {slug}/）
+- [x] 实现KV命名空间slug可用性检查API
+- [x] 实现图片下载和R2上传逻辑（AI生成图片 → R2 {slug}/assets/）
+- [x] 修改HTML生成逻辑使用相对路径引用图片（/assets/xxx.png）
+- [x] 修改deployment.ts实现KV写入和占位
+- [x] 添加tRPC接口：launch.checkSlug(slug)
+- [x] 更新前端表单添加slug输入和检查可用性按钮
+- [x] 集成launch.ts完整流程（图片上传R2 + HTML相对路径替换）
+- [ ] 部署Cloudflare Worker到生产环境
+- [ ] 测试完整部署流程（检查slug → 生成 → 上传R2 → 写入KV → 访问网站）
+- [ ] 保存checkpoint

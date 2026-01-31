@@ -17,6 +17,7 @@ import { notifyOwner } from "./_core/notification";
 import { uploadToR2 } from "./cloudflareR2";
 import { cryptoRouter } from "./routers/crypto";
 import { enhanceDescription } from "./_core/claude";
+import { checkSlugAvailability } from "./_core/deployment";
 
 export const appRouter = router({
   system: systemRouter,
@@ -421,22 +422,13 @@ export const appRouter = router({
             fileKey: claudeAssets.heroBackground.key,
           });
 
+          // Save feature icon
           await db.createAsset({
             projectId,
-            assetType: "community_scene",
-            fileUrl: claudeAssets.communityScene.url,
-            fileKey: claudeAssets.communityScene.key,
+            assetType: "feature_icon",
+            fileUrl: claudeAssets.featureIcon.url,
+            fileKey: claudeAssets.featureIcon.key,
           });
-
-          // Save feature icons
-          for (const icon of claudeAssets.featureIcons) {
-            await db.createAsset({
-              projectId,
-              assetType: "feature_icon",
-              fileUrl: icon.url,
-              fileKey: icon.key,
-            });
-          }
 
           await db.createAsset({
             projectId,
@@ -461,8 +453,7 @@ export const appRouter = router({
                 paydexBanner: claudeAssets.paydexBanner.url,
                 xBanner: claudeAssets.xBanner.url,
                 heroBackground: claudeAssets.heroBackground.url,
-                featureIcons: claudeAssets.featureIcons.map(icon => icon.url),
-                communityScene: claudeAssets.communityScene.url,
+                featureIcon: claudeAssets.featureIcon.url,
                 website: websiteUrl,
               },
             },
@@ -484,8 +475,7 @@ export const appRouter = router({
               paydexBanner: claudeAssets.paydexBanner.url,
               xBanner: claudeAssets.xBanner.url,
               heroBackground: claudeAssets.heroBackground.url,
-              featureIcons: claudeAssets.featureIcons.map(icon => icon.url),
-              communityScene: claudeAssets.communityScene.url,
+              featureIcon: claudeAssets.featureIcon.url,
             },
           };
         } catch (error) {
@@ -778,6 +768,14 @@ export const appRouter = router({
 
   // Launch Automation Engine
   launch: router({
+    // Check if subdomain slug is available
+    checkSlug: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const result = await checkSlugAvailability(input.slug);
+        return result;
+      }),
+
     trigger: protectedProcedure
       .input(z.object({ 
         projectId: z.number(),

@@ -26,11 +26,7 @@ export interface ClaudeGeneratedAssets {
     url: string;
     key: string;
   };
-  featureIcons: Array<{
-    url: string;
-    key: string;
-  }>;
-  communityScene: {
+  featureIcon: {
     url: string;
     key: string;
   };
@@ -115,18 +111,11 @@ export async function generateAssetsWithClaude(
       size: "1920x1080",
     }).then(result => ({ type: 'heroBackground', result })),
     
+    // Feature icon (single icon)
     generateImage({
-      prompt: analysis.communityScenePrompt,
-      size: "800x600",
-    }).then(result => ({ type: 'communityScene', result })),
-    
-    // Feature icons (3 icons in parallel)
-    ...analysis.featureIconPrompts.map((prompt, index) =>
-      generateImage({
-        prompt,
-        size: "256x256",
-      }).then(result => ({ type: 'featureIcon', index, result }))
-    ),
+      prompt: analysis.featureIconPrompt,
+      size: "256x256",
+    }).then(result => ({ type: 'featureIcon', result })),
   ];
 
   // Generate images and save incrementally
@@ -160,11 +149,7 @@ export async function generateAssetsWithClaude(
   const xBanner = imageResults.find(r => r.type === 'xBanner')!.result;
   const logo = imageResults.find(r => r.type === 'logo')!.result;
   const heroBackground = imageResults.find(r => r.type === 'heroBackground')!.result;
-  const communityScene = imageResults.find(r => r.type === 'communityScene')!.result;
-  const featureIconResults = imageResults
-    .filter(r => r.type === 'featureIcon')
-    .sort((a, b) => (a as any).index - (b as any).index)
-    .map(r => r.result);
+  const featureIcon = imageResults.find(r => r.type === 'featureIcon')!.result;
 
   // Step 3: Claude Opus generates website code using all generated images
   console.log(`[ClaudeAssetGenerator] Claude Opus generating website code...`);
@@ -180,8 +165,7 @@ export async function generateAssetsWithClaude(
     xBannerUrl: xBanner.url!,
     logoUrl: logo.url!,
     heroBackgroundUrl: heroBackground.url!,
-    featureIconUrls: featureIconResults.map(r => r.url!),
-    communitySceneUrl: communityScene.url!,
+    featureIconUrl: featureIcon.url!,
   });
   console.log(`[ClaudeAssetGenerator] Website code generated (${websiteHTML.length} chars)`);
 
@@ -202,13 +186,9 @@ export async function generateAssetsWithClaude(
       url: heroBackground.url!,
       key: `projects/${projectId}/hero_background.png`,
     },
-    featureIcons: featureIconResults.map((result, index) => ({
-      url: result.url!,
-      key: `projects/${projectId}/feature_icon_${index + 1}.png`,
-    })),
-    communityScene: {
-      url: communityScene.url!,
-      key: `projects/${projectId}/community_scene.png`,
+    featureIcon: {
+      url: featureIcon.url!,
+      key: `projects/${projectId}/feature_icon.png`,
     },
     websiteHTML,
     brandStrategy: analysis.brandStrategy,

@@ -140,8 +140,7 @@ export async function analyzeProjectInput(input: {
   xBannerPrompt: string;
   logoPrompt: string;
   heroBackgroundPrompt: string;
-  featureIconPrompts: string[];
-  communityScenePrompt: string;
+  featureIconPrompt: string;
   // Website content
   websiteContent: {
     headline: string;
@@ -188,12 +187,7 @@ Please provide your analysis in the following JSON format:
   "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. MUST include: 'Large bold text ${input.ticker} centered prominently, social media header style, leave left 200px space for profile picture, high contrast for text visibility, [visual style details]'",
   "logoPrompt": "Detailed prompt for 512x512 logo (clean, memorable, works at small sizes)",
   "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
-  "featureIconPrompts": [
-    "Prompt for first 256x256 feature icon (simple, iconic, matches brand style)",
-    "Prompt for second 256x256 feature icon",
-    "Prompt for third 256x256 feature icon"
-  ],
-  "communityScenePrompt": "Detailed prompt for 800x600 community scene (shows community vibe, welcoming, energetic)",
+  "featureIconPrompt": "Detailed prompt for 256x256 feature icon (simple, iconic, matches brand style)",
   "websiteContent": {
     "headline": "Catchy main headline for hero section",
     "tagline": "Brief memorable tagline",
@@ -296,8 +290,7 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
 - Hero BG: ${input.heroBackgroundUrl}
 - PayDex Banner: ${input.paydexBannerUrl}
 - X Banner: ${input.xBannerUrl}
-- Feature Icons: ${input.featureIconUrls.join(", ")}
-- Community: ${input.communitySceneUrl}
+- Feature Icon: ${input.featureIconUrl}
 
 **STRUCTURE:**
 1. Hero (logo, headline, tagline, CTA buttons)
@@ -400,8 +393,7 @@ export async function generateWebsiteCode(input: {
   xBannerUrl: string;
   logoUrl: string;
   heroBackgroundUrl: string;
-  featureIconUrls: string[];
-  communitySceneUrl: string;
+  featureIconUrl: string;
 }): Promise<string> {
   console.log("[generateWebsiteCode] Step 1: Generating HTML structure...");
   

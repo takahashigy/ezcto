@@ -147,15 +147,15 @@ export default function LaunchV2() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#e8dcc4]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#2d3e2d]" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-foreground" />
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#e8dcc4]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="max-w-md w-full mx-4">
           <CardHeader>
             <CardTitle>Login Required</CardTitle>
@@ -172,34 +172,34 @@ export default function LaunchV2() {
   }
 
   return (
-    <div className="min-h-screen bg-[#e8dcc4]">
-      {/* Header */}
-      <header className="border-b-4 border-[#2d3e2d] bg-[#e8dcc4] sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-background">
+      {/* Navigation Header - Same as Home */}
+      <nav className="border-b-2 border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container py-4 flex items-center justify-between">
           <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Rocket className="h-6 w-6 text-[#2d3e2d]" />
-              <span className="font-bold text-xl text-[#2d3e2d]">EZCTO</span>
+            <div className="flex items-center gap-3 cursor-pointer">
+              <img src="/EZ.png" alt="EZCTO" className="h-10" />
             </div>
           </Link>
-          <div className="flex items-center gap-4">
+          
+          <div className="flex items-center gap-6">
             <Link href="/dashboard">
               <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
                 Dashboard
               </Button>
             </Link>
-            <LanguageSwitcher />
             <WalletConnectButton />
+            <LanguageSwitcher />
           </div>
         </div>
-      </header>
+      </nav>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container py-12">
         <div className="max-w-3xl mx-auto">
           {/* Back Button */}
           <Link href="/dashboard">
-            <Button variant="ghost" className="mb-6 font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
+            <Button variant="ghost" className="mb-6 font-mono font-semibold text-foreground hover:bg-[#2d3e2d]/5">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
             </Button>
@@ -207,23 +207,25 @@ export default function LaunchV2() {
 
           {/* Hero Section */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#2d3e2d] text-[#e8dcc4] rounded-full mb-4">
-              <Sparkles className="h-4 w-4" />
-              <span className="font-mono text-sm font-bold">AI-POWERED GENERATION V2</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 border-2 border-primary bg-primary/10 mb-4">
+              <span className="status-indicator active"></span>
+              <span className="text-sm font-mono font-bold uppercase tracking-wider">
+                AI-POWERED GENERATION V2
+              </span>
             </div>
-            <h1 className="text-5xl font-black text-[#2d3e2d] mb-4">
+            <h1 className="text-5xl font-bold mb-4">
               Launch Your Meme Project
             </h1>
-            <p className="text-xl text-[#2d3e2d]/80">
+            <p className="text-xl text-muted-foreground">
               Complete AI automation: Analysis → Images → Website → Deployment
             </p>
           </div>
 
           {/* Form Card */}
-          <Card className="border-4 border-[#2d3e2d] shadow-[8px_8px_0px_0px_rgba(45,62,45,1)]">
+          <Card className="module-card">
             <CardHeader>
-              <CardTitle className="text-2xl text-[#2d3e2d]">Project Details</CardTitle>
-              <CardDescription className="text-[#2d3e2d]/70">
+              <CardTitle className="text-2xl">Project Details</CardTitle>
+              <CardDescription>
                 Fill in your project information. Our AI will handle the rest.
               </CardDescription>
             </CardHeader>
@@ -231,7 +233,7 @@ export default function LaunchV2() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Project Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-[#2d3e2d] font-semibold">
+                  <Label htmlFor="name" className="text-foreground font-semibold">
                     Project Name *
                   </Label>
                   <Input
@@ -239,7 +241,7 @@ export default function LaunchV2() {
                     value={formData.projectName}
                     onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
                     placeholder="EZCTO"
-                    className="border-2 border-[#2d3e2d]"
+                    className="border-2 border-border"
                     disabled={isGenerating}
                     required
                   />
@@ -247,7 +249,7 @@ export default function LaunchV2() {
 
                 {/* Ticker */}
                 <div className="space-y-2">
-                  <Label htmlFor="ticker" className="text-[#2d3e2d] font-semibold">
+                  <Label htmlFor="ticker" className="text-foreground font-semibold">
                     Ticker Symbol *
                   </Label>
                   <Input
@@ -255,7 +257,7 @@ export default function LaunchV2() {
                     value={formData.ticker}
                     onChange={(e) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
                     placeholder="EZCTO"
-                    className="border-2 border-[#2d3e2d] font-mono"
+                    className="border-2 border-border font-mono"
                     disabled={isGenerating}
                     maxLength={10}
                     required
@@ -264,7 +266,7 @@ export default function LaunchV2() {
 
                 {/* Description */}
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-[#2d3e2d] font-semibold">
+                  <Label htmlFor="description" className="text-foreground font-semibold">
                     Description *
                   </Label>
                   <Textarea
@@ -272,34 +274,34 @@ export default function LaunchV2() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Describe your meme project... (minimum 20 characters)"
-                    className="border-2 border-[#2d3e2d] min-h-[120px]"
+                    className="border-2 border-border min-h-[120px]"
                     disabled={isGenerating}
                     required
                   />
-                  <p className="text-sm text-[#2d3e2d]/60">
+                  <p className="text-sm text-foreground/60">
                     {formData.description.length} / 20 characters minimum
                   </p>
                 </div>
 
                 {/* Character Image Upload */}
                 <div className="space-y-2">
-                  <Label htmlFor="meme-image" className="text-[#2d3e2d] font-semibold">
+                  <Label htmlFor="meme-image" className="text-foreground font-semibold">
                     Character Image (Optional)
                   </Label>
-                  <p className="text-sm text-[#2d3e2d]/70 mb-2">
+                  <p className="text-sm text-foreground/70 mb-2">
                     Upload a character image for AI to analyze and generate themed assets
                   </p>
                   {!uploadedImage ? (
                     <label
                       htmlFor="meme-image"
-                      className="flex flex-col items-center justify-center w-full h-48 border-4 border-dashed border-[#2d3e2d] rounded-lg cursor-pointer bg-[#e8dcc4]/30 hover:bg-[#e8dcc4]/50 transition-colors"
+                      className="flex flex-col items-center justify-center w-full h-48 border-4 border-dashed border-border rounded-lg cursor-pointer bg-background/30 hover:bg-background/50 transition-colors"
                     >
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-12 h-12 mb-3 text-[#2d3e2d]" />
-                        <p className="mb-2 text-sm text-[#2d3e2d] font-semibold">
+                        <Upload className="w-12 h-12 mb-3 text-foreground" />
+                        <p className="mb-2 text-sm text-foreground font-semibold">
                           <span className="font-bold">Click to upload</span> or drag and drop
                         </p>
-                        <p className="text-xs text-[#2d3e2d]/60">
+                        <p className="text-xs text-foreground/60">
                           PNG, JPG, GIF (MAX. 10MB)
                         </p>
                       </div>
@@ -318,7 +320,7 @@ export default function LaunchV2() {
                         <img
                           src={imagePreview}
                           alt="Uploaded character"
-                          className="w-full h-64 object-contain rounded-lg border-4 border-[#2d3e2d] bg-white"
+                          className="w-full h-64 object-contain rounded-lg border-4 border-border bg-white"
                         />
                       )}
                       <Button
@@ -337,7 +339,7 @@ export default function LaunchV2() {
 
                 {/* Tokenomics */}
                 <div className="space-y-2">
-                  <Label htmlFor="tokenomics" className="text-[#2d3e2d]">
+                  <Label htmlFor="tokenomics" className="text-foreground">
                     Tokenomics (Optional)
                   </Label>
                   <Textarea
@@ -345,14 +347,14 @@ export default function LaunchV2() {
                     value={formData.tokenomics}
                     onChange={(e) => setFormData({ ...formData, tokenomics: e.target.value })}
                     placeholder="Total Supply: 1,000,000,000&#10;Liquidity: 90%&#10;Marketing: 5%&#10;Team: 5%"
-                    className="border-2 border-[#2d3e2d] min-h-[100px]"
+                    className="border-2 border-border min-h-[100px]"
                     disabled={isGenerating}
                   />
                 </div>
 
                 {/* Contract Address */}
                 <div className="space-y-2">
-                  <Label htmlFor="contractAddress" className="text-[#2d3e2d] font-semibold">
+                  <Label htmlFor="contractAddress" className="text-foreground font-semibold">
                     Contract Address (CA) - Optional
                   </Label>
                   <Input
@@ -360,56 +362,56 @@ export default function LaunchV2() {
                     value={formData.contractAddress}
                     onChange={(e) => setFormData({ ...formData, contractAddress: e.target.value })}
                     placeholder="0x1234567890abcdef..."
-                    className="border-2 border-[#2d3e2d] font-mono text-sm"
+                    className="border-2 border-border font-mono text-sm"
                     disabled={isGenerating}
                   />
-                  <p className="text-sm text-[#2d3e2d]/70">
+                  <p className="text-sm text-foreground/70">
                     If provided, will be displayed prominently on your generated website with one-click copy
                   </p>
                 </div>
 
                 {/* Social Links */}
                 <div className="space-y-4">
-                  <Label className="text-[#2d3e2d] font-semibold">Social Links (Optional)</Label>
+                  <Label className="text-foreground font-semibold">Social Links (Optional)</Label>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="twitter" className="text-[#2d3e2d]">Twitter</Label>
+                      <Label htmlFor="twitter" className="text-foreground">Twitter</Label>
                       <Input
                         id="twitter"
                         type="url"
                         value={formData.twitter}
                         onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
                         placeholder="https://twitter.com/..."
-                        className="border-2 border-[#2d3e2d]"
+                        className="border-2 border-border"
                         disabled={isGenerating}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="telegram" className="text-[#2d3e2d]">Telegram</Label>
+                      <Label htmlFor="telegram" className="text-foreground">Telegram</Label>
                       <Input
                         id="telegram"
                         type="url"
                         value={formData.telegram}
                         onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
                         placeholder="https://t.me/..."
-                        className="border-2 border-[#2d3e2d]"
+                        className="border-2 border-border"
                         disabled={isGenerating}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="discord" className="text-[#2d3e2d]">Discord</Label>
+                      <Label htmlFor="discord" className="text-foreground">Discord</Label>
                       <Input
                         id="discord"
                         type="url"
                         value={formData.discord}
                         onChange={(e) => setFormData({ ...formData, discord: e.target.value })}
                         placeholder="https://discord.gg/..."
-                        className="border-2 border-[#2d3e2d]"
+                        className="border-2 border-border"
                         disabled={isGenerating}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="website" className="text-[#2d3e2d]">Website</Label>
+                      <Label htmlFor="website" className="text-foreground">Website</Label>
                       <Input
                         id="website"
                         type="url"
@@ -430,7 +432,7 @@ export default function LaunchV2() {
                           }
                         }}
                         placeholder="https://..."
-                        className="border-2 border-[#2d3e2d]"
+                        className="border-2 border-border"
                         disabled={isGenerating}
                       />
                     </div>
@@ -458,17 +460,17 @@ export default function LaunchV2() {
                 </Button>
 
                 {/* Info Text */}
-                <div className="bg-[#2d3e2d]/5 border-2 border-[#2d3e2d] rounded-lg p-4">
-                  <p className="text-sm text-[#2d3e2d]/80">
+                <div className="bg-[#2d3e2d]/5 border-2 border-border rounded-lg p-4">
+                  <p className="text-sm text-foreground/80">
                     <strong>What happens next:</strong>
                   </p>
-                  <ul className="text-sm text-[#2d3e2d]/70 mt-2 space-y-1 list-disc list-inside">
+                  <ul className="text-sm text-foreground/70 mt-2 space-y-1 list-disc list-inside">
                     <li>AI analyzes your project and determines the best design style</li>
                     <li>Generates 6 unique images (logo, banner, PFP, poster, website, character)</li>
                     <li>Creates a complete website with your branding</li>
                     <li>Deploys to a public URL (yourproject.ezcto.fun)</li>
                   </ul>
-                  <p className="text-sm text-[#2d3e2d]/60 mt-3">
+                  <p className="text-sm text-foreground/60 mt-3">
                     ⏱️ Estimated time: 3-5 minutes
                   </p>
                 </div>

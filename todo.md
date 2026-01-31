@@ -798,3 +798,12 @@
 - [x] 统一所有页面的视觉风格
 - [ ] 测试各页面的视觉一致性
 - [ ] 保存checkpoint
+
+## Launch页面风格统一修复
+- [x] 修改Launch页面背景色为bg-background（与首页一致）
+- [x] 替换Logo为/EZ.png（与首页一致）
+- [x] 统一导航栏样式（与首页完全一致）
+- [x] 统一字体颜色为text-foreground
+- [x] 统一卡片样式为module-card
+- [x] 统一边框颜色为border-border
+- [ ] 保存checkpoint

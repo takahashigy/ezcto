@@ -1,0 +1,16 @@
+  "paydexBannerPrompt": "...",
+  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner",
+  "logoPrompt": "Detailed prompt for 512x512 logo",
+  "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background",
+  "featureIconPrompts": ["icon1", "icon2", "icon3"],
+  "communityScenePrompt": "Detailed prompt for 800x600 community scene",
+  "websiteContent": {
+    "headline": "Catchy headline",
+    "tagline": "Memorable tagline",
+    "about": "Project description",
+    "features": ["Feature 1", "Feature 2", "Feature 3"],
+    "tokenomics": {
+      "totalSupply": "Total supply",
+      "distribution": "Distribution details"
+    }
+  }

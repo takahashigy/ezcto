@@ -24,6 +24,8 @@ export type ClaudeResponse = {
   };
 };
 
+import { retryWithBackoff } from "./retry";
+
 /**
  * Call Claude API with messages
  */
@@ -34,6 +36,29 @@ export async function callClaude(
     maxTokens?: number;
     temperature?: number;
     apiKey?: string; // Allow custom API key
+  }
+): Promise<string> {
+  return retryWithBackoff(async () => {
+    return await callClaudeInternal(messages, options);
+  }, {
+    maxRetries: 3,
+    initialDelayMs: 1000,
+    onRetry: (error, attempt) => {
+      console.log(`[Claude] Retry attempt ${attempt}/3 due to: ${error.message}`);
+    },
+  });
+}
+
+/**
+ * Internal Claude API call (without retry)
+ */
+async function callClaudeInternal(
+  messages: ClaudeMessage[],
+  options?: {
+    model?: string;
+    maxTokens?: number;
+    temperature?: number;
+    apiKey?: string;
   }
 ): Promise<string> {
   const apiUrl = process.env.CLAUDE_API_URL;
@@ -93,6 +118,7 @@ export async function analyzeProjectInput(input: {
   ticker: string;
   description: string;
   memeImageUrl?: string;
+  tokenomics?: string;
 }): Promise<{
   // Detected language
   language: string;
@@ -128,31 +154,14 @@ export async function analyzeProjectInput(input: {
     };
   };
 }> {
-  // Detect language from user input
-  const { detectLanguageFromInputs, getLanguageInfo, getLanguageInstruction } = await import('./languageDetector');
-  const detectedLanguage = detectLanguageFromInputs({
-    projectName: input.projectName,
-    ticker: input.ticker,
-    description: input.description,
-  });
-  const languageInfo = getLanguageInfo(detectedLanguage);
-  const languageInstruction = getLanguageInstruction(detectedLanguage);
-  
-  console.log(`[analyzeProjectInput] Detected language: ${languageInfo.name} (${detectedLanguage})`);
-
   const prompt = `You are a world-class meme coin branding strategist and visual designer. Your mission is to analyze a meme cryptocurrency project and create a comprehensive brand strategy with optimized image generation prompts.
-
-**LANGUAGE REQUIREMENT:**
-${languageInstruction}
-All text content in websiteContent (headline, tagline, about, features) MUST be in this language.
-Image prompts should be in English but specify that text overlays use the original ticker language.
 
 Project Information:
 - Name: ${input.projectName}
-- Ticker: ${input.ticker} (display WITHOUT $ symbol, use original language)
+- Ticker: ${input.ticker} (display WITHOUT $ symbol)
 - Description: ${input.description}
-- Detected Language: ${languageInfo.name}
 ${input.memeImageUrl ? `- Meme Image Reference: ${input.memeImageUrl}` : ""}
+${input.tokenomics ? `- Tokenomics: ${input.tokenomics}` : ""}
 
 Your task is to provide a complete brand strategy and image generation prompts. Focus on creating a cohesive visual identity that will drive conversions.
 
@@ -175,8 +184,8 @@ Please provide your analysis in the following JSON format:
     "secondary": "#hex color for secondary elements",
     "accent": "#hex color for CTAs and highlights"
   },
-  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text in ${languageInfo.name} showing ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
-  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. MUST include: 'Large bold text in ${languageInfo.name} showing ${input.ticker} centered prominently, social media header style, leave left 200px space for profile picture, high contrast for text visibility, [visual style details]'",
+  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
+  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. MUST include: 'Large bold text ${input.ticker} centered prominently, social media header style, leave left 200px space for profile picture, high contrast for text visibility, [visual style details]'",
   "logoPrompt": "Detailed prompt for 512x512 logo (clean, memorable, works at small sizes)",
   "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
   "featureIconPrompts": [
@@ -201,11 +210,7 @@ Please provide your analysis in the following JSON format:
   }
 }
 
-Remember: 
-1. The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts
-2. All website content (headline, tagline, about, features) MUST be in ${languageInfo.name}
-3. Image prompts should specify text overlays in the original language (${languageInfo.name})
-This is non-negotiable for marketing effectiveness and user experience.`;
+Remember: The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts. This is non-negotiable for marketing effectiveness.`;
 
   const opusApiKey = process.env.CLAUDE_OPUS_API_KEY;
   
@@ -243,7 +248,13 @@ This is non-negotiable for marketing effectiveness and user experience.`;
   
   try {
     const result = JSON.parse(jsonMatch[0]);
-    // Add detected language to result
+    // Detect language from user input
+    const { detectLanguageFromInputs } = await import('./languageDetector');
+    const detectedLanguage = detectLanguageFromInputs({
+      projectName: input.projectName,
+      ticker: input.ticker,
+      description: input.description,
+    });
     return {
       ...result,
       language: detectedLanguage,
@@ -364,7 +375,7 @@ export async function generateWebsiteCode(input: {
   projectName: string;
   ticker: string;
   description: string;
-  language?: string; // Detected language code (zh-CN, en, ja, ko)
+  language: string;
   brandStrategy: {
     personality: string;
     visualStyle: string;
@@ -461,12 +472,9 @@ function combineHTMLParts(htmlStructure: string, cssCode: string, jsCode: string
   const bodyMatch = htmlStructure.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   const bodyContent = bodyMatch ? bodyMatch[1].trim() : htmlStructure;
   
-  // Determine HTML lang attribute based on detected language
-  const htmlLang = input.language || 'en';
-  
   // Build complete HTML document
   return `<!DOCTYPE html>
-<html lang="${htmlLang}">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -1,0 +1,232 @@
+import * as db from "./db";
+import { broadcastProgress } from "./_core/progressStream";
+import { generateAssetsWithClaude } from "./claudeAssetGenerator";
+import { updateGenerationProgress, initializeSteps, updateStep, type StepProgress } from "./progressTracker";
+
+/**
+ * Launch自动化引擎核心逻辑
+ * 使用Claude Opus 4.5 + Nanobanana生成完整的Meme项目启动资产包
+ */
+
+export interface LaunchInput {
+  projectId: number;
+  name: string;
+  description?: string;
+  ticker?: string;
+  tokenomics?: string;
+  styleTemplate?: string;
+  userImageUrl?: string; // Primary image (for backward compatibility)
+  userImages?: Array<{ url: string; key: string }>; // Multiple reference images
+}
+
+export interface LaunchOutput {
+  projectId: number;
+  assets: {
+    paydexBanner?: string;
+    xBanner?: string;
+    logo?: string;
+    heroBackground?: string;
+    featureIcons?: string[];
+    communityScene?: string;
+    website?: string;
+  };
+  status: "completed" | "failed";
+  error?: string;
+}
+
+/**
+ * 主函数：执行完整的Launch自动化流程
+ * 使用Claude Opus协调生成所有资产
+ */
+export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
+  const startTime = Date.now();
+  let historyId: number | undefined;
+  
+  try {
+    // 创建生成历史记录
+    const project = await db.getProjectById(input.projectId);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    
+    // Initialize generation history with step tracking
+    let steps = initializeSteps();
+    const history = await db.createGenerationHistory({
+      projectId: input.projectId,
+      userId: project.userId,
+      status: "generating",
+      startTime: new Date(startTime),
+      metadata: {
+        currentStep: 'analysis',
+        steps,
+        progress: { current: 0, total: 100, message: 'Starting generation...' },
+      },
+    });
+    historyId = history.id;
+    
+    // 更新项目状态为generating
+    await db.updateProjectStatus(input.projectId, "generating");
+    broadcastProgress(input.projectId, { progress: 0, message: "Starting Claude Opus analysis..." });
+
+    // Step 1: Claude Opus分析 + 生成所有资产
+    steps = updateStep(steps, 'analysis', { status: 'in_progress', startTime: new Date().toISOString() });
+    await updateGenerationProgress(historyId, {
+      currentStep: 'analysis',
+      steps,
+      progress: { current: 10, total: 100, message: 'Claude Opus analyzing project...' },
+    });
+    broadcastProgress(input.projectId, { progress: 10, message: "Claude Opus analyzing project..." });
+    
+    const result = await generateAssetsWithClaude(
+      input.name,
+      input.ticker || "",
+      input.description || "",
+      input.userImageUrl,
+      input.projectId,
+      input.tokenomics,
+      // Incremental save callback
+      async (assetType: string, assetData: { url: string; key: string }) => {
+        await db.createAsset({
+          projectId: input.projectId,
+          assetType: assetType as any, // Type assertion for dynamic asset types
+          fileUrl: assetData.url,
+          fileKey: assetData.key,
+        });
+        console.log(`[Launch] Incrementally saved ${assetType} to database`);
+      }
+    );
+    
+    // Mark analysis and images as completed
+    steps = updateStep(steps, 'analysis', { status: 'completed', endTime: new Date().toISOString() });
+    steps = updateStep(steps, 'images', { status: 'completed', endTime: new Date().toISOString(), data: { count: 8 } });
+    steps = updateStep(steps, 'website', { status: 'completed', endTime: new Date().toISOString() });
+    await updateGenerationProgress(historyId, {
+      currentStep: 'deployment',
+      steps,
+      progress: { current: 90, total: 100, message: 'Saving assets to database...' },
+    });
+    broadcastProgress(input.projectId, { progress: 90, message: "Saving assets to database..." });
+
+    // Step 2: 保存所有资产到数据库
+    await Promise.all([
+      // Marketing assets
+      db.createAsset({ 
+        projectId: input.projectId, 
+        assetType: "paydex_banner", 
+        fileUrl: result.paydexBanner.url,
+        fileKey: result.paydexBanner.key,
+      }),
+      db.createAsset({ 
+        projectId: input.projectId, 
+        assetType: "x_banner", 
+        fileUrl: result.xBanner.url,
+        fileKey: result.xBanner.key,
+      }),
+      db.createAsset({ 
+        projectId: input.projectId, 
+        assetType: "logo", 
+        fileUrl: result.logo.url,
+        fileKey: result.logo.key,
+      }),
+      // Website decoration assets
+      db.createAsset({ 
+        projectId: input.projectId, 
+        assetType: "hero_background", 
+        fileUrl: result.heroBackground.url,
+        fileKey: result.heroBackground.key,
+      }),
+      ...result.featureIcons.map((icon, index) => 
+        db.createAsset({ 
+          projectId: input.projectId, 
+          assetType: "feature_icon", 
+          fileUrl: icon.url,
+          fileKey: icon.key,
+          metadata: { index },
+        })
+      ),
+      db.createAsset({ 
+        projectId: input.projectId, 
+        assetType: "community_scene", 
+        fileUrl: result.communityScene.url,
+        fileKey: result.communityScene.key,
+      }),
+      // Website HTML
+      db.createAsset({ 
+        projectId: input.projectId, 
+        assetType: "website", 
+        textContent: result.websiteHTML,
+      }),
+    ]);
+
+    // Step 3: 更新项目状态为completed
+    await db.updateProjectStatus(input.projectId, "completed");
+    
+    // Mark deployment as completed
+    steps = updateStep(steps, 'deployment', { status: 'completed', endTime: new Date().toISOString() });
+    await updateGenerationProgress(historyId, {
+      currentStep: 'deployment',
+      steps,
+      progress: { current: 100, total: 100, message: 'Generation completed!' },
+    });
+    broadcastProgress(input.projectId, { progress: 100, message: "Generation completed!" });
+
+    // Step 4: 更新生成历史记录
+    const endTime = Date.now();
+    const durationMs = endTime - startTime;
+    if (historyId) {
+      await db.updateGenerationHistory(historyId, {
+        status: "completed",
+        endTime: new Date(endTime),
+        durationMs,
+        assetsGenerated: {
+          logo: result.logo.url,
+          banner: result.paydexBanner.url,
+          website: true,
+        },
+      });
+    }
+
+    return {
+      projectId: input.projectId,
+      assets: {
+        paydexBanner: result.paydexBanner.url,
+        xBanner: result.xBanner.url,
+        logo: result.logo.url,
+        heroBackground: result.heroBackground.url,
+        featureIcons: result.featureIcons.map(icon => icon.url),
+        communityScene: result.communityScene.url,
+        website: result.websiteHTML,
+      },
+      status: "completed",
+    };
+  } catch (error) {
+    console.error("[Launch] Generation failed:", error);
+    
+    // 更新项目状态为failed
+    await db.updateProjectStatus(input.projectId, "failed");
+    
+    // 更新生成历史记录为失败
+    const endTime = Date.now();
+    const durationMs = endTime - startTime;
+    if (historyId) {
+      await db.updateGenerationHistory(historyId, {
+        status: "failed",
+        endTime: new Date(endTime),
+        durationMs,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    broadcastProgress(input.projectId, { 
+      progress: 0, 
+      message: `Generation failed: ${error instanceof Error ? error.message : "Unknown error"}` 
+    });
+
+    return {
+      projectId: input.projectId,
+      assets: {},
+      status: "failed",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}

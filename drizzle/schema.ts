@@ -30,6 +30,7 @@ export const projects = mysqlTable("projects", {
   description: text("description"),
   ticker: varchar("ticker", { length: 50 }),
   website: varchar("website", { length: 500 }),
+  tokenomics: text("tokenomics"),
   status: mysqlEnum("status", ["draft", "generating", "completed", "failed"]).default("draft").notNull(),
   styleTemplate: varchar("styleTemplate", { length: 100 }),
   userImageUrl: varchar("userImageUrl", { length: 1000 }),
@@ -58,6 +59,11 @@ export const projects = mysqlTable("projects", {
     targetAudience?: string;
   }>(),
   metadata: json("metadata").$type<Record<string, unknown>>(),
+  generationProgress: json("generationProgress").$type<{
+    completedModules?: Array<'analysis' | 'images' | 'website_code'>;
+    failedModule?: 'analysis' | 'images' | 'website_code' | null;
+    retryCount?: number;
+  }>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

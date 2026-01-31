@@ -1,0 +1,45 @@
+Please provide your analysis in the following JSON format:
+{
+  ${input.memeImageUrl ? `"imageAnalysis": {
+    "primaryColors": ["#hex1", "#hex2", "#hex3"],
+    "artStyle": "Specific art style observed",
+    "characterDescription": "Key features of the character if present",
+    "mood": "Overall mood/atmosphere",
+    "keyElements": "Notable visual elements"
+  },` : ""}
+  "brandStrategy": {
+    "personality": "Brief description of brand personality",
+    "targetAudience": "Target demographic",
+    "coreMessage": "Core message",
+    "visualStyle": "Visual aesthetic"
+  },
+  "colorScheme": {
+    "primary": "#hex color",
+    "secondary": "#hex color",
+    "accent": "#hex color"
+  },
+  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner with ticker ${input.ticker}",
+  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner with ticker ${input.ticker}",
+  "logoPrompt": "Detailed prompt for 512x512 logo",
+  "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background",
+  "featureIconPrompts": [
+    "Detailed prompt for 256x256 feature icon 1",
+    "Detailed prompt for 256x256 feature icon 2",
+    "Detailed prompt for 256x256 feature icon 3"
+  ],
+  "communityScenePrompt": "Detailed prompt for 800x600 community scene",
+  "websiteContent": {
+    "headline": "Catchy headline in ${languageInfo.name}",
+    "tagline": "Memorable tagline in ${languageInfo.name}",
+    "about": "Project description in ${languageInfo.name}",
+    "features": [
+      "Feature 1 in ${languageInfo.name}",
+      "Feature 2 in ${languageInfo.name}",
+      "Feature 3 in ${languageInfo.name}"
+    ]${input.tokenomics ? `,
+    "tokenomics": {
+      "totalSupply": "Extract from: ${input.tokenomics}",
+      "distribution": "Extract distribution from: ${input.tokenomics}"
+    }` : ""}
+  }
+}

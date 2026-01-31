@@ -1,26 +1,17 @@
-import { describe, it, expect } from "vitest";
-import { generateImage } from "./server/_core/imageGeneration";
+import { describe, it, expect } from 'vitest';
+import { generateImage } from './_core/imageGeneration';
 
-describe("Nanobanana API Integration", () => {
-  it("should successfully generate an image with valid API key", async () => {
+describe('Nanobanana API Integration', () => {
+  it('should generate image with new API key', async () => {
     const result = await generateImage({
-      prompt: "A cute cartoon meme coin mascot",
+      prompt: 'A simple test image: blue circle on white background',
     });
-
+    
     expect(result).toBeDefined();
-    expect(result.url).toBeDefined();
-    expect(typeof result.url).toBe("string");
+    expect(result.url).toBeTruthy();
+    expect(typeof result.url).toBe('string');
     expect(result.url).toMatch(/^https?:\/\//);
     
-    console.log("✅ Generated image URL:", result.url);
-  }, 180000); // 180 second timeout for image generation
-
-  it("should handle empty prompt gracefully", async () => {
-    const result = await generateImage({
-      prompt: "test",
-    });
-    
-    expect(result).toBeDefined();
-    expect(result.url).toBeDefined();
-  }, 180000);
+    console.log('✅ Image generated successfully:', result.url);
+  }, 60000); // 60 second timeout
 });

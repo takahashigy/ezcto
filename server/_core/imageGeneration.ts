@@ -16,6 +16,7 @@
  *   });
  */
 import { storagePut } from "server/storage";
+import { retryWithBackoff } from "./retry";
 
 export type ImageSize = 
   | "512x512"      // Logo
@@ -43,6 +44,23 @@ export type GenerateImageResponse = {
 export async function generateImage(
   options: GenerateImageOptions
 ): Promise<GenerateImageResponse> {
+  return retryWithBackoff(async () => {
+    return await generateImageInternal(options);
+  }, {
+    maxRetries: 3,
+    initialDelayMs: 2000,
+    onRetry: (error, attempt) => {
+      console.log(`[Nanobanana] Retry attempt ${attempt}/3 due to: ${error.message}`);
+    },
+  });
+}
+
+/**
+ * Internal image generation (without retry)
+ */
+async function generateImageInternal(
+  options: GenerateImageOptions
+): Promise<GenerateImageResponse> {
   const nanobananaApiKey = process.env.NANOBANANA_API_KEY;
   
   if (!nanobananaApiKey) {
@@ -59,7 +77,7 @@ export async function generateImage(
       "Authorization": `Bearer ${nanobananaApiKey}`,
     },
     body: JSON.stringify({
-      model: "gemini-3-pro-image-preview-2K",
+      model: "gemini-3-pro-image-preview-2k",
       messages: [
         {
           role: "user",

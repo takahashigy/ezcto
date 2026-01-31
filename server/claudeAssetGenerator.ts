@@ -63,12 +63,18 @@ export interface ClaudeGeneratedAssets {
 /**
  * Generate all assets using Claude Opus coordination
  */
+export interface AssetGeneratedCallback {
+  (assetType: string, assetData: { url: string; key: string }): Promise<void>;
+}
+
 export async function generateAssetsWithClaude(
   projectName: string,
   ticker: string,
   description: string,
-  memeImageUrl: string | undefined,
-  projectId: number
+  memeImageUrl?: string,
+  projectId?: number,
+  tokenomics?: string,
+  onAssetGenerated?: AssetGeneratedCallback
 ): Promise<ClaudeGeneratedAssets> {
   console.log(`[ClaudeAssetGenerator] Starting Claude-coordinated generation for project ${projectId}`);
 
@@ -79,6 +85,7 @@ export async function generateAssetsWithClaude(
     ticker,
     description,
     memeImageUrl,
+    tokenomics,
   });
   console.log(`[ClaudeAssetGenerator] Claude Opus analysis complete:`, JSON.stringify(analysis, null, 2));
 
@@ -122,8 +129,31 @@ export async function generateAssetsWithClaude(
     ),
   ];
 
-  const imageResults = await Promise.all(imageGenerationPromises);
-  console.log(`[ClaudeAssetGenerator] All images generated successfully`);
+  // Generate images and save incrementally
+  const imageResults: any[] = [];
+  for (const promise of imageGenerationPromises) {
+    const result = await promise;
+    imageResults.push(result);
+    
+    // Immediately save this asset if callback provided
+    if (onAssetGenerated && projectId) {
+      // Map internal type names to database enum values
+      let assetType: string;
+      if (result.type === 'paydexBanner') assetType = 'paydex_banner';
+      else if (result.type === 'xBanner') assetType = 'x_banner';
+      else if (result.type === 'heroBackground') assetType = 'hero_background';
+      else if (result.type === 'communityScene') assetType = 'community_scene';
+      else if (result.type === 'featureIcon') assetType = 'feature_icon';
+      else assetType = result.type;
+      const assetData = {
+        url: result.result.url!,
+        key: `projects/${projectId}/${assetType}.png`,
+      };
+      await onAssetGenerated(assetType, assetData);
+      console.log(`[ClaudeAssetGenerator] Saved ${result.type} to database`);
+    }
+  }
+  console.log(`[ClaudeAssetGenerator] All images generated and saved successfully`);
 
   // Organize results
   const paydexBanner = imageResults.find(r => r.type === 'paydexBanner')!.result;

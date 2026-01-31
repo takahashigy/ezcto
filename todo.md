@@ -622,3 +622,66 @@
 - [x] 测试英文输入生成英文网站
 - [x] 测试混合语言输入的处理
 - [ ] 保存checkpoint
+
+## 核心功能改进（基于用户反馈 2026-01-31）
+- [ ] P0: 修复Launch端点集成完整Claude生成流程
+  - [ ] 将launch.launchProject改为调用generateAssetsWithClaude()
+  - [ ] 确保资产正确保存到数据库
+  - [ ] 测试前端Launch生成完整品牌包
+- [ ] P0: 实现基于用户上传IP的图片风格约束
+  - [ ] 在analyzeProjectInput中添加图片视觉分析（颜色、风格、角色）
+  - [ ] 在generateImagePrompts中添加强制风格约束
+  - [ ] 在generateWebsiteCode中使用提取的配色方案
+  - [ ] 测试TagClaw案例验证风格一致性
+- [ ] P1: 添加Tokenomics可选字段
+  - [ ] 更新projects表schema添加tokenomics字段
+  - [ ] 更新Launch表单添加Tokenomics输入框（可选）
+  - [ ] 修改Claude Opus提示词：有值则使用，无值则省略
+  - [ ] 测试两种情况（有/无Tokenomics）
+- [ ] P1: 改进资产展示UI
+  - [ ] 为每个资产卡片添加单独下载按钮
+  - [ ] 实现单个资产下载功能
+  - [ ] 优化资产预览展示
+
+## 核心功能改进完成状态（2026-01-31）
+- [x] P0: 修复Launch端点集成完整Claude生成流程（已验证：已集成）
+- [x] P0: 实现基于用户IP的图片风格约束
+  - [x] 添加图片视觉分析逻辑（Claude Vision API）
+  - [x] 更新所有图片生成Prompt强制使用提取的风格
+  - [ ] 测试TagClaw案例验证风格一致性
+- [x] P1: 添加Tokenomics可选字段
+  - [x] 数据库schema添加tokenomics字段
+  - [x] Launch表单添加Tokenomics输入框
+  - [x] 更新Claude Opus提示词支持可选tokenomics
+  - [ ] 测试：有tokenomics vs 无tokenomics
+- [x] P1: 每个资产添加单独下载按钮（已验证：已实现）
+  - [x] 更新ProjectDetails页面UI
+  - [x] 添加单个资产下载功能
+  - [x] 保持现有的打包下载功能
+
+## 紧急修复：Launch功能问题（2026-01-31）
+- [ ] 修复Claude JSON schema字段名不匹配
+  - [ ] 更新analyzeProjectInput的JSON schema使用正确的字段名
+  - [ ] 确保返回：xBannerPrompt, logoPrompt, heroBackgroundPrompt, featureIconPrompts, communityScenePrompt
+- [ ] 验证完整生成流程（后端测试）
+- [ ] 前端Launch界面端到端测试
+- [ ] 保存checkpoint
+
+## 容错机制实现（2026-01-31）
+- [x] P0: 资产增量保存机制
+  - [x] 修改claudeAssetGenerator.ts，每生成一个图片立即保存到数据库
+  - [x] 修改launch.ts，在executeLaunch中调用增量保存
+  - [ ] 测试：生成中断后，已生成的资产仍然保存在数据库中
+- [x] P1: 自动重试机制
+  - [x] 创建通用的retryWithBackoff工具函数
+  - [x] 为Claude API调用添加重试逻辑（3次，指数退避）
+  - [x] 为Nanobanana API调用添加重试逻辑
+  - [ ] 测试：模拟网络失败，验证自动重试
+- [ ] P2: 模块级断点续传
+  - [ ] 数据库schema添加generationProgress字段到projects表
+  - [ ] 实现模块状态追踪（ANALYSIS, IMAGES, WEBSITE_CODE）
+  - [ ] 实现从失败模块重新开始的逻辑
+  - [ ] 前端添加"重试失败模块"按钮
+  - [ ] 测试：模拟各模块失败，验证断点续传
+- [ ] 端到端测试容错机制
+- [ ] 保存checkpoint

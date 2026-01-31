@@ -39,6 +39,7 @@ export default function Launch() {
     projectName: "",
     ticker: "",
     description: "",
+    tokenomics: "",
     twitter: "",
     telegram: "",
     discord: "",
@@ -538,6 +539,25 @@ export default function Launch() {
                         </p>
                       )}
                     </div>
+                  </div>
+
+                  {/* Tokenomics (Optional) */}
+                  <div className="space-y-2">
+                    <Label htmlFor="tokenomics" className="text-[#2d3e2d] font-semibold">
+                      Tokenomics (Optional)
+                    </Label>
+                    <p className="text-sm text-[#2d3e2d]/60">
+                      If you have specific tokenomics details, enter them here. Leave blank if you don't want tokenomics section on your website.
+                    </p>
+                    <Textarea
+                      id="tokenomics"
+                      value={formData.tokenomics}
+                      onChange={(e) => setFormData({ ...formData, tokenomics: e.target.value })}
+                      placeholder="e.g., Total Supply: 1,000,000,000\nDistribution: 50% Liquidity, 30% Community, 20% Team"
+                      rows={3}
+                      className="border-2 border-[#2d3e2d]"
+                      disabled={isAnalyzing}
+                    />
                   </div>
 
                   {/* Optional: Social Links */}

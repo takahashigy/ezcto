@@ -1,10 +1,51 @@
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Clock, CheckCircle2, XCircle, Image, FileText, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Loader2, Clock, CheckCircle2, XCircle, Image, FileText, Globe, Trash2 } from "lucide-react";
 import { Link } from "wouter";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function GenerationHistorySection() {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedHistoryId, setSelectedHistoryId] = useState<number | null>(null);
+  
   const { data: history, isLoading } = trpc.projects.getHistory.useQuery({ limit: 10 });
+  const utils = trpc.useUtils();
+  const deleteHistoryMutation = trpc.projects.deleteHistory.useMutation({
+    onSuccess: () => {
+      toast.success("Generation history deleted successfully");
+      utils.projects.getHistory.invalidate();
+      setDeleteDialogOpen(false);
+      setSelectedHistoryId(null);
+    },
+    onError: (error) => {
+      toast.error("Failed to delete history", {
+        description: error.message,
+      });
+    },
+  });
+
+  const handleDeleteClick = (id: number) => {
+    setSelectedHistoryId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedHistoryId) {
+      deleteHistoryMutation.mutate({ id: selectedHistoryId });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -58,13 +99,23 @@ export function GenerationHistorySection() {
                     </p>
                   </div>
                 </div>
-                <div className={`px-3 py-1 text-xs font-mono font-bold border-2 ${
-                  record.status === 'completed' ? 'border-primary bg-primary/10 text-primary' :
-                  record.status === 'generating' ? 'border-accent bg-accent/10 text-accent' :
-                  record.status === 'failed' ? 'border-destructive bg-destructive/10 text-destructive' :
-                  'border-border bg-muted text-muted-foreground'
-                }`}>
-                  {record.status.toUpperCase()}
+                <div className="flex items-center gap-2">
+                  <div className={`px-3 py-1 text-xs font-mono font-bold border-2 ${
+                    record.status === 'completed' ? 'border-primary bg-primary/10 text-primary' :
+                    record.status === 'generating' ? 'border-accent bg-accent/10 text-accent' :
+                    record.status === 'failed' ? 'border-destructive bg-destructive/10 text-destructive' :
+                    'border-border bg-muted text-muted-foreground'
+                  }`}>
+                    {record.status.toUpperCase()}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteClick(record.id)}
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -145,6 +196,34 @@ export function GenerationHistorySection() {
           </Card>
         );
       })}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Generation History?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this generation history record. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteHistoryMutation.isPending}
+            >
+              {deleteHistoryMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

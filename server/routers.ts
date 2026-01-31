@@ -188,6 +188,23 @@ export const appRouter = router({
         }
       }),
 
+    deleteHistory: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Verify the history record belongs to the user
+        const history = await db.getGenerationHistoryById(input.id);
+        if (!history) {
+          throw new Error("History record not found");
+        }
+        if (history.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+        await db.deleteGenerationHistory(input.id);
+        return { success: true };
+      }),
+
     updateStatus: protectedProcedure
       .input(z.object({
         id: z.number(),

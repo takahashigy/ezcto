@@ -685,3 +685,9 @@
   - [ ] 测试：模拟各模块失败，验证断点续传
 - [ ] 端到端测试容错机制
 - [ ] 保存checkpoint
+
+## Generation History删除功能
+- [x] 添加后端删除API（deleteGenerationHistory）
+- [x] 在前端Generation History列表添加删除按钮
+- [x] 添加删除确认对话框
+- [x] 测试删除功能

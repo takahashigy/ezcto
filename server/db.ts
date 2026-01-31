@@ -355,6 +355,13 @@ export async function getGenerationHistoryById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function deleteGenerationHistory(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(generationHistory).where(eq(generationHistory.id, id));
+}
+
 // ============ Custom Orders Management ============
 
 export async function createCustomOrder(order: InsertCustomOrder) {

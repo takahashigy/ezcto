@@ -3,11 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
-import { Rocket, Package, FileText, Download, Loader2, Plus, ArrowLeft, Globe } from "lucide-react";
+import { Rocket, Package, FileText, Download, Loader2, Plus, ArrowLeft, Globe, Trash2 } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { DeploymentPaywall } from "@/components/DeploymentPaywall";
 import { PublishModal } from "@/components/PublishModal";
 import { GenerationHistorySection } from "@/components/GenerationHistorySection";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { playSuccessSound } from "@/utils/notificationSound";
@@ -23,6 +33,8 @@ export default function Dashboard() {
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedProject, setSelectedProject] = useState<{ id: number; name: string; subdomain?: string } | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<{ id: number; name: string } | null>(null);
 
   const previousProjectsRef = useRef<typeof projects>(undefined);
 
@@ -30,6 +42,32 @@ export default function Dashboard() {
     enabled: isAuthenticated,
     refetchInterval: 3000, // 每3秒轮询一次，检查项目状态更新
   });
+
+  const utils = trpc.useUtils();
+  const deleteProjectMutation = trpc.projects.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Project deleted successfully");
+      utils.projects.list.invalidate();
+      setDeleteDialogOpen(false);
+      setProjectToDelete(null);
+    },
+    onError: (error) => {
+      toast.error("Failed to delete project", {
+        description: error.message,
+      });
+    },
+  });
+
+  const handleDeleteClick = (project: { id: number; name: string }) => {
+    setProjectToDelete(project);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (projectToDelete) {
+      deleteProjectMutation.mutate({ id: projectToDelete.id });
+    }
+  };
 
 
 
@@ -195,19 +233,29 @@ export default function Dashboard() {
                 <Card key={project.id} className="module-card">
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div>
+                      <div className="flex-1">
                         <CardTitle className="text-2xl mb-2">{project.name}</CardTitle>
                         <CardDescription className="text-base">
                           {project.description || t('dashboard.project.noDescription')}
                         </CardDescription>
                       </div>
-                      <div className={`px-3 py-1 text-xs font-mono font-bold border-2 ${
-                        project.status === 'completed' ? 'border-primary bg-primary/10 text-primary' :
-                        project.status === 'generating' ? 'border-accent bg-accent/10 text-accent' :
-                        project.status === 'failed' ? 'border-destructive bg-destructive/10 text-destructive' :
-                        'border-border bg-muted text-muted-foreground'
-                      }`}>
-                        {project.status.toUpperCase()}
+                      <div className="flex items-center gap-2">
+                        <div className={`px-3 py-1 text-xs font-mono font-bold border-2 ${
+                          project.status === 'completed' ? 'border-primary bg-primary/10 text-primary' :
+                          project.status === 'generating' ? 'border-accent bg-accent/10 text-accent' :
+                          project.status === 'failed' ? 'border-destructive bg-destructive/10 text-destructive' :
+                          'border-border bg-muted text-muted-foreground'
+                        }`}>
+                          {project.status.toUpperCase()}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteClick({ id: project.id, name: project.name })}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </CardHeader>
@@ -307,6 +355,45 @@ export default function Dashboard() {
           }}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Project</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{projectToDelete?.name}</strong>?
+              <br />
+              <br />
+              This will permanently delete:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>The project and all its metadata</li>
+                <li>All generated assets (logo, banner, PFP, poster, website)</li>
+                <li>All generation history records</li>
+              </ul>
+              <br />
+              <strong className="text-destructive">This action cannot be undone.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={deleteProjectMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteProjectMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete Project"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Deployment Paywall */}
       {selectedProject && (

@@ -362,6 +362,20 @@ export async function deleteGenerationHistory(id: number) {
   await db.delete(generationHistory).where(eq(generationHistory.id, id));
 }
 
+export async function deleteProject(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Delete related assets first
+  await db.delete(assets).where(eq(assets.projectId, id));
+  
+  // Delete related generation history
+  await db.delete(generationHistory).where(eq(generationHistory.projectId, id));
+  
+  // Delete the project
+  await db.delete(projects).where(eq(projects.id, id));
+}
+
 // ============ Custom Orders Management ============
 
 export async function createCustomOrder(order: InsertCustomOrder) {

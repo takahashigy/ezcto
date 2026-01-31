@@ -691,3 +691,10 @@
 - [x] 在前端Generation History列表添加删除按钮
 - [x] 添加删除确认对话框
 - [x] 测试删除功能
+
+## Your Projects删除功能
+- [x] 添加后端删除项目API（deleteProject）
+- [x] 同时删除项目关联的资产和历史记录
+- [x] 在前端Your Projects列表添加删除按钮
+- [x] 添加删除确认对话框
+- [x] 测试删除项目功能

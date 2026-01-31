@@ -205,6 +205,23 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    delete: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Verify the project belongs to the user
+        const project = await db.getProjectById(input.id);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+        await db.deleteProject(input.id);
+        return { success: true };
+      }),
+
     updateStatus: protectedProcedure
       .input(z.object({
         id: z.number(),

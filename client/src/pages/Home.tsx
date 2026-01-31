@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
-import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2 } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2, Receipt } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
@@ -29,6 +29,12 @@ export default function Home() {
                 <Link href="/dashboard">
                   <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
                     {t('nav.dashboard')}
+                  </Button>
+                </Link>
+                <Link href="/payment-history">
+                  <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
+                    <Receipt className="mr-2 h-4 w-4" />
+                    Payments
                   </Button>
                 </Link>
                 <Link href="/launch">

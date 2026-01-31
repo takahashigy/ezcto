@@ -173,6 +173,11 @@ export const appRouter = router({
         return { success: true, projectId };
       }),
 
+    getPaidProjects: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await db.getUserPaidProjects(ctx.user.id);
+      }),
+
     getHistory: protectedProcedure
       .input(z.object({
         projectId: z.number().optional(),

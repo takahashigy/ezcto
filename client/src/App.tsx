@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import LaunchV2 from "./pages/LaunchV2";
 import ProjectDetails from "./pages/ProjectDetails";
 import LaunchV2Preview from "./pages/LaunchV2Preview";
+import PaymentHistory from "./pages/PaymentHistory";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -64,6 +65,7 @@ function Router() {
       <Route path={"/launch"} component={LaunchV2} />
       <Route path={"/launch/preview"} component={LaunchV2Preview} />
       <Route path={"/project/:id"} component={ProjectDetails} />
+      <Route path={"/payment-history"} component={PaymentHistory} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

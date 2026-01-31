@@ -907,3 +907,11 @@
 - [x] 添加支付记录到数据库（使用projects表现有字段）
 - [ ] 测试完整支付流程（连接钱包 → 检测折扣 → 支付 → 验证 → 开始生成）
 - [ ] 保存checkpoint
+
+## 支付历史页面
+- [x] 创建后端API获取用户支付历史（projects表中paymentStatus='paid'的记录）
+- [x] 创建PaymentHistory页面组件（显示交易列表、金额、货币、交易哈希、项目状态）
+- [x] 添加区块链浏览器链接（BSC/Solana）
+- [x] 添加项目预览链接
+- [x] 在导航中添加"Payment History"入口
+- [ ] 测试并保存checkpoint

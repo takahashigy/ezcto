@@ -184,7 +184,7 @@ export default function LaunchV2() {
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
-              <Button variant="ghost" className="text-[#2d3e2d]">
+              <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
                 Dashboard
               </Button>
             </Link>
@@ -199,7 +199,7 @@ export default function LaunchV2() {
         <div className="max-w-3xl mx-auto">
           {/* Back Button */}
           <Link href="/dashboard">
-            <Button variant="ghost" className="mb-6 text-[#2d3e2d]">
+            <Button variant="ghost" className="mb-6 font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
             </Button>
@@ -442,7 +442,7 @@ export default function LaunchV2() {
                   type="submit"
                   size="lg"
                   disabled={isGenerating}
-                  className="w-full bg-[#2d3e2d] hover:bg-[#2d3e2d]/90 text-[#e8dcc4] font-bold text-lg h-14 border-4 border-[#2d3e2d] shadow-[4px_4px_0px_0px_rgba(45,62,45,1)] hover:shadow-[2px_2px_0px_0px_rgba(45,62,45,1)] transition-all"
+                  className="w-full font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] text-lg px-8 py-6 transition-all"
                 >
                   {isGenerating ? (
                     <>

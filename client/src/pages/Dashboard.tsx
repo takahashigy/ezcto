@@ -130,7 +130,7 @@ export default function Dashboard() {
               {user?.email || user?.name}
             </span>
             <Link href="/">
-              <Button variant="ghost" className="font-mono">
+              <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {t('nav.home')}
               </Button>
@@ -153,7 +153,7 @@ export default function Dashboard() {
               </p>
             </div>
             <Link href="/launch">
-              <Button size="lg" className="font-mono retro-border">
+              <Button size="lg" className="font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)] px-6 py-3">
                 <Plus className="mr-2 h-5 w-5" />
                 {t('dashboard.page.newProject')}
               </Button>
@@ -220,7 +220,7 @@ export default function Dashboard() {
                   {t('dashboard.empty.description')}
                 </p>
                 <Link href="/launch">
-                  <Button size="lg" className="font-mono retro-border">
+                  <Button size="lg" className="font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)] px-6 py-3">
                     <Plus className="mr-2 h-5 w-5" />
                     {t('dashboard.empty.button')}
                   </Button>

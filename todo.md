@@ -426,7 +426,7 @@
 - [ ] 更新Dashboard显示真实网站URL
 - [ ] 测试完整发布流程
 - [ ] 验证子域名可访问性
-- [ ] 保存checkpoint
+- [x] 保存checkpoint
 
 ## UI调整 - 隐藏未完成功能
 - [x] 隐藏顶部导航栏的Supply链接
@@ -539,7 +539,7 @@
   - [ ] 测试网站对所有图片的智能使用
   - [ ] 测试营销素材下载功能
 - [ ] 编写vitest测试覆盖新功能
-- [ ] 保存checkpoint
+- [x] 保存checkpoint
 
 ## 多尺寸Banner和网站装饰素材生成系统
 - [x] 扩展Nanobanana图片生成类型和尺寸支持（PayDex Banner 1500x500、X Banner 1200x480、Hero Background 1920x1080、Feature Icons 256x256、Community Scene 800x600）
@@ -581,4 +581,13 @@
 - [ ] 实现付费后自动解锁逻辑
 - [ ] 实现实时预览面板（右侧弹出）
 - [ ] 测试完整的免费→付费→解锁流程
+- [x] 保存checkpoint
+
+## 实时预览面板（类似Manus）
+- [x] 设计实时预览面板的数据流和后端接口
+- [x] 实现后端进度推送逻辑（generationHistory表存储进度）
+- [x] 重构Launch页面，创建项目后跳转到预览页面
+- [x] 实现右侧预览面板组件（GenerationPreview.tsx）
+- [x] 集成实时数据更新逻辑（轮询每2秒）
+- [x] 测试完整生成流程
 - [ ] 保存checkpoint

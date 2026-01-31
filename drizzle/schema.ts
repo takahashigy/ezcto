@@ -158,7 +158,22 @@ export const generationHistory = mysqlTable("generation_history", {
     website?: boolean;
   }>(),
   errorMessage: text("errorMessage"),
-  metadata: json("metadata").$type<Record<string, unknown>>(),
+  metadata: json("metadata").$type<{
+    currentStep?: string; // 'analysis' | 'images' | 'website' | 'deployment'
+    steps?: Array<{
+      step: string;
+      status: 'pending' | 'in_progress' | 'completed' | 'failed';
+      startTime?: string;
+      endTime?: string;
+      data?: any;
+      error?: string;
+    }>;
+    progress?: {
+      current: number;
+      total: number;
+      message: string;
+    };
+  }>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

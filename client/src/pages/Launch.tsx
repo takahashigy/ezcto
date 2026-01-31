@@ -66,19 +66,15 @@ export default function Launch() {
   const previewAnalysisMutation = trpc.projects.previewAnalysis.useMutation();
   const generatePreviewMutation = trpc.projects.generatePreview.useMutation();
   const enhanceDescriptionMutation = trpc.ai.enhanceDescription.useMutation();
-  const generateWebsiteMutation = trpc.projects.generateWebsite.useMutation({
+  const createProjectMutation = trpc.projects.create.useMutation({
     onSuccess: (data) => {
-      toast.success("Website generated successfully!");
+      toast.success("Project created! Starting generation...");
       setIsGenerating(false);
-      // Open generated website in new tab
-      window.open(data.websiteUrl, "_blank");
-      // Navigate to dashboard
-      setTimeout(() => {
-        setLocation("/dashboard");
-      }, 1000);
+      // Navigate to preview page
+      setLocation(`/launch/preview?projectId=${data.projectId}`);
     },
     onError: (error) => {
-      toast.error(`Failed to generate website: ${error.message}`);
+      toast.error(`Failed to create project: ${error.message}`);
       setIsGenerating(false);
     },
   });
@@ -296,24 +292,18 @@ export default function Launch() {
     if (!uploadedImageUrl || !analysis) return;
 
     setIsGenerating(true);
-    toast.info("Generating your complete website... This may take 30-60 seconds");
+    toast.info("Creating your project... This will take 8-12 minutes");
 
     try {
-      await generateWebsiteMutation.mutateAsync({
-        projectName: formData.projectName,
+      await createProjectMutation.mutateAsync({
+        name: formData.projectName,
         ticker: formData.ticker,
         description: formData.description,
-        memeImageUrl: uploadedImageUrl,
-        socialLinks: {
-          twitter: formData.twitter || undefined,
-          telegram: formData.telegram || undefined,
-          discord: formData.discord || undefined,
-          website: formData.website || undefined,
-        },
-        contractAddress: formData.contractAddress || undefined,
+        userImageUrl: uploadedImageUrl,
       });
     } catch (error) {
       console.error("[Launch] Generation error:", error);
+      setIsGenerating(false);
     }
   };
 

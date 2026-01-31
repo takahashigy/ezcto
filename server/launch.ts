@@ -1,6 +1,7 @@
 import * as db from "./db";
 import { broadcastProgress } from "./_core/progressStream";
 import { generateAssetsWithClaude } from "./claudeAssetGenerator";
+import { updateGenerationProgress, initializeSteps, updateStep, type StepProgress } from "./progressTracker";
 
 /**
  * Launch自动化引擎核心逻辑
@@ -47,11 +48,18 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       throw new Error("Project not found");
     }
     
+    // Initialize generation history with step tracking
+    let steps = initializeSteps();
     const history = await db.createGenerationHistory({
       projectId: input.projectId,
       userId: project.userId,
       status: "generating",
       startTime: new Date(startTime),
+      metadata: {
+        currentStep: 'analysis',
+        steps,
+        progress: { current: 0, total: 100, message: 'Starting generation...' },
+      },
     });
     historyId = history.id;
     
@@ -60,6 +68,12 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     broadcastProgress(input.projectId, { progress: 0, message: "Starting Claude Opus analysis..." });
 
     // Step 1: Claude Opus分析 + 生成所有资产
+    steps = updateStep(steps, 'analysis', { status: 'in_progress', startTime: new Date().toISOString() });
+    await updateGenerationProgress(historyId, {
+      currentStep: 'analysis',
+      steps,
+      progress: { current: 10, total: 100, message: 'Claude Opus analyzing project...' },
+    });
     broadcastProgress(input.projectId, { progress: 10, message: "Claude Opus analyzing project..." });
     
     const result = await generateAssetsWithClaude(
@@ -70,6 +84,15 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       input.projectId
     );
     
+    // Mark analysis and images as completed
+    steps = updateStep(steps, 'analysis', { status: 'completed', endTime: new Date().toISOString() });
+    steps = updateStep(steps, 'images', { status: 'completed', endTime: new Date().toISOString(), data: { count: 8 } });
+    steps = updateStep(steps, 'website', { status: 'completed', endTime: new Date().toISOString() });
+    await updateGenerationProgress(historyId, {
+      currentStep: 'deployment',
+      steps,
+      progress: { current: 90, total: 100, message: 'Saving assets to database...' },
+    });
     broadcastProgress(input.projectId, { progress: 90, message: "Saving assets to database..." });
 
     // Step 2: 保存所有资产到数据库
@@ -125,6 +148,14 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
 
     // Step 3: 更新项目状态为completed
     await db.updateProjectStatus(input.projectId, "completed");
+    
+    // Mark deployment as completed
+    steps = updateStep(steps, 'deployment', { status: 'completed', endTime: new Date().toISOString() });
+    await updateGenerationProgress(historyId, {
+      currentStep: 'deployment',
+      steps,
+      progress: { current: 100, total: 100, message: 'Generation completed!' },
+    });
     broadcastProgress(input.projectId, { progress: 100, message: "Generation completed!" });
 
     // Step 4: 更新生成历史记录

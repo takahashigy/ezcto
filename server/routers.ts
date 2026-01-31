@@ -16,6 +16,7 @@ import { removeBackground } from "./_core/backgroundRemoval";
 import { notifyOwner } from "./_core/notification";
 import { uploadToR2 } from "./cloudflareR2";
 import { cryptoRouter } from "./routers/crypto";
+import { enhanceDescription } from "./_core/claude";
 
 export const appRouter = router({
   system: systemRouter,
@@ -884,6 +885,24 @@ export const appRouter = router({
           throw new Error("Unauthorized");
         }
         return order;
+      }),
+  }),
+
+  // AI Enhancement
+  ai: router({
+    enhanceDescription: protectedProcedure
+      .input(z.object({
+        projectName: z.string(),
+        ticker: z.string(),
+        description: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const enhanced = await enhanceDescription({
+          projectName: input.projectName,
+          ticker: input.ticker,
+          description: input.description,
+        });
+        return { enhancedDescription: enhanced };
       }),
   }),
 });

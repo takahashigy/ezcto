@@ -494,3 +494,11 @@
 - [x] 更新模型名称为claude-opus-4-5-20251101
 - [x] 测试Claude Opus 4.5 API调用
 - [x] 保存checkpoint
+
+## 多模型架构（Haiku优化描述 + Opus生成网站）
+- [x] 添加CLAUDE_OPUS_API_KEY和CLAUDE_HAIKU_API_KEY环境变量
+- [x] 重构claude.ts支持多模型架构
+- [x] enhanceDescription使用Haiku 4.5（快速低成本）
+- [x] generateWebsiteCode使用Opus 4.5（高质量）
+- [x] 测试两个模型各自的功能
+- [x] 保存checkpoint

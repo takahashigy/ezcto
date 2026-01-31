@@ -60,10 +60,12 @@ export default function Launch() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   const uploadImageMutation = trpc.upload.characterImage.useMutation();
   const previewAnalysisMutation = trpc.projects.previewAnalysis.useMutation();
   const generatePreviewMutation = trpc.projects.generatePreview.useMutation();
+  const enhanceDescriptionMutation = trpc.ai.enhanceDescription.useMutation();
   const generateWebsiteMutation = trpc.projects.generateWebsite.useMutation({
     onSuccess: (data) => {
       toast.success("Website generated successfully!");
@@ -80,6 +82,34 @@ export default function Launch() {
       setIsGenerating(false);
     },
   });
+
+  const handleEnhanceDescription = async () => {
+    if (!formData.projectName || !formData.ticker || !formData.description) {
+      toast.error("Please fill in Project Name, Ticker, and Description first");
+      return;
+    }
+
+    if (formData.description.length < 20) {
+      toast.error("Description is too short. Please provide at least 20 characters.");
+      return;
+    }
+
+    setIsEnhancing(true);
+    try {
+      const result = await enhanceDescriptionMutation.mutateAsync({
+        projectName: formData.projectName,
+        ticker: formData.ticker,
+        description: formData.description,
+      });
+      
+      setFormData({ ...formData, description: result.enhancedDescription });
+      toast.success("✨ Description enhanced by AI!");
+    } catch (error: any) {
+      toast.error(`Failed to enhance description: ${error.message}`);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -470,9 +500,31 @@ export default function Launch() {
 
                   {/* Description */}
                   <div className="space-y-2">
-                    <Label htmlFor="description" className="text-[#2d3e2d] font-semibold">
-                      Project Description *
-                    </Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="description" className="text-[#2d3e2d] font-semibold">
+                        Project Description *
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEnhanceDescription}
+                        disabled={isEnhancing || !formData.projectName || !formData.ticker || !formData.description}
+                        className="border-[#2d3e2d] text-[#2d3e2d] hover:bg-[#2d3e2d] hover:text-white"
+                      >
+                        {isEnhancing ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Enhancing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            AI Optimize
+                          </>
+                        )}
+                      </Button>
+                    </div>
                     <p className="text-sm text-[#2d3e2d]/60">
                       Describe your project's story, community, and vision. Our AI will use this to design your website.
                     </p>
@@ -483,12 +535,19 @@ export default function Launch() {
                       placeholder="Tell us about your meme project... (100-500 words)"
                       rows={6}
                       className="border-2 border-[#2d3e2d]"
-                      disabled={isAnalyzing}
+                      disabled={isAnalyzing || isEnhancing}
                       required
                     />
-                    <p className="text-xs text-[#2d3e2d]/60">
-                      {formData.description.length} characters
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-[#2d3e2d]/60">
+                        {formData.description.length} characters
+                      </p>
+                      {isEnhancing && (
+                        <p className="text-xs text-[#2d3e2d]/60 italic">
+                          ✨ Claude Sonnet is enhancing your description...
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Optional: Social Links */}

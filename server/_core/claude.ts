@@ -32,14 +32,10 @@ export async function callClaude(
     model?: string;
     maxTokens?: number;
     temperature?: number;
+    apiKey?: string; // Allow custom API key
   }
 ): Promise<string> {
-  const apiKey = process.env.CLAUDE_API_KEY;
   const apiUrl = process.env.CLAUDE_API_URL;
-
-  if (!apiKey) {
-    throw new Error("CLAUDE_API_KEY is not configured");
-  }
 
   if (!apiUrl) {
     throw new Error("CLAUDE_API_URL is not configured");
@@ -48,6 +44,13 @@ export async function callClaude(
   const model = options?.model || "claude-opus-4-5-20251101";
   const maxTokens = options?.maxTokens || 4096;
   const temperature = options?.temperature || 0.7;
+  
+  // Use provided API key or fallback to CLAUDE_API_KEY
+  const apiKey = options?.apiKey || process.env.CLAUDE_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("Claude API key is not configured");
+  }
 
   const response = await fetch(`${apiUrl}/v1/messages`, {
     method: "POST",
@@ -135,14 +138,22 @@ Return your response in JSON format:
   }
 }`;
 
+  const opusApiKey = process.env.CLAUDE_OPUS_API_KEY;
+  
+  if (!opusApiKey) {
+    throw new Error("CLAUDE_OPUS_API_KEY is not configured");
+  }
+
   const response = await callClaude([
     {
       role: "user",
       content: prompt,
     },
   ], {
+    model: "claude-opus-4-5-20251101", // Use Opus for high-quality analysis
     temperature: 0.8, // Higher temperature for creativity
     maxTokens: 2048,
+    apiKey: opusApiKey, // Use dedicated Opus API key
   });
 
   // Parse JSON response
@@ -207,14 +218,22 @@ Requirements:
 
 Generate a complete HTML file with inline CSS and JavaScript. Return ONLY the HTML code, no explanations.`;
 
+  const opusApiKey = process.env.CLAUDE_OPUS_API_KEY;
+  
+  if (!opusApiKey) {
+    throw new Error("CLAUDE_OPUS_API_KEY is not configured");
+  }
+
   const response = await callClaude([
     {
       role: "user",
       content: prompt,
     },
   ], {
+    model: "claude-opus-4-5-20251101", // Use Opus for high-quality code generation
     temperature: 0.7,
     maxTokens: 8192,
+    apiKey: opusApiKey, // Use dedicated Opus API key
   });
 
   // Extract HTML code
@@ -227,6 +246,56 @@ Generate a complete HTML file with inline CSS and JavaScript. Return ONLY the HT
     }
     throw new Error("Failed to extract HTML code from Claude response");
   }
-
+  
   return htmlMatch[0];
+}
+
+/**
+ * Enhance user's project description using Claude Sonnet 3.7
+ * This provides better input for Claude Opus 4.5 to generate high-quality assets
+ */
+export async function enhanceDescription(input: {
+  projectName: string;
+  ticker: string;
+  description: string;
+}): Promise<string> {
+  const prompt = `You are a professional meme coin project consultant. Your task is to enhance and expand a user's brief project description into a detailed, comprehensive description that will help AI generate better marketing materials.
+
+Project Name: ${input.projectName}
+Ticker: ${input.ticker}
+User's Brief Description: ${input.description}
+
+Please enhance this description by:
+1. Expanding on the core concept and unique selling points
+2. Adding target audience and community vision
+3. Including potential use cases or features
+4. Describing the brand personality and tone
+5. Mentioning any cultural references or meme origins if applicable
+
+Provide a detailed, engaging description (150-300 words) that captures the essence of this meme coin project. Write in an enthusiastic but professional tone. Focus on what makes this project unique and appealing to potential investors.
+
+Return ONLY the enhanced description text, no additional commentary.`;
+
+  const haikuApiKey = process.env.CLAUDE_HAIKU_API_KEY;
+  
+  if (!haikuApiKey) {
+    throw new Error("CLAUDE_HAIKU_API_KEY is not configured");
+  }
+
+  const enhancedDescription = await callClaude(
+    [
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    {
+      model: "claude-haiku-4-5-20251001", // Use Haiku for fast and cost-effective description enhancement
+      maxTokens: 1024,
+      temperature: 0.8, // Higher temperature for more creative descriptions
+      apiKey: haikuApiKey, // Use dedicated Haiku API key
+    }
+  );
+
+  return enhancedDescription.trim();
 }

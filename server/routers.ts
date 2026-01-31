@@ -123,10 +123,12 @@ export const appRouter = router({
           throw new Error("User not found");
         }
         
-        // Check if user has unpaid projects
-        const unpaidProjects = await db.getUnpaidProjectsByUserId(ctx.user.id);
-        if (unpaidProjects.length > 0 && user.freeGenerationsUsed >= 1) {
-          throw new Error("FREE_QUOTA_EXCEEDED: Please unlock your previous project before creating a new one.");
+        // Check if user has unpaid projects (skip for admins)
+        if (user.role !== 'admin') {
+          const unpaidProjects = await db.getUnpaidProjectsByUserId(ctx.user.id);
+          if (unpaidProjects.length > 0 && user.freeGenerationsUsed >= 1) {
+            throw new Error("FREE_QUOTA_EXCEEDED: Please unlock your previous project before creating a new one.");
+          }
         }
         const project = await db.createProject({
           userId: ctx.user.id,

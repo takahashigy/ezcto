@@ -247,30 +247,17 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               featureIcons: [],
             };
 
-            let completedImages = 0;
             const totalImages = imageGenerationTasks.length;
 
-            for (const task of imageGenerationTasks) {
-              console.log(`[Launch] Generating ${task.type}... (${completedImages + 1}/${totalImages})`);
-              
-              // Update progress before generating
-              const progressPercent = 30 + Math.floor((completedImages / totalImages) * 40); // 30-70%
-              if (historyId) {
-                await updateGenerationProgress(historyId, {
-                  currentStep: 'images',
-                  steps,
-                  progress: { 
-                    current: progressPercent, 
-                    total: 100, 
-                    message: `Generating ${task.type}... (${completedImages + 1}/${totalImages})` 
-                  },
-                });
-              }
-              broadcastProgress(input.projectId, { 
-                progress: progressPercent, 
-                message: `Generating ${task.type}... (${completedImages + 1}/${totalImages})` 
-              });
+            console.log(`[Launch] Starting parallel generation of ${totalImages} images...`);
 
+            // Track completed images with a Set to avoid race conditions
+            const completedImageTypes = new Set<string>();
+
+            // Generate all images in parallel
+            const imagePromises = imageGenerationTasks.map(async (task, index) => {
+              console.log(`[Launch] Starting generation of ${task.type}...`);
+              
               const result = await generateImage({
                 prompt: task.prompt,
                 size: task.size as any,
@@ -297,15 +284,43 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
                 metadata: task.type === 'featureIcon' ? { index: (task as any).index } : undefined,
               });
 
-              // Store in results
+              console.log(`[Launch] Saved ${task.type} to database`);
+              
+              // Update progress after each image completes
+              const taskKey = task.type === 'featureIcon' ? `${task.type}_${(task as any).index}` : task.type;
+              completedImageTypes.add(taskKey);
+              const completedCount = completedImageTypes.size;
+              const progressPercent = 30 + Math.floor((completedCount / totalImages) * 40); // 30-70%
+              
+              if (historyId) {
+                await updateGenerationProgress(historyId, {
+                  currentStep: 'images',
+                  steps,
+                  progress: { 
+                    current: progressPercent, 
+                    total: 100, 
+                    message: `Generated ${completedCount}/${totalImages} images` 
+                  },
+                });
+              }
+              broadcastProgress(input.projectId, { 
+                progress: progressPercent, 
+                message: `Generated ${completedCount}/${totalImages} images` 
+              });
+
+              return { task, assetData };
+            });
+
+            // Wait for all images to complete
+            const completedTasks = await Promise.all(imagePromises);
+
+            // Organize results
+            for (const { task, assetData } of completedTasks) {
               if (task.type === 'featureIcon') {
                 results.featureIcons.push(assetData);
               } else {
                 results[task.type] = assetData;
               }
-
-              console.log(`[Launch] Saved ${task.type} to database`);
-              completedImages++;
             }
 
             return results;

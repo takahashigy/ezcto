@@ -1,0 +1,22 @@
+CREATE TABLE `cryptoPayments` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`projectId` int NOT NULL,
+	`userId` int NOT NULL,
+	`chain` varchar(50) NOT NULL,
+	`tokenSymbol` varchar(20) NOT NULL,
+	`tokenAddress` varchar(100),
+	`senderAddress` varchar(100) NOT NULL,
+	`receiverAddress` varchar(100) NOT NULL,
+	`amount` varchar(100) NOT NULL,
+	`amountUsd` decimal(10,2),
+	`txHash` varchar(100),
+	`blockNumber` int,
+	`confirmations` int NOT NULL DEFAULT 0,
+	`status` enum('pending','confirming','confirmed','failed','expired') NOT NULL DEFAULT 'pending',
+	`metadata` json,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	`confirmedAt` timestamp,
+	CONSTRAINT `cryptoPayments_id` PRIMARY KEY(`id`),
+	CONSTRAINT `cryptoPayments_txHash_unique` UNIQUE(`txHash`)
+);

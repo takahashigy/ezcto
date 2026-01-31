@@ -191,3 +191,40 @@ export const customOrders = mysqlTable("customOrders", {
 
 export type CustomOrder = typeof customOrders.$inferSelect;
 export type InsertCustomOrder = typeof customOrders.$inferInsert;
+
+/**
+ * Crypto payment records for deployment unlocking
+ */
+export const cryptoPayments = mysqlTable("cryptoPayments", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  userId: int("userId").notNull(),
+  // Blockchain details
+  chain: varchar("chain", { length: 50 }).notNull(), // 'BSC', 'ETH', etc.
+  tokenSymbol: varchar("tokenSymbol", { length: 20 }).notNull(), // 'BNB', 'ETH', 'USDT', etc.
+  tokenAddress: varchar("tokenAddress", { length: 100 }), // null for native tokens, contract address for ERC20/BEP20
+  // Payment details
+  senderAddress: varchar("senderAddress", { length: 100 }).notNull(),
+  receiverAddress: varchar("receiverAddress", { length: 100 }).notNull(),
+  amount: varchar("amount", { length: 100 }).notNull(), // Store as string to preserve precision
+  amountUsd: decimal("amountUsd", { precision: 10, scale: 2 }), // USD equivalent at payment time
+  // Transaction tracking
+  txHash: varchar("txHash", { length: 100 }).unique(),
+  blockNumber: int("blockNumber"),
+  confirmations: int("confirmations").default(0).notNull(),
+  // Status
+  status: mysqlEnum("status", ["pending", "confirming", "confirmed", "failed", "expired"]).default("pending").notNull(),
+  // Metadata
+  metadata: json("metadata").$type<{
+    gasUsed?: string;
+    gasPrice?: string;
+    blockTimestamp?: number;
+    explorerUrl?: string;
+  }>(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  confirmedAt: timestamp("confirmedAt"),
+});
+
+export type CryptoPayment = typeof cryptoPayments.$inferSelect;
+export type InsertCryptoPayment = typeof cryptoPayments.$inferInsert;

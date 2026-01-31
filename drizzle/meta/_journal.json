@@ -64,6 +64,13 @@
       "when": 1769804867660,
       "tag": "0008_fair_namor",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1769823236493,
+      "tag": "0009_normal_sentry",
+      "breakpoints": true
     }
   ]
 }

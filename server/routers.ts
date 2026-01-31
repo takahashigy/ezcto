@@ -14,9 +14,11 @@ import { storagePut } from "./storage";
 import { removeBackground } from "./_core/backgroundRemoval";
 import { notifyOwner } from "./_core/notification";
 import { uploadToR2 } from "./cloudflareR2";
+import { cryptoRouter } from "./routers/crypto";
 
 export const appRouter = router({
   system: systemRouter,
+  crypto: cryptoRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

@@ -8,7 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Loader2, Rocket } from "lucide-react";
+import { Check, Loader2, Rocket, CreditCard, Wallet } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CryptoPayment } from "@/components/CryptoPayment";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -26,6 +28,7 @@ export function DeploymentPaywall({
   projectName,
 }: DeploymentPaywallProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'crypto'>('crypto');
 
   const createCheckout = trpc.payment.createDeploymentCheckout.useMutation({
     onSuccess: (data: { url: string | null }) => {
@@ -56,13 +59,44 @@ export function DeploymentPaywall({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Pricing Card */}
-          <Card className="border-2 border-primary">
-            <CardContent className="pt-6">
-              <div className="text-center mb-6">
-                <div className="text-4xl font-bold mb-2">$299</div>
-                <div className="text-sm text-muted-foreground">One-time payment</div>
+          {/* Payment Method Tabs */}
+          <Tabs value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as 'stripe' | 'crypto')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="crypto" className="flex items-center gap-2">
+                <Wallet className="h-4 w-4" />
+                Crypto (0.55 BNB)
+              </TabsTrigger>
+              <TabsTrigger value="stripe" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Card ($479)
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Crypto Payment */}
+            <TabsContent value="crypto" className="space-y-4 mt-6">
+              <div className="text-center mb-4">
+                <div className="text-4xl font-bold mb-2">0.55 BNB</div>
+                <div className="text-sm text-muted-foreground">≈ $479 USD • One-time payment</div>
               </div>
+
+              <CryptoPayment 
+                projectId={projectId} 
+                onPaymentSuccess={() => {
+                  toast.success("Payment confirmed! Your project is now unlocked.");
+                  onOpenChange(false);
+                  window.location.reload();
+                }}
+              />
+            </TabsContent>
+
+            {/* Stripe Payment */}
+            <TabsContent value="stripe" className="space-y-4 mt-6">
+              <Card className="border-2 border-primary">
+                <CardContent className="pt-6">
+                  <div className="text-center mb-6">
+                    <div className="text-4xl font-bold mb-2">$479</div>
+                    <div className="text-sm text-muted-foreground">One-time payment</div>
+                  </div>
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-start gap-3">
@@ -116,31 +150,34 @@ export function DeploymentPaywall({
                 </div>
               </div>
 
-              <Button
-                size="lg"
-                className="w-full font-mono text-base"
-                onClick={handlePayment}
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Rocket className="mr-2 h-5 w-5" />
-                    Deploy Now - $299
-                  </>
-                )}
-              </Button>
+                  <Button
+                    size="lg"
+                    className="w-full font-mono text-base"
+                    onClick={handlePayment}
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Rocket className="mr-2 h-5 w-5" />
+                        Pay with Card - $479
+                      </>
+                    )}
+                  </Button>
 
-              <p className="text-xs text-center text-muted-foreground mt-4">
-                Secure payment powered by Stripe
-              </p>
-            </CardContent>
-          </Card>
+                  <p className="text-xs text-center text-muted-foreground mt-4">
+                    Secure payment powered by Stripe
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
 
+          {/* Info Text */}
           <div className="text-center text-sm text-muted-foreground">
             <p>
               Your project is already generated and ready to deploy.

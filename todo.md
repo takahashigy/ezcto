@@ -590,4 +590,24 @@
 - [x] 实现右侧预览面板组件（GenerationPreview.tsx）
 - [x] 集成实时数据更新逻辑（轮询每2秒）
 - [x] 测试完整生成流程
+- [x] 保存checkpoint (06eed147)
+
+## 全流程测试
+- [ ] 准备测试数据（项目名称、Ticker、描述、测试图片）
+- [ ] 测试项目创建API（projects.create）
+- [ ] 验证后台生成流程（executeLaunch）
+- [ ] 检查实时预览面板数据更新
+- [ ] 验证8张图片是否全部生成
+- [ ] 检查数据库记录完整性
+- [ ] 总结测试结果
+
+## 更新Nanobanana API密钥并重新测试
+- [x] 使用webdev_edit_secrets更新NANOBANANA_API_KEY
+- [x] 清理之前的测试数据
+- [x] 修复Nanobanana API集成（使用chat/completions端点并解析Markdown格式URL）
+- [x] 修复Claude Opus HTML生成被截断问题（实现分步生成）
+  - [x] 重构generateWebsiteCode函数为分步生成（HTML结构 → CSS → JavaScript → 合并）
+  - [x] 测试分步生成是否能绕过token限制
+- [x] 重新运行全流程测试
+- [x] 验证8张图片是否全部生成成功
 - [ ] 保存checkpoint

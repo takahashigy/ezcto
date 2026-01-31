@@ -49,8 +49,8 @@ export async function generateImage(
     throw new Error("NANOBANANA_API_KEY is not configured");
   }
 
-  // Nanobanana API endpoint
-  const apiUrl = "https://api.google-banana.com/v1/images/generations";
+  // Nanobanana API endpoint (using chat/completions)
+  const apiUrl = "https://api.google-banana.com/v1/chat/completions";
 
   const response = await fetch(apiUrl, {
     method: "POST",
@@ -59,11 +59,13 @@ export async function generateImage(
       "Authorization": `Bearer ${nanobananaApiKey}`,
     },
     body: JSON.stringify({
-      model: "gemini-3-pro-image-preview-2k",
-      prompt: options.prompt,
-      n: 1,
-      size: options.size || "1024x1024",
-      response_format: "url", // Changed from b64_json to url
+      model: "gemini-3-pro-image-preview-2K",
+      messages: [
+        {
+          role: "user",
+          content: options.prompt,
+        },
+      ],
     }),
   });
 
@@ -75,17 +77,26 @@ export async function generateImage(
   }
 
   const result = (await response.json()) as {
-    data: Array<{
-      url: string;
+    choices: Array<{
+      message: {
+        content: string;
+      };
     }>;
   };
 
-  if (!result.data || result.data.length === 0) {
+  if (!result.choices || result.choices.length === 0) {
     throw new Error("No image data returned from Nanobanana API");
   }
 
-  // Nanobanana returns the image URL directly
-  const imageUrl = result.data[0].url;
+  // Nanobanana returns the image URL in Markdown format: ![image](url)
+  const content = result.choices[0].message.content;
+  const urlMatch = content.match(/!\[image\]\((.+?)\)/);
+  
+  if (!urlMatch || !urlMatch[1]) {
+    throw new Error(`Failed to extract image URL from response: ${content}`);
+  }
+  
+  const imageUrl = urlMatch[1];
 
   // Download the image and upload to our S3
   const imageResponse = await fetch(imageUrl);

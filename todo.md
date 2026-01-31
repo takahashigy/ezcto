@@ -919,5 +919,12 @@
 ## Admin测试豁免
 - [x] 修改项目创建逻辑，admin账号创建的项目自动标记为paid
 - [x] admin项目自动设置paymentAmount为"0"，paymentCurrency为"TEST"
+- [x] 保存checkpoint
 - [ ] 测试admin账号创建项目并生成
-- [ ] 保存checkpoint
+
+## LaunchV2Preview UI风格统一
+- [x] 修改背景颜色为暖色调米黄色（#e8dcc4）
+- [x] 添加顶部导航栏（与Home一致，包含EZ logo）
+- [x] 调整进度条和卡片风格（深绿色主题、retro-border、复古阴影）
+- [x] 统一字体和按钮样式（font-mono、font-black、复古美学）
+- [ ] 测试并保存checkpoint

@@ -181,44 +181,54 @@ export default function LaunchV2Preview() {
 
   return (
     <div className="min-h-screen bg-[#e8dcc4]">
-      {/* Header */}
-      <header className="border-b-4 border-[#2d3e2d] bg-[#e8dcc4] sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      {/* Header - Consistent with Home page */}
+      <nav className="border-b-2 border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container py-4 flex items-center justify-between">
           <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Sparkles className="h-6 w-6 text-[#2d3e2d]" />
-              <span className="font-bold text-xl text-[#2d3e2d]">EZCTO</span>
+            <div className="flex items-center gap-3 cursor-pointer">
+              <img src="/EZ.png" alt="EZCTO" className="h-10" />
             </div>
           </Link>
-          <Link href="/dashboard">
-            <Button variant="ghost" className="text-[#2d3e2d]">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              t("launch.preview.backToDashboard")
+          
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard">
+              <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                {t("launch.preview.backToDashboard")}
+              </Button>
+            </Link>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsLogSidebarOpen(true)}
+              className="font-mono font-semibold border-2 border-[#2d3e2d]"
+            >
+              View Logs
             </Button>
-          </Link>
+          </div>
         </div>
-      </header>
+      </nav>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Project Info */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-black text-[#2d3e2d] mb-2">
+            <h1 className="text-4xl font-black font-mono text-[#2d3e2d] mb-2">
               {project.name}
             </h1>
-            <p className="text-lg text-[#2d3e2d]/70">
+            <p className="text-lg font-mono text-[#2d3e2d]/70">
               {project.ticker}
             </p>
           </div>
 
           {/* Overall Progress */}
-          <Card className="border-4 border-[#2d3e2d] shadow-[8px_8px_0px_0px_rgba(45,62,45,1)] mb-8">
+          <Card className="retro-border bg-[#f5f0e8] border-4 border-[#2d3e2d] shadow-[8px_8px_0px_0px_rgba(45,62,45,1)] mb-8">
             <CardHeader>
-              <CardTitle className="text-2xl text-[#2d3e2d]">
+              <CardTitle className="text-2xl font-black font-mono text-[#2d3e2d]">
                 {isCompleted ? "✅ Generation Complete!" : isFailed ? "❌ Generation Failed" : "🚀 Generating Your Project"}
               </CardTitle>
-              <CardDescription className="text-[#2d3e2d]/70">
+              <CardDescription className="text-[#2d3e2d]/70 font-mono">
                 {isCompleted
                   ? t("launch.preview.redirecting")
                   : isFailed
@@ -227,8 +237,13 @@ export default function LaunchV2Preview() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Progress value={progressPercent} className="h-4" />
-              <p className="text-sm text-[#2d3e2d]/60 mt-2 text-right">
+              <div className="relative h-6 bg-[#2d3e2d]/10 border-2 border-[#2d3e2d] overflow-hidden">
+                <div 
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] transition-all duration-500"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <p className="text-sm font-mono font-bold text-[#2d3e2d] mt-2 text-right">
                 {Math.round(progressPercent)}%
               </p>
             </CardContent>
@@ -239,7 +254,7 @@ export default function LaunchV2Preview() {
             {modules.map((module, index) => (
               <Card
                 key={module.name}
-                className={`border-4 border-[#2d3e2d] transition-all ${
+                className={`retro-border bg-[#f5f0e8] border-4 border-[#2d3e2d] transition-all ${
                   module.status === "in_progress"
                     ? "shadow-[8px_8px_0px_0px_rgba(45,62,45,1)] scale-105"
                     : "shadow-[4px_4px_0px_0px_rgba(45,62,45,1)]"
@@ -265,14 +280,14 @@ export default function LaunchV2Preview() {
 
                     {/* Module Info */}
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-[#2d3e2d] mb-1">
+                      <h3 className="text-xl font-black font-mono text-[#2d3e2d] mb-1">
                         {index + 1}. {module.name}
                       </h3>
-                      <p className="text-sm text-[#2d3e2d]/70">
+                      <p className="text-sm font-mono text-[#2d3e2d]/70">
                         {module.description}
                       </p>
                       {module.status === "in_progress" && (
-                        <p className="text-sm text-[#2d3e2d] font-semibold mt-2">
+                        <p className="text-sm font-mono text-[#2d3e2d] font-bold mt-2">
                           ⏳ In progress...
                         </p>
                       )}
@@ -285,19 +300,19 @@ export default function LaunchV2Preview() {
 
           {/* Deployment URL */}
           {project.deploymentUrl && (
-            <Card className="border-4 border-[#2d3e2d] shadow-[8px_8px_0px_0px_rgba(45,62,45,1)] mt-8">
+            <Card className="retro-border bg-[#f5f0e8] border-4 border-[#2d3e2d] shadow-[8px_8px_0px_0px_rgba(45,62,45,1)] mt-8">
               <CardHeader>
-                <CardTitle className="text-2xl text-[#2d3e2d]">🌐 t("launch.preview.websiteLive")</CardTitle>
+                <CardTitle className="text-2xl font-black font-mono text-[#2d3e2d]">🌐 {t("launch.preview.websiteLive")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <a
                   href={project.deploymentUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-lg text-[#2d3e2d] hover:underline"
+                  className="flex items-center gap-2 text-lg font-mono font-semibold text-[#2d3e2d] hover:underline break-all"
                 >
                   {project.deploymentUrl}
-                  <ExternalLink className="h-5 w-5" />
+                  <ExternalLink className="h-5 w-5 flex-shrink-0" />
                 </a>
               </CardContent>
             </Card>

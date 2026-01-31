@@ -707,3 +707,7 @@
 - [x] 修改Ticker Symbol的placeholder为"EZCTO"
 - [x] 添加Website URL自动https://前缀功能
 - [x] 测试修改
+
+## 连接Launch到新生成流程
+- [x] 修改Launch页面调用trpc.launch.trigger而不是旧的projects.create
+- [ ] 测试完整流程（Claude分析 + Nanobanana图片 + 网站代码 + 部署）

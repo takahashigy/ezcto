@@ -67,15 +67,14 @@ export default function Launch() {
   const previewAnalysisMutation = trpc.projects.previewAnalysis.useMutation();
   const generatePreviewMutation = trpc.projects.generatePreview.useMutation();
   const enhanceDescriptionMutation = trpc.ai.enhanceDescription.useMutation();
-  const createProjectMutation = trpc.projects.create.useMutation({
-    onSuccess: (data) => {
-      toast.success("Project created! Starting generation...");
+  const createProjectMutation = trpc.projects.create.useMutation();
+  const launchTriggerMutation = trpc.launch.trigger.useMutation({
+    onSuccess: () => {
+      toast.success("Generation started! You can monitor progress in real-time.");
       setIsGenerating(false);
-      // Navigate to preview page
-      setLocation(`/launch/preview?projectId=${data.projectId}`);
     },
     onError: (error) => {
-      toast.error(`Failed to create project: ${error.message}`);
+      toast.error(`Failed to start generation: ${error.message}`);
       setIsGenerating(false);
     },
   });
@@ -293,17 +292,27 @@ export default function Launch() {
     if (!uploadedImageUrl || !analysis) return;
 
     setIsGenerating(true);
-    toast.info("Creating your project... This will take 8-12 minutes");
+    toast.info("Creating your project... This will take 3-5 minutes");
 
     try {
-      await createProjectMutation.mutateAsync({
+      // Step 1: Create project record
+      const projectData = await createProjectMutation.mutateAsync({
         name: formData.projectName,
         ticker: formData.ticker,
         description: formData.description,
         userImageUrl: uploadedImageUrl,
       });
+
+      // Step 2: Navigate to preview page
+      setLocation(`/launch/preview?projectId=${projectData.projectId}`);
+
+      // Step 3: Trigger the full generation pipeline (async, runs in background)
+      await launchTriggerMutation.mutateAsync({
+        projectId: projectData.projectId,
+      });
     } catch (error) {
       console.error("[Launch] Generation error:", error);
+      toast.error(`Failed to start generation: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsGenerating(false);
     }
   };

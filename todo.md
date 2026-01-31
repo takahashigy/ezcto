@@ -711,3 +711,11 @@
 ## 连接Launch到新生成流程
 - [x] 修改Launch页面调用trpc.launch.trigger而不是旧的projects.create
 - [ ] 测试完整流程（Claude分析 + Nanobanana图片 + 网站代码 + 部署）
+
+## 创建Launch V2（新的完整生成流程）
+- [x] 创建LaunchV2.tsx页面
+- [x] 创建LaunchV2Preview.tsx页面（实时进度显示）
+- [x] 在App.tsx添加路由
+- [x] 在导航栏添加Launch V2按钮
+- [ ] 测试完整流程（Claude分析 + Nanobanana图片 + 网站代码 + 部署）
+- [ ] 测试通过后删除旧Launch

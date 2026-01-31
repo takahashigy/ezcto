@@ -560,4 +560,9 @@
 - [x] 添加"Download Marketing Kit"按钮（打包PayDex Banner、X Banner、Logo）
 - [x] 优化视觉层次和信息架构
 - [x] 测试优化后的Dashboard功能
+- [x] 保存checkpoint
+
+## 统一Launch页面和Dashboard的绿色色调
+- [x] 检查当前的颜色定义（index.css中的primary颜色）
+- [x] 统一Launch页面的绿色文字颜色
 - [ ] 保存checkpoint

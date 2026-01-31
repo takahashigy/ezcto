@@ -382,12 +382,12 @@ export default function Launch() {
         <div className="max-w-5xl mx-auto">
           {/* Page Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FF00] text-black font-mono text-sm font-bold mb-6 rounded">
-              <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-mono text-sm font-bold mb-6 rounded">
+              <div className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse" />
               SYSTEM ONLINE
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-[#2d3e2d] mb-4 font-mono">
-              Launch Your <span className="text-[#00FF00]">Meme Project</span>
+              Launch Your <span className="text-primary">Meme Project</span>
             </h1>
             <p className="text-lg text-[#2d3e2d]/80 mb-2">
               Upload your meme, tell us about it, and get a complete website in 60 seconds.

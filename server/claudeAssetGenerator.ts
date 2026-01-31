@@ -142,6 +142,7 @@ export async function generateAssetsWithClaude(
     projectName,
     ticker,
     description,
+    language: analysis.language, // Pass detected language
     brandStrategy: analysis.brandStrategy,
     colorScheme: analysis.colorScheme,
     websiteContent: analysis.websiteContent,

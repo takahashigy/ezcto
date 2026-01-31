@@ -461,3 +461,12 @@
 - [x] 更新CryptoPayment组件添加钱包选择UI
 - [x] 测试所有钱包的连接和支付功能
 - [x] 保存checkpoint
+
+## 全局钱包连接按钮
+- [x] 创建全局WalletConnect组件
+- [x] 在Home页面顶部导航栏添加钱包按钮
+- [x] 在Dashboard页面添加钱包按钮
+- [x] 在Launch页面添加钱包按钮
+- [x] 在ProjectDetails页面添加钱包按钮
+- [x] 测试所有页面的钱包连接功能
+- [x] 保存checkpoint

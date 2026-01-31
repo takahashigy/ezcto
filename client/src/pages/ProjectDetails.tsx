@@ -10,6 +10,7 @@ import { useState } from "react";
 import { DeploymentPaywall } from "@/components/DeploymentPaywall";
 import { downloadProjectAsZip } from "@/utils/zipDownload";
 import { toast } from "sonner";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 export default function ProjectDetails() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -118,6 +119,7 @@ export default function ProjectDetails() {
             <span className="text-sm text-muted-foreground font-mono">
               {user?.email || user?.name}
             </span>
+            <WalletConnectButton />
           </div>
         </div>
       </nav>

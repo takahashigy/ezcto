@@ -5,6 +5,7 @@ import { Link } from "wouter";
 import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -52,6 +53,7 @@ export default function Home() {
                 </a>
               </>
             )}
+            <WalletConnectButton />
             <LanguageSwitcher />
           </div>
         </div>

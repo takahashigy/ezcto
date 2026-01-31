@@ -12,6 +12,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
 import { WebsitePreview } from "@/components/WebsitePreview";
 
 interface ProjectAnalysis {
@@ -340,6 +341,7 @@ export default function Launch() {
                 Dashboard
               </Button>
             </Link>
+            <WalletConnectButton />
             <LanguageSwitcher />
           </div>
         </div>

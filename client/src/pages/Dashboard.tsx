@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { playSuccessSound } from "@/utils/notificationSound";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -98,6 +99,7 @@ export default function Dashboard() {
                 {t('nav.home')}
               </Button>
             </Link>
+            <WalletConnectButton />
             <LanguageSwitcher />
           </div>
         </div>

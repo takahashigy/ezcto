@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, CheckCircle2, XCircle, ArrowLeft, ExternalLink, Sparkles } from "lucide-react";
 import { LiveLogSidebar } from "@/components/LiveLogSidebar";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type ModuleStatus = "pending" | "in_progress" | "completed" | "failed";
 
@@ -19,6 +20,7 @@ interface ModuleProgress {
 
 export default function LaunchV2Preview() {
   const { user, isAuthenticated } = useAuth();
+  const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
   const [projectId, setProjectId] = useState<number | null>(null);
   const [isLogSidebarOpen, setIsLogSidebarOpen] = useState(false);
@@ -36,7 +38,7 @@ export default function LaunchV2Preview() {
     if (id) {
       setProjectId(parseInt(id));
     } else {
-      toast.error("No project ID provided");
+      toast.error(language === 'zh' ? '未提供项目ID' : 'No project ID provided');
       setLocation("/dashboard");
     }
   }, [setLocation]);
@@ -99,24 +101,24 @@ export default function LaunchV2Preview() {
 
   const modules: ModuleProgress[] = [
     {
-      name: "Analysis",
+      name: t('launch.preview.analysis'),
       status: getModuleStatus(0),
-      description: "AI analyzing your project and determining design style",
+      description: t('launch.preview.analysisDesc'),
     },
     {
-      name: "Images",
+      name: t('launch.preview.images'),
       status: getModuleStatus(1),
-      description: "Generating 6 unique images (logo, banner, PFP, poster, website, character)",
+      description: t('launch.preview.imagesDesc'),
     },
     {
-      name: "Website",
+      name: t('launch.preview.website'),
       status: getModuleStatus(2),
-      description: "Creating complete website with your branding",
+      description: t('launch.preview.websiteDesc'),
     },
     {
-      name: "Deployment",
+      name: t('launch.preview.deployment'),
       status: project?.deploymentUrl ? "completed" : getModuleStatus(3),
-      description: "Deploying to public URL",
+      description: t('launch.preview.deploymentDesc'),
     },
   ];
 
@@ -174,7 +176,7 @@ export default function LaunchV2Preview() {
           <Link href="/dashboard">
             <Button variant="ghost" className="text-[#2d3e2d]">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
+              t("launch.preview.backToDashboard")
             </Button>
           </Link>
         </div>
@@ -201,10 +203,10 @@ export default function LaunchV2Preview() {
               </CardTitle>
               <CardDescription className="text-[#2d3e2d]/70">
                 {isCompleted
-                  ? "Your project is ready! Redirecting to project details..."
+                  ? t("launch.preview.redirecting")
                   : isFailed
-                  ? "Something went wrong. Please try again."
-                  : `${completedModules} of ${totalModules} modules completed`}
+                  ? t("launch.preview.failedDesc")
+                  : `${completedModules} ${t("launch.preview.completedOf")} ${totalModules} ${t("launch.preview.modulesCompleted")}`}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -268,7 +270,7 @@ export default function LaunchV2Preview() {
           {project.deploymentUrl && (
             <Card className="border-4 border-[#2d3e2d] shadow-[8px_8px_0px_0px_rgba(45,62,45,1)] mt-8">
               <CardHeader>
-                <CardTitle className="text-2xl text-[#2d3e2d]">🌐 Your Website is Live!</CardTitle>
+                <CardTitle className="text-2xl text-[#2d3e2d]">🌐 t("launch.preview.websiteLive")</CardTitle>
               </CardHeader>
               <CardContent>
                 <a
@@ -292,7 +294,7 @@ export default function LaunchV2Preview() {
                 onClick={() => setLocation(`/project/${projectId}`)}
                 className="bg-[#2d3e2d] hover:bg-[#2d3e2d]/90 text-[#e8dcc4] font-bold border-4 border-[#2d3e2d] shadow-[4px_4px_0px_0px_rgba(45,62,45,1)]"
               >
-                View Project Details
+                t("launch.preview.viewDetails")
               </Button>
               {project.deploymentUrl && (
                 <Button
@@ -302,7 +304,7 @@ export default function LaunchV2Preview() {
                   className="border-4 border-[#2d3e2d] shadow-[4px_4px_0px_0px_rgba(45,62,45,1)]"
                 >
                   <a href={project.deploymentUrl} target="_blank" rel="noopener noreferrer">
-                    Visit Website
+                    t("launch.preview.visitWebsite")
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </a>
                 </Button>
@@ -317,7 +319,7 @@ export default function LaunchV2Preview() {
                 onClick={() => setLocation("/launch-v2")}
                 className="bg-[#2d3e2d] hover:bg-[#2d3e2d]/90 text-[#e8dcc4] font-bold border-4 border-[#2d3e2d] shadow-[4px_4px_0px_0px_rgba(45,62,45,1)]"
               >
-                Try Again
+                t("launch.preview.tryAgain")
               </Button>
             </div>
           )}

@@ -16,7 +16,7 @@ import { WalletConnectButton } from "@/components/WalletConnectButton";
 
 export default function LaunchV2() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
   
   // Form state
@@ -50,13 +50,13 @@ export default function LaunchV2() {
 
     // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image size must be less than 10MB");
+      toast.error(t('launch.form.imageSizeError'));
       return;
     }
 
     // Check file type
     if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
+      toast.error(language === 'zh' ? '请上传图片文件' : 'Please upload an image file');
       return;
     }
 
@@ -69,31 +69,31 @@ export default function LaunchV2() {
     };
     reader.readAsDataURL(file);
 
-    toast.success("Image selected! It will be uploaded when you submit.");
+    toast.success(language === 'zh' ? '图片已选择！提交时将自动上传' : 'Image selected! It will be uploaded when you submit.');
   };
 
   const removeImage = () => {
     setUploadedImage(null);
     setImagePreview("");
     setUploadedImageUrl("");
-    toast.info("Image removed");
+    toast.info(language === 'zh' ? '图片已移除' : 'Image removed');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.projectName || !formData.ticker || !formData.description) {
-      toast.error("Please fill in Project Name, Ticker, and Description");
+      toast.error(language === 'zh' ? '请填写项目名称、Ticker和描述' : 'Please fill in Project Name, Ticker, and Description');
       return;
     }
 
     if (formData.description.length < 20) {
-      toast.error("Description must be at least 20 characters");
+      toast.error(language === 'zh' ? '描述至少需要20个字符' : 'Description must be at least 20 characters');
       return;
     }
 
     setIsGenerating(true);
-    toast.info("🚀 Starting AI generation... This will take 3-5 minutes");
+    toast.info(language === 'zh' ? '🚀 开始AI生成... 预计需要3-5分钟' : '🚀 Starting AI generation... This will take 3-5 minutes');
 
     try {
       // Step 1: Upload image if provided
@@ -214,19 +214,19 @@ export default function LaunchV2() {
               </span>
             </div>
             <h1 className="text-5xl font-bold mb-4">
-              Launch Your Meme Project
+              {t('launch.v2.page.title')}
             </h1>
             <p className="text-xl text-muted-foreground">
-              Complete AI automation: Analysis → Images → Website → Deployment
+              {t('launch.v2.page.subtitle')}
             </p>
           </div>
 
           {/* Form Card */}
           <Card className="module-card">
             <CardHeader>
-              <CardTitle className="text-2xl">Project Details</CardTitle>
+              <CardTitle className="text-2xl">{t('launch.v2.page.formTitle')}</CardTitle>
               <CardDescription>
-                Fill in your project information. Our AI will handle the rest.
+                {language === 'zh' ? '填写项目信息，AI将处理其余部分' : 'Fill in your project information. Our AI will handle the rest.'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -234,13 +234,13 @@ export default function LaunchV2() {
                 {/* Project Name */}
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-foreground font-semibold">
-                    Project Name *
+                    {t('launch.v2.form.projectName')} *
                   </Label>
                   <Input
                     id="name"
                     value={formData.projectName}
                     onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
-                    placeholder="EZCTO"
+                    placeholder={t("launch.v2.form.projectNamePlaceholder")}
                     className="border-2 border-border"
                     disabled={isGenerating}
                     required
@@ -250,13 +250,13 @@ export default function LaunchV2() {
                 {/* Ticker */}
                 <div className="space-y-2">
                   <Label htmlFor="ticker" className="text-foreground font-semibold">
-                    Ticker Symbol *
+                    {t('launch.v2.form.ticker')} *
                   </Label>
                   <Input
                     id="ticker"
                     value={formData.ticker}
                     onChange={(e) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
-                    placeholder="EZCTO"
+                    placeholder={t("launch.v2.form.projectNamePlaceholder")}
                     className="border-2 border-border font-mono"
                     disabled={isGenerating}
                     maxLength={10}
@@ -273,7 +273,7 @@ export default function LaunchV2() {
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe your meme project... (minimum 20 characters)"
+                    placeholder={t("launch.v2.form.descriptionPlaceholder")}
                     className="border-2 border-border min-h-[120px]"
                     disabled={isGenerating}
                     required
@@ -286,7 +286,7 @@ export default function LaunchV2() {
                 {/* Character Image Upload */}
                 <div className="space-y-2">
                   <Label htmlFor="meme-image" className="text-foreground font-semibold">
-                    Character Image (Optional)
+                    {t("launch.v2.form.characterImage")}
                   </Label>
                   <p className="text-sm text-foreground/70 mb-2">
                     Upload a character image for AI to analyze and generate themed assets
@@ -340,7 +340,7 @@ export default function LaunchV2() {
                 {/* Tokenomics */}
                 <div className="space-y-2">
                   <Label htmlFor="tokenomics" className="text-foreground">
-                    Tokenomics (Optional)
+                    {t("launch.v2.form.tokenomics")}
                   </Label>
                   <Textarea
                     id="tokenomics"
@@ -355,7 +355,7 @@ export default function LaunchV2() {
                 {/* Contract Address */}
                 <div className="space-y-2">
                   <Label htmlFor="contractAddress" className="text-foreground font-semibold">
-                    Contract Address (CA) - Optional
+                    {t("launch.v2.form.contractAddress")}
                   </Label>
                   <Input
                     id="contractAddress"
@@ -372,7 +372,7 @@ export default function LaunchV2() {
 
                 {/* Social Links */}
                 <div className="space-y-4">
-                  <Label className="text-foreground font-semibold">Social Links (Optional)</Label>
+                  <Label className="text-foreground font-semibold">{t("launch.v2.form.socialLinks")}</Label>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="twitter" className="text-foreground">Twitter</Label>

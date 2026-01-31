@@ -817,3 +817,10 @@
 - [x] 扩展SSE支持category和level字段
 - [x] 更新launch.ts中的broadcastProgress调用
 - [ ] 保存checkpoint
+
+## Launch页面多语言支持
+- [x] 检查现有的多语言系统（LanguageContext）
+- [x] 为LaunchV2页面添加中英文翻译
+- [x] 为LaunchV2Preview页面添加中英文翻译
+- [x] 替换所有硬编码文字为多语言函数
+- [ ] 保存checkpoint

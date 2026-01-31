@@ -66,6 +66,11 @@ export const assets = mysqlTable("assets", {
   assetType: mysqlEnum("assetType", [
     "logo",
     "banner",
+    "paydex_banner",
+    "x_banner",
+    "hero_background",
+    "feature_icon",
+    "community_scene",
     "pfp",
     "poster",
     "narrative",

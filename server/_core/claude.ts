@@ -1,10 +1,11 @@
 /**
  * Claude API integration for intelligent coordination
  * 
- * This module uses Claude 3.7 Sonnet to:
- * 1. Analyze user input and extract key information
- * 2. Generate optimized prompts for Nanobanana image generation
- * 3. Generate website HTML/CSS/JavaScript code
+ * This module uses Claude Opus 4.5 and Haiku 4.5 to:
+ * 1. Analyze user input and extract key information (Opus)
+ * 2. Generate optimized prompts for Nanobanana image generation (Opus)
+ * 3. Generate website HTML/CSS/JavaScript code (Opus)
+ * 4. Enhance user descriptions (Haiku)
  */
 
 export type ClaudeMessage = {
@@ -85,6 +86,7 @@ export async function callClaude(
 
 /**
  * Analyze user input and generate structured project information
+ * Uses Claude Opus 4.5 for high-quality brand strategy analysis
  */
 export async function analyzeProjectInput(input: {
   projectName: string;
@@ -92,51 +94,94 @@ export async function analyzeProjectInput(input: {
   description: string;
   memeImageUrl?: string;
 }): Promise<{
-  bannerPrompt: string;
-  logoPrompt: string;
-  posterPrompt: string;
-  websiteTheme: {
-    primaryColor: string;
-    secondaryColor: string;
-    style: string;
+  // Brand strategy
+  brandStrategy: {
+    personality: string;
+    targetAudience: string;
+    coreMessage: string;
+    visualStyle: string;
   };
-  contentSuggestions: {
+  // Color scheme
+  colorScheme: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  // Image generation prompts
+  paydexBannerPrompt: string;
+  xBannerPrompt: string;
+  logoPrompt: string;
+  heroBackgroundPrompt: string;
+  featureIconPrompts: string[];
+  communityScenePrompt: string;
+  // Website content
+  websiteContent: {
     headline: string;
     tagline: string;
+    about: string;
     features: string[];
+    tokenomics: {
+      totalSupply: string;
+      distribution: string;
+    };
   };
 }> {
-  const prompt = `You are an expert in meme coin branding and web design. Analyze the following meme project information and generate optimized prompts and design recommendations.
+  const prompt = `You are a world-class meme coin branding strategist and visual designer. Your mission is to analyze a meme cryptocurrency project and create a comprehensive brand strategy with optimized image generation prompts.
 
 Project Information:
 - Name: ${input.projectName}
-- Ticker: ${input.ticker}
+- Ticker: ${input.ticker} (display WITHOUT $ symbol)
 - Description: ${input.description}
-${input.memeImageUrl ? `- Meme Image: ${input.memeImageUrl}` : ""}
+${input.memeImageUrl ? `- Meme Image Reference: ${input.memeImageUrl}` : ""}
 
-Please provide:
-1. A detailed prompt for generating a banner image (1200x400px, vibrant, eye-catching)
-2. A detailed prompt for generating a logo (512x512px, clean, memorable)
-3. A detailed prompt for generating a poster (800x1200px, promotional, engaging)
-4. Website theme recommendations (colors and style)
-5. Content suggestions (headline, tagline, key features)
+Your task is to provide a complete brand strategy and image generation prompts. Focus on creating a cohesive visual identity that will drive conversions.
 
-Return your response in JSON format:
+**CRITICAL REQUIREMENTS FOR BANNER PROMPTS:**
+- PayDex and X/Twitter banners MUST have the ticker "${input.ticker}" (WITHOUT $ symbol) as the most prominent, centered text element
+- Text must be bold, highly readable, with strong contrast against background
+- Use simple backgrounds that don't compete with text visibility
+- Specify exact text placement: "Large bold text '${input.ticker}' centered in the composition"
+
+Please provide your analysis in the following JSON format:
 {
-  "bannerPrompt": "...",
-  "logoPrompt": "...",
-  "posterPrompt": "...",
-  "websiteTheme": {
-    "primaryColor": "#hex",
-    "secondaryColor": "#hex",
-    "style": "modern/playful/professional/etc"
+  "brandStrategy": {
+    "personality": "Brief description of brand personality (playful/professional/rebellious/etc)",
+    "targetAudience": "Target demographic and psychographic profile",
+    "coreMessage": "The single most important message this project conveys",
+    "visualStyle": "Overall visual aesthetic (cartoon/realistic/pixel-art/cyberpunk/etc)"
   },
-  "contentSuggestions": {
-    "headline": "...",
-    "tagline": "...",
-    "features": ["...", "...", "..."]
+  "colorScheme": {
+    "primary": "#hex color for main brand color",
+    "secondary": "#hex color for secondary elements",
+    "accent": "#hex color for CTAs and highlights"
+  },
+  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
+  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. MUST include: 'Large bold text ${input.ticker} centered prominently, social media header style, leave left 200px space for profile picture, high contrast for text visibility, [visual style details]'",
+  "logoPrompt": "Detailed prompt for 512x512 logo (clean, memorable, works at small sizes)",
+  "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
+  "featureIconPrompts": [
+    "Prompt for first 256x256 feature icon (simple, iconic, matches brand style)",
+    "Prompt for second 256x256 feature icon",
+    "Prompt for third 256x256 feature icon"
+  ],
+  "communityScenePrompt": "Detailed prompt for 800x600 community scene (shows community vibe, welcoming, energetic)",
+  "websiteContent": {
+    "headline": "Catchy main headline for hero section",
+    "tagline": "Brief memorable tagline",
+    "about": "2-3 sentence about section describing the project",
+    "features": [
+      "First key feature or benefit",
+      "Second key feature or benefit",
+      "Third key feature or benefit"
+    ],
+    "tokenomics": {
+      "totalSupply": "Total supply amount (e.g., '1,000,000,000')",
+      "distribution": "Brief distribution summary (e.g., '50% Liquidity, 30% Community, 20% Team')"
+    }
   }
-}`;
+}
+
+Remember: The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts. This is non-negotiable for marketing effectiveness.`;
 
   const opusApiKey = process.env.CLAUDE_OPUS_API_KEY;
   
@@ -152,7 +197,7 @@ Return your response in JSON format:
   ], {
     model: "claude-opus-4-5-20251101", // Use Opus for high-quality analysis
     temperature: 0.8, // Higher temperature for creativity
-    maxTokens: 2048,
+    maxTokens: 3072,
     apiKey: opusApiKey, // Use dedicated Opus API key
   });
 
@@ -167,56 +212,153 @@ Return your response in JSON format:
 
 /**
  * Generate website HTML/CSS/JavaScript code
+ * Uses Claude Opus 4.5 for high-quality code generation
  */
 export async function generateWebsiteCode(input: {
   projectName: string;
   ticker: string;
   description: string;
-  theme: {
-    primaryColor: string;
-    secondaryColor: string;
-    style: string;
+  brandStrategy: {
+    personality: string;
+    visualStyle: string;
   };
-  content: {
+  colorScheme: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  websiteContent: {
     headline: string;
     tagline: string;
+    about: string;
     features: string[];
+    tokenomics: {
+      totalSupply: string;
+      distribution: string;
+    };
   };
-  bannerUrl: string;
+  // All generated image URLs
+  paydexBannerUrl: string;
+  xBannerUrl: string;
   logoUrl: string;
-  posterUrl: string;
+  heroBackgroundUrl: string;
+  featureIconUrls: string[];
+  communitySceneUrl: string;
 }): Promise<string> {
-  const prompt = `You are an expert web developer. Generate a complete, modern, responsive single-page website for a meme coin project.
+  const prompt = `You are a world-class full-stack developer specializing in high-conversion meme coin landing pages. Your mission is to create a stunning, professional single-page website that maximizes user engagement and drives action.
 
-Project Information:
+**YOUR IDENTITY & MISSION:**
+You are not just generating code—you are crafting a marketing masterpiece. Every pixel, every animation, every word placement must work together to create an irresistible user experience that converts visitors into community members.
+
+**PROJECT INFORMATION:**
 - Name: ${input.projectName}
 - Ticker: ${input.ticker}
 - Description: ${input.description}
-- Headline: ${input.content.headline}
-- Tagline: ${input.content.tagline}
-- Features: ${input.content.features.join(", ")}
+- Brand Personality: ${input.brandStrategy.personality}
+- Visual Style: ${input.brandStrategy.visualStyle}
 
-Design Theme:
-- Primary Color: ${input.theme.primaryColor}
-- Secondary Color: ${input.theme.secondaryColor}
-- Style: ${input.theme.style}
+**DESIGN SYSTEM:**
+Colors:
+- Primary: ${input.colorScheme.primary}
+- Secondary: ${input.colorScheme.secondary}
+- Accent: ${input.colorScheme.accent}
 
-Assets:
-- Banner: ${input.bannerUrl}
-- Logo: ${input.logoUrl}
-- Poster: ${input.posterUrl}
+Content:
+- Headline: ${input.websiteContent.headline}
+- Tagline: ${input.websiteContent.tagline}
+- About: ${input.websiteContent.about}
+- Features: ${input.websiteContent.features.join(", ")}
+- Total Supply: ${input.websiteContent.tokenomics.totalSupply}
+- Distribution: ${input.websiteContent.tokenomics.distribution}
 
-Requirements:
-1. Modern, responsive design that works on mobile and desktop
-2. Use the provided colors and style
-3. Include sections: Hero (with banner), About, Features, Tokenomics, Roadmap, Community
-4. Add smooth scrolling and animations
-5. Include social media links placeholders
-6. Use modern CSS (flexbox/grid) and vanilla JavaScript (no frameworks)
-7. Make it visually stunning and professional
-8. Optimize for fast loading
+**AVAILABLE VISUAL ASSETS (use ALL of them intelligently):**
+1. PayDex Banner (1500x500): ${input.paydexBannerUrl}
+2. X/Twitter Banner (1200x480): ${input.xBannerUrl}
+3. Logo (512x512): ${input.logoUrl}
+4. Hero Background (1920x1080): ${input.heroBackgroundUrl}
+5. Feature Icons (256x256): ${input.featureIconUrls.join(", ")}
+6. Community Scene (800x600): ${input.communitySceneUrl}
 
-Generate a complete HTML file with inline CSS and JavaScript. Return ONLY the HTML code, no explanations.`;
+**MANDATORY STRUCTURE & IMAGE USAGE:**
+
+1. **Hero Section** (full viewport height)
+   - Background: Use heroBackgroundUrl with overlay
+   - Logo: Display logoUrl prominently
+   - Headline + Tagline
+   - Primary CTA button: "Buy ${input.ticker}"
+   - Secondary CTA: "Join Community"
+
+2. **About Section**
+   - Use communitySceneUrl as a decorative element
+   - Display the about text
+   - Show ticker and total supply
+
+3. **Features Section**
+   - Create 3 feature cards
+   - Each card uses one icon from featureIconUrls
+   - Display feature text from websiteContent.features
+
+4. **Tokenomics Section**
+   - Visual distribution chart (use CSS, not canvas)
+   - Total supply and distribution info
+
+5. **Marketing Assets Gallery Section**
+   - Display PayDex banner with download button
+   - Display X/Twitter banner with download button
+   - Add "Download Marketing Kit" button that downloads both
+
+6. **Community Section**
+   - Social media links (Twitter, Telegram, Discord placeholders)
+   - Final CTA
+
+**TECHNICAL REQUIREMENTS:**
+
+1. **Responsive Design**
+   - Mobile-first approach
+   - Breakpoints: 640px, 768px, 1024px, 1280px
+   - All images must be responsive
+
+2. **Performance**
+   - Lazy load images below the fold
+   - Optimize CSS (no unused rules)
+   - Minimize JavaScript
+
+3. **Animations**
+   - Smooth scroll behavior
+   - Fade-in on scroll for sections
+   - Hover effects on buttons and cards
+   - Subtle parallax on hero background
+
+4. **Interactivity**
+   - Copy contract address on click
+   - Download buttons for marketing assets
+   - Smooth navigation
+
+5. **SEO & Meta**
+   - Proper meta tags (title, description, og:image)
+   - Semantic HTML5
+   - Structured data (JSON-LD)
+
+**STYLE GUIDELINES:**
+
+- Match the brand personality (${input.brandStrategy.personality})
+- Follow the visual style (${input.brandStrategy.visualStyle})
+- Use the provided color scheme consistently
+- Typography: Choose fonts that match the visual style
+- Spacing: Generous whitespace, clear visual hierarchy
+- CTAs: Make them impossible to miss
+
+**OUTPUT FORMAT:**
+
+Generate a complete, production-ready HTML file with:
+- Inline CSS in <style> tags
+- Inline JavaScript in <script> tags
+- All images referenced by URL
+- No external dependencies (except fonts from Google Fonts if needed)
+
+Return ONLY the complete HTML code, starting with <!DOCTYPE html> and ending with </html>. No explanations, no markdown code blocks, just pure HTML.
+
+Create a website that doesn't just look good—it CONVERTS. Make every visitor want to join this community.`;
 
   const opusApiKey = process.env.CLAUDE_OPUS_API_KEY;
   
@@ -251,7 +393,7 @@ Generate a complete HTML file with inline CSS and JavaScript. Return ONLY the HT
 }
 
 /**
- * Enhance user's project description using Claude Sonnet 3.7
+ * Enhance user's project description using Claude Haiku 4.5
  * This provides better input for Claude Opus 4.5 to generate high-quality assets
  */
 export async function enhanceDescription(input: {

@@ -71,6 +71,13 @@
       "when": 1769823236493,
       "tag": "0009_normal_sentry",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1769843041714,
+      "tag": "0010_adorable_sandman",
+      "breakpoints": true
     }
   ]
 }

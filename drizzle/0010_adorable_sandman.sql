@@ -1,0 +1,1 @@
+ALTER TABLE `assets` MODIFY COLUMN `assetType` enum('logo','banner','paydex_banner','x_banner','hero_background','feature_icon','community_scene','pfp','poster','narrative','whitepaper','tweet','website') NOT NULL;

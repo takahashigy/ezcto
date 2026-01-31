@@ -17,8 +17,18 @@
  */
 import { storagePut } from "server/storage";
 
+export type ImageSize = 
+  | "512x512"      // Logo
+  | "1024x1024"    // Default square
+  | "1500x500"     // PayDex Banner
+  | "1200x480"     // X/Twitter Banner
+  | "1920x1080"    // Hero Background
+  | "256x256"      // Feature Icons
+  | "800x600";     // Community Scene
+
 export type GenerateImageOptions = {
   prompt: string;
+  size?: ImageSize;
   originalImages?: Array<{
     url?: string;
     b64Json?: string;
@@ -52,7 +62,7 @@ export async function generateImage(
       model: "gemini-3-pro-image-preview-2k",
       prompt: options.prompt,
       n: 1,
-      size: "1024x1024",
+      size: options.size || "1024x1024",
       response_format: "url", // Changed from b64_json to url
     }),
   });

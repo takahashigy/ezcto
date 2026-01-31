@@ -502,3 +502,53 @@
 - [x] generateWebsiteCode使用Opus 4.5（高质量）
 - [x] 测试两个模型各自的功能
 - [x] 保存checkpoint
+
+## 多尺寸Banner和网站装饰素材生成系统
+- [ ] 扩展Nanobanana图片生成类型和尺寸支持
+  - [ ] 添加PayDex Banner (1500x500)
+  - [ ] 添加X/Twitter Banner (1200x480)
+  - [ ] 添加Hero Background (1920x1080)
+  - [ ] 添加Feature Icons (256x256 × 3-4张)
+  - [ ] 添加Community Scene (800x600)
+  - [ ] 保留原有Logo (512x512)和Poster (1080x1350)
+- [ ] 优化Claude Haiku的品牌策略分析能力
+  - [ ] 增强品牌个性分析（personality、targetAudience、coreMessage）
+  - [ ] 添加视觉风格定位输出（visualStyle）
+  - [ ] 添加色彩方案生成（primary、secondary、accent）
+  - [ ] 添加网站内容策略（headline、tagline、features、tokenomics）
+- [ ] 重写Claude Opus的系统提示词和网站生成逻辑
+  - [ ] 定义Opus为"精通Meme币营销的全栈开发大师"
+  - [ ] 添加智能布局设计能力（根据品牌个性选择布局风格）
+  - [ ] 添加视觉层次构建能力（合理分配7-8张图片位置）
+  - [ ] 添加交互体验优化（平滑滚动、懒加载、CTA按钮）
+  - [ ] 添加性能和SEO优化（meta标签、结构化数据）
+  - [ ] 提供明确的图片使用规则（哪张图用在哪个区块）
+- [ ] 更新数据库schema存储多类型图片资产
+  - [ ] 添加paydexBannerUrl字段
+  - [ ] 添加xBannerUrl字段
+  - [ ] 添加heroBackgroundUrl字段
+  - [ ] 添加featureIconsUrls字段（JSON数组）
+  - [ ] 添加communitySceneUrl字段
+- [ ] 实现营销素材打包下载功能
+  - [ ] 在网站底部添加"Download Marketing Kit"按钮
+  - [ ] 实现ZIP打包所有Banner、Logo、Poster
+  - [ ] 添加使用指南文档（哪张图用于什么场景）
+- [x] 测试完整生成流程并验证图片质量
+  - [ ] 测试7-8张图片的并行生成
+  - [ ] 验证各尺寸图片的清晰度和文字可读性
+  - [ ] 测试网站对所有图片的智能使用
+  - [ ] 测试营销素材下载功能
+- [ ] 编写vitest测试覆盖新功能
+- [ ] 保存checkpoint
+
+## 多尺寸Banner和网站装饰素材生成系统
+- [x] 扩展Nanobanana图片生成类型和尺寸支持（PayDex Banner 1500x500、X Banner 1200x480、Hero Background 1920x1080、Feature Icons 256x256、Community Scene 800x600）
+- [x] 优化Claude Haiku的品牌策略分析能力（brandStrategy、colorScheme、websiteContent）
+- [x] 重写Claude Opus的系统提示词（赋予明确的身份、使命、图片使用规则）
+- [x] 确保PayDex Banner和X Banner的Ticker文字清晰居中（无$符号）
+- [x] 更新数据库schema添加新的图片资产类型（paydex_banner、x_banner、hero_background、feature_icon、community_scene）
+- [x] 重构launch.ts使用新的Claude+Nanobanana多模型架构
+- [x] 更新routers.ts中的generateWebsite mutation适配新的资产结构
+- [x] 实现营销素材打包下载功能（已有downloadProjectZip API）
+- [x] 测试完整生成流程并验证图片质量
+- [ ] 向用户交付更新后的系统

@@ -344,17 +344,41 @@ export const appRouter = router({
 
           await db.createAsset({
             projectId,
-            assetType: "banner",
-            fileUrl: claudeAssets.banner.url,
-            fileKey: claudeAssets.banner.key,
+            assetType: "paydex_banner",
+            fileUrl: claudeAssets.paydexBanner.url,
+            fileKey: claudeAssets.paydexBanner.key,
           });
 
           await db.createAsset({
             projectId,
-            assetType: "poster",
-            fileUrl: claudeAssets.poster.url,
-            fileKey: claudeAssets.poster.key,
+            assetType: "x_banner",
+            fileUrl: claudeAssets.xBanner.url,
+            fileKey: claudeAssets.xBanner.key,
           });
+
+          await db.createAsset({
+            projectId,
+            assetType: "hero_background",
+            fileUrl: claudeAssets.heroBackground.url,
+            fileKey: claudeAssets.heroBackground.key,
+          });
+
+          await db.createAsset({
+            projectId,
+            assetType: "community_scene",
+            fileUrl: claudeAssets.communityScene.url,
+            fileKey: claudeAssets.communityScene.key,
+          });
+
+          // Save feature icons
+          for (const icon of claudeAssets.featureIcons) {
+            await db.createAsset({
+              projectId,
+              assetType: "feature_icon",
+              fileUrl: icon.url,
+              fileKey: icon.key,
+            });
+          }
 
           await db.createAsset({
             projectId,
@@ -368,15 +392,19 @@ export const appRouter = router({
             status: "completed",
             deploymentStatus: "not_deployed",
             aiAnalysis: {
-              theme: claudeAssets.theme,
-              content: claudeAssets.content,
+              brandStrategy: claudeAssets.brandStrategy,
+              colorScheme: claudeAssets.colorScheme,
+              websiteContent: claudeAssets.websiteContent,
             } as any,
             metadata: {
               generatedAt: new Date().toISOString(),
               assets: {
                 logo: claudeAssets.logo.url,
-                banner: claudeAssets.banner.url,
-                poster: claudeAssets.poster.url,
+                paydexBanner: claudeAssets.paydexBanner.url,
+                xBanner: claudeAssets.xBanner.url,
+                heroBackground: claudeAssets.heroBackground.url,
+                featureIcons: claudeAssets.featureIcons.map(icon => icon.url),
+                communityScene: claudeAssets.communityScene.url,
                 website: websiteUrl,
               },
             },
@@ -389,13 +417,17 @@ export const appRouter = router({
             projectId,
             websiteUrl,
             analysis: {
-              theme: claudeAssets.theme,
-              content: claudeAssets.content,
+              brandStrategy: claudeAssets.brandStrategy,
+              colorScheme: claudeAssets.colorScheme,
+              websiteContent: claudeAssets.websiteContent,
             },
             assets: {
               logo: claudeAssets.logo.url,
-              banner: claudeAssets.banner.url,
-              poster: claudeAssets.poster.url,
+              paydexBanner: claudeAssets.paydexBanner.url,
+              xBanner: claudeAssets.xBanner.url,
+              heroBackground: claudeAssets.heroBackground.url,
+              featureIcons: claudeAssets.featureIcons.map(icon => icon.url),
+              communityScene: claudeAssets.communityScene.url,
             },
           };
         } catch (error) {
@@ -591,7 +623,7 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         projectId: z.number(),
-        assetType: z.enum(["logo", "banner", "pfp", "poster", "narrative", "whitepaper", "tweet", "website"]),
+        assetType: z.enum(["logo", "banner", "paydex_banner", "x_banner", "hero_background", "feature_icon", "community_scene", "pfp", "poster", "narrative", "whitepaper", "tweet", "website"]),
         fileUrl: z.string().optional(),
         fileKey: z.string().optional(),
         textContent: z.string().optional(),

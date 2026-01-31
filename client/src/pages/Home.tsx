@@ -560,23 +560,7 @@ export default function Home() {
               <h4 className="font-bold mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/launch">Launch Engine</Link></li>
-                <li><Link href="/merch">Merch Design</Link></li>
-                <li><Link href="/pricing">Pricing</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/about">About</Link></li>
-                <li><Link href="/blog">Blog</Link></li>
-                <li><Link href="/contact">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/privacy">Privacy</Link></li>
-                <li><Link href="/terms">Terms</Link></li>
+                <li><Link href="/dashboard">Dashboard</Link></li>
               </ul>
             </div>
           </div>

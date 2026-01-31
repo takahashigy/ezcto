@@ -779,3 +779,12 @@
 - [ ] 测试完整的Launch V2生成流程（用户测试）
 - [ ] 验证子域名部署功能
 - [ ] 保存checkpoint准备视觉优化
+
+## 删除隐藏页面，保持代码简洁
+- [x] 删除Templates.tsx页面文件
+- [x] 删除Supply.tsx页面文件
+- [x] 删除Store.tsx页面文件
+- [x] 删除CustomOrder.tsx页面文件
+- [x] 清理App.tsx中的相关路由
+- [x] 清理Home.tsx中的相关导航链接
+- [ ] 保存checkpoint

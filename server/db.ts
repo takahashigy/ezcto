@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, customOrders, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory, InsertCustomOrder } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -153,6 +153,27 @@ export async function getAllProjects() {
   if (!db) return [];
 
   return await db.select().from(projects).orderBy(desc(projects.createdAt));
+}
+
+export async function getUnpaidProjectsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(projects)
+    .where(and(eq(projects.userId, userId), eq(projects.paymentStatus, "unpaid")))
+    .orderBy(desc(projects.createdAt));
+}
+
+export async function updateUserFreeGenerations(userId: number, increment: number = 1) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const user = await getUserById(userId);
+  if (!user) throw new Error("User not found");
+
+  await db.update(users)
+    .set({ freeGenerationsUsed: (user.freeGenerationsUsed || 0) + increment })
+    .where(eq(users.id, userId));
 }
 
 // ============ Asset Management ============

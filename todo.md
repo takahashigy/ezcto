@@ -565,4 +565,20 @@
 ## 统一Launch页面和Dashboard的绿色色调
 - [x] 检查当前的颜色定义（index.css中的primary颜色）
 - [x] 统一Launch页面的绿色文字颜色
+- [x] 保存checkpoint
+
+## 付费解锁系统（479 USDT/BNB）
+- [x] 更新数据库schema添加付费相关字段（user.freeGenerationsUsed, projects.paymentStatus等）
+- [x] 推送数据库迁移
+- [x] 实现免费额度限制逻辑（每个用户1次免费生成）
+- [x] 实现水印系统（创建了watermark.ts工具，待集成到生成流程）
+- [x] 实现下载权限检查（未付费无法下载）
+- [x] 实现发布权限检查（未付费无法发布网站）
+- [ ] 集成Web3钱包连接（WalletConnect）
+- [ ] 实现USDT支付逻辑
+- [ ] 实现BNB支付逻辑
+- [ ] 实现支付状态监听和确认
+- [ ] 实现付费后自动解锁逻辑
+- [ ] 实现实时预览面板（右侧弹出）
+- [ ] 测试完整的免费→付费→解锁流程
 - [ ] 保存checkpoint

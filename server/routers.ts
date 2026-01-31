@@ -115,6 +115,17 @@ export const appRouter = router({
         userImages: z.string().optional(), // JSON string of array
       }))
       .mutation(async ({ input, ctx }) => {
+        // Check free quota
+        const user = await db.getUserById(ctx.user.id);
+        if (!user) {
+          throw new Error("User not found");
+        }
+        
+        // Check if user has unpaid projects
+        const unpaidProjects = await db.getUnpaidProjectsByUserId(ctx.user.id);
+        if (unpaidProjects.length > 0 && user.freeGenerationsUsed >= 1) {
+          throw new Error("FREE_QUOTA_EXCEEDED: Please unlock your previous project before creating a new one.");
+        }
         const project = await db.createProject({
           userId: ctx.user.id,
           name: input.name,
@@ -125,8 +136,14 @@ export const appRouter = router({
           userImageKey: input.userImageKey,
           userImages: input.userImages ? JSON.parse(input.userImages) : null,
           status: "draft",
+          paymentStatus: "unpaid", // All new projects start as unpaid
         });
         const projectId = project.id;
+        
+        // Increment free generations counter
+        if (user.freeGenerationsUsed < 1) {
+          await db.updateUserFreeGenerations(ctx.user.id, 1);
+        }
         
         // Trigger launch automation in background
         if (projectId) {
@@ -492,6 +509,11 @@ export const appRouter = router({
         if (project.userId !== ctx.user.id && ctx.user.role !== "admin") {
           throw new Error("Unauthorized");
         }
+        
+        // 2. Check payment status
+        if (project.paymentStatus !== "paid") {
+          throw new Error("PAYMENT_REQUIRED: Please unlock this project to publish the website.");
+        }
 
         // Track if this is an edit (subdomain change)
         const isEdit = project.subdomain && project.subdomain !== input.subdomain;
@@ -593,6 +615,11 @@ export const appRouter = router({
         }
         if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
           throw new Error("Unauthorized");
+        }
+        
+        // Check payment status
+        if (project.paymentStatus !== "paid") {
+          throw new Error("PAYMENT_REQUIRED: Please unlock this project to download assets.");
         }
 
         const assets = await db.getAssetsByProjectId(input.projectId);

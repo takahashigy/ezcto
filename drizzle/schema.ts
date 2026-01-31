@@ -10,6 +10,8 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  freeGenerationsUsed: int("freeGenerationsUsed").default(0).notNull(),
+  totalPaidProjects: int("totalPaidProjects").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -36,6 +38,12 @@ export const projects = mysqlTable("projects", {
   subdomain: varchar("subdomain", { length: 100 }),
   deploymentUrl: varchar("deploymentUrl", { length: 1000 }),
   deploymentStatus: mysqlEnum("deploymentStatus", ["not_deployed", "deploying", "deployed", "failed"]).default("not_deployed"),
+  paymentStatus: mysqlEnum("paymentStatus", ["unpaid", "pending", "paid"]).default("unpaid").notNull(),
+  paymentAmount: varchar("paymentAmount", { length: 100 }),
+  paymentCurrency: varchar("paymentCurrency", { length: 20 }),
+  paymentTxHash: varchar("paymentTxHash", { length: 200 }),
+  paymentWalletAddress: varchar("paymentWalletAddress", { length: 200 }),
+  paidAt: timestamp("paidAt"),
   aiAnalysis: json("aiAnalysis").$type<{
     narrativeType?: string;
     layoutStyle?: string;

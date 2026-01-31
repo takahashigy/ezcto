@@ -8,7 +8,7 @@ const CLOUDFLARE_R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
 const CLOUDFLARE_R2_SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
 const CLOUDFLARE_R2_ENDPOINT = process.env.CLOUDFLARE_R2_ENDPOINT;
 const CLOUDFLARE_R2_BUCKET_NAME = process.env.CLOUDFLARE_R2_BUCKET_NAME;
-const CLOUDFLARE_R2_PUBLIC_URL = "https://pub-4b31f9936f3d43b2b1d1c9b862f2e5c7.r2.dev";
+const CLOUDFLARE_CUSTOM_DOMAIN = process.env.CLOUDFLARE_CUSTOM_DOMAIN || "ezcto.fun";
 
 if (!CLOUDFLARE_R2_ACCESS_KEY_ID || !CLOUDFLARE_R2_SECRET_ACCESS_KEY || !CLOUDFLARE_R2_ENDPOINT || !CLOUDFLARE_R2_BUCKET_NAME) {
   console.warn("[Deployment] Cloudflare R2 credentials not configured");
@@ -94,8 +94,8 @@ export async function deployWebsite(
       })
     );
     
-    // Construct deployment URL using R2.dev public URL
-    const deploymentUrl = `${CLOUDFLARE_R2_PUBLIC_URL}/${subdomain}/index.html`;
+    // Construct deployment URL using custom domain
+    const deploymentUrl = `https://${subdomain}.${CLOUDFLARE_CUSTOM_DOMAIN}`;
     
     console.log(`[Deployment] Successfully deployed to ${deploymentUrl}`);
     
@@ -137,7 +137,7 @@ export async function updateDeployment(
       })
     );
     
-    const deploymentUrl = `${CLOUDFLARE_R2_PUBLIC_URL}/${subdomain}/index.html`;
+    const deploymentUrl = `https://${subdomain}.${CLOUDFLARE_CUSTOM_DOMAIN}`;
     
     console.log(`[Deployment] Successfully updated deployment at ${deploymentUrl}`);
     

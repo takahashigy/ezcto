@@ -759,3 +759,7 @@
 - [x] 诊断"Site not found"和"AccessDenied"错误原因（R2需要使用R2.dev公开URL）
 - [x] 修改部署逻辑使用R2.dev公开URL而不是自定义域名
 - [ ] 重新测试部署流程
+
+## 恢复自定义域名部署
+- [x] 修改deployment.ts恢复使用ezcto.fun自定义域名
+- [ ] 测试自定义域名部署（如 project.ezcto.fun）

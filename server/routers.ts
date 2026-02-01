@@ -1081,6 +1081,26 @@ export const appRouter = router({
         return { enhancedDescription: enhanced };
       }),
   }),
+
+  // Generation History (for real-time progress tracking)
+  generationHistory: router({
+    getByProjectId: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        // First verify user owns this project
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+        
+        // Get latest generation history for this project
+        const history = await db.getLatestGenerationHistoryByProjectId(input.projectId);
+        return history || null;
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

@@ -380,6 +380,17 @@ export async function getGenerationHistoryById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getLatestGenerationHistoryByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(generationHistory)
+    .where(eq(generationHistory.projectId, projectId))
+    .orderBy(desc(generationHistory.createdAt))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function deleteGenerationHistory(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

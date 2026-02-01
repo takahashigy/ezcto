@@ -83,6 +83,15 @@ export default function LaunchV2Preview() {
     }
   );
 
+  // Poll generation history for real-time step progress
+  const { data: generationHistory } = trpc.generationHistory.getByProjectId.useQuery(
+    { projectId: projectId! },
+    {
+      enabled: !!projectId && project?.status === "generating",
+      refetchInterval: 1500, // Poll more frequently for progress updates
+    }
+  );
+
   // Retry generation mutation
   const retryGenerationMutation = trpc.launch.trigger.useMutation({
     onSuccess: () => {
@@ -111,41 +120,62 @@ export default function LaunchV2Preview() {
     }
   };
 
-  // Calculate module progress based on project status
-  // Since we don't have real-time module tracking yet, we'll simulate progress
-  const getModuleStatus = (index: number): ModuleStatus => {
-    if (project?.status === "completed") return "completed";
-    if (project?.status === "failed") return index === 0 ? "failed" : "pending";
-    if (project?.status === "generating") {
-      // Simulate progressive completion
-      if (project.deploymentUrl) {
-        return "completed"; // All modules completed
-      }
-      // For now, show first module as in_progress, others as pending
-      return index === 0 ? "in_progress" : "pending";
+  // Get step status from generation history metadata
+  const getStepStatusFromHistory = (stepName: string): ModuleStatus => {
+    if (!generationHistory?.metadata) return "pending";
+    
+    const metadata = generationHistory.metadata as {
+      currentStep?: string;
+      steps?: Array<{ step: string; status: ModuleStatus }>;
+    };
+    
+    const step = metadata.steps?.find(s => s.step === stepName);
+    if (step) {
+      return step.status;
     }
+    return "pending";
+  };
+
+  // Calculate module progress based on real generation history
+  const getModuleStatus = (stepName: string): ModuleStatus => {
+    // If project is completed, all modules are completed
+    if (project?.status === "completed") return "completed";
+    
+    // If project failed, check which step failed
+    if (project?.status === "failed") {
+      const historyStatus = getStepStatusFromHistory(stepName);
+      if (historyStatus === "failed") return "failed";
+      if (historyStatus === "completed") return "completed";
+      return "pending";
+    }
+    
+    // If generating, use real-time step status from generation history
+    if (project?.status === "generating") {
+      return getStepStatusFromHistory(stepName);
+    }
+    
     return "pending";
   };
 
   const modules: ModuleProgress[] = [
     {
       name: t('launch.preview.analysis'),
-      status: getModuleStatus(0),
+      status: getModuleStatus('analysis'),
       description: t('launch.preview.analysisDesc'),
     },
     {
       name: t('launch.preview.images'),
-      status: getModuleStatus(1),
+      status: getModuleStatus('images'),
       description: t('launch.preview.imagesDesc'),
     },
     {
       name: t('launch.preview.website'),
-      status: getModuleStatus(2),
+      status: getModuleStatus('website'),
       description: t('launch.preview.websiteDesc'),
     },
     {
       name: t('launch.preview.deployment'),
-      status: project?.deploymentUrl ? "completed" : getModuleStatus(3),
+      status: project?.deploymentUrl ? "completed" : getModuleStatus('deployment'),
       description: t('launch.preview.deploymentDesc'),
     },
   ];

@@ -1004,4 +1004,12 @@
 - [x] 修改HTML生成prompt，为所有img标签添加loading="lazy"和decoding="async"属性
 - [x] 修改CSS生成prompt，添加图片加载过渡效果
 - [x] 修改JavaScript生成prompt，添加IntersectionObserver懒加载逻辑（兼容旧浏览器）
+- [x] 保存checkpoint (801cc55d)
+
+## 优化LaunchV2Preview进度显示
+- [x] 分析当前进度更新机制（前端轮询projects表，但步骤状态是硬编码的）
+- [x] 诊断进度不实时更新的原因（前端没有读取generationHistory表的真实步骤状态）
+- [x] 添加db.getLatestGenerationHistoryByProjectId函数
+- [x] 添加trpc.generationHistory.getByProjectId API端点
+- [x] 修改LaunchV2Preview读取真实步骤进度（每1.5秒轮询）
 - [ ] 保存checkpoint

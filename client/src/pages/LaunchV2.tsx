@@ -154,6 +154,8 @@ export default function LaunchV2() {
           await launchTriggerMutation.mutateAsync({
             projectId: projectData.projectId,
             characterImageUrl: characterImageUrl || undefined,
+            // Pass base64 data directly to avoid 403 on CloudFront URLs
+            characterImageBase64: imagePreview || undefined,
           });
 
           toast.success(language === 'zh' ? '生成已启动！正在跳转...' : 'Generation started! Redirecting...');
@@ -169,9 +171,13 @@ export default function LaunchV2() {
         setShowPaymentModal(true);
         toast.info(language === 'zh' ? '请完成支付以开始生成' : 'Please complete payment to start generation');
 
-        // Store image URL for later use
+        // Store image URL and base64 for later use (after payment)
         if (characterImageUrl) {
           localStorage.setItem(`project_${projectData.projectId}_imageUrl`, characterImageUrl);
+        }
+        // Store base64 data to avoid 403 on CloudFront URLs during generation
+        if (imagePreview) {
+          localStorage.setItem(`project_${projectData.projectId}_imageBase64`, imagePreview);
         }
       }
     } catch (error) {
@@ -625,13 +631,16 @@ export default function LaunchV2() {
                 timestamp: Date.now(),
               }));
 
-              // Retrieve stored image URL
+              // Retrieve stored image URL and base64 data
               const storedImageUrl = localStorage.getItem(`project_${currentProjectId}_imageUrl`);
+              const storedImageBase64 = localStorage.getItem(`project_${currentProjectId}_imageBase64`);
 
-              // Trigger generation
+              // Trigger generation with both URL and base64 data
               launchTriggerMutation.mutate({
                 projectId: currentProjectId,
                 characterImageUrl: storedImageUrl || undefined,
+                // Pass base64 data directly to avoid 403 on CloudFront URLs
+                characterImageBase64: storedImageBase64 || undefined,
               });
 
               toast.success(language === 'zh' ? '开始生成...' : 'Starting generation...');

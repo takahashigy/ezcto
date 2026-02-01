@@ -31,6 +31,7 @@ export interface LaunchInput {
   tokenomics?: string;
   styleTemplate?: string;
   userImageUrl?: string; // Primary image (for backward compatibility)
+  userImageBase64?: string; // Base64 encoded image data (to avoid 403 on CloudFront URLs)
   userImages?: Array<{ url: string; key: string }>; // Multiple reference images
 }
 
@@ -272,23 +273,44 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               communityScene: { url: '', key: '' },
             };
             
-            // Download user logo and save buffer for R2 upload
+            // Get user logo buffer - prefer base64 data over URL download
+            // CloudFront URLs from Manus Storage return 403 when accessed from server-side
             let logoBuffer: Buffer | undefined;
-            if (userLogoUrl) {
+            
+            // Option 1: Use base64 data if provided (most reliable)
+            if (input.userImageBase64) {
               try {
-                console.log(`[Launch] Downloading user logo from: ${userLogoUrl}`);
+                console.log(`[Launch] Using base64 data for user logo`);
+                const base64WithoutPrefix = input.userImageBase64.replace(/^data:image\/\w+;base64,/, "");
+                logoBuffer = Buffer.from(base64WithoutPrefix, "base64");
+                console.log(`[Launch] Decoded user logo from base64, buffer size: ${logoBuffer.length}`);
+              } catch (error) {
+                console.warn(`[Launch] Error decoding base64 logo:`, error);
+              }
+            }
+            
+            // Option 2: Fallback to URL download (may fail with 403 on CloudFront URLs)
+            if (!logoBuffer && userLogoUrl) {
+              try {
+                console.log(`[Launch] Attempting to download user logo from: ${userLogoUrl}`);
                 const logoResponse = await fetch(userLogoUrl);
                 if (logoResponse.ok) {
                   logoBuffer = Buffer.from(await logoResponse.arrayBuffer());
                   console.log(`[Launch] Downloaded user logo, buffer size: ${logoBuffer.length}`);
                 } else {
-                  console.warn(`[Launch] Failed to download user logo: ${logoResponse.statusText}`);
+                  console.warn(`[Launch] Failed to download user logo: ${logoResponse.status} ${logoResponse.statusText}`);
                 }
               } catch (error) {
                 console.warn(`[Launch] Error downloading user logo:`, error);
               }
-              
-              // Save logo asset to database
+            }
+            
+            if (!logoBuffer) {
+              console.warn(`[Launch] No logo buffer available - deployment may fail`);
+            }
+            
+            // Save logo asset to database (even without buffer, for URL reference)
+            if (userLogoUrl) {
               await db.createAsset({
                 projectId: input.projectId,
                 assetType: 'logo',
@@ -537,19 +559,23 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     ): Promise<string> => {
       if (asset.buffer) {
         // Use buffer directly - no download needed!
-        console.log(`[Launch] Uploading ${imageName} to R2 using buffer...`);
+        console.log(`[Launch] Uploading ${imageName} to R2 using buffer (${asset.buffer.length} bytes)...`);
         const result = await uploadBufferToR2(asset.buffer, subdomain, imageName);
         return result.url;
-      } else {
+      } else if (asset.url) {
         // Fallback: download from URL (for resumed generations)
-        console.log(`[Launch] Downloading ${imageName} from URL for R2 upload...`);
+        // Note: CloudFront URLs from Manus Storage may return 403 from server-side
+        console.log(`[Launch] Downloading ${imageName} from URL for R2 upload: ${asset.url}`);
         const response = await fetch(asset.url);
         if (!response.ok) {
-          throw new Error(`Failed to download ${imageName}: ${response.statusText}`);
+          throw new Error(`Failed to download ${imageName}: ${response.status} ${response.statusText}`);
         }
         const buffer = Buffer.from(await response.arrayBuffer());
+        console.log(`[Launch] Downloaded ${imageName}, buffer size: ${buffer.length}`);
         const result = await uploadBufferToR2(buffer, subdomain, imageName);
         return result.url;
+      } else {
+        throw new Error(`No buffer or URL available for ${imageName}`);
       }
     };
 

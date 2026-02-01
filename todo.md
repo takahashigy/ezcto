@@ -1028,4 +1028,13 @@
 - [x] 检查App.tsx中的路由配置（路由是/launch/preview）
 - [x] 检查LaunchV2Form的跳转URL（Admin跳转用了错误的/launch-preview/）
 - [x] 修复路由不匹配问题（改为/launch/preview?projectId=）
+- [x] 保存checkpoint (dcb2f579)
+
+## 修复Logo下载403 Forbidden错误
+- [x] 检查服务器日志获取详细错误信息
+- [x] 分析Logo URL来源（Manus Storage返回的CloudFront URL无法从服务器端访问）
+- [x] 修改launchTrigger API接受characterImageBase64参数
+- [x] 修改前端传递base64数据而不是URL
+- [x] 修改launch流程直接使用base64转buffer
+- [x] 测试完整生成流程（成功！）
 - [ ] 保存checkpoint

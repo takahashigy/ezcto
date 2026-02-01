@@ -849,6 +849,7 @@ export const appRouter = router({
       .input(z.object({ 
         projectId: z.number(),
         characterImageUrl: z.string().optional(),
+        characterImageBase64: z.string().optional(), // Base64 encoded image data
       }))
       .mutation(async ({ input, ctx }) => {
         const project = await db.getProjectById(input.projectId);
@@ -872,6 +873,7 @@ export const appRouter = router({
           ticker: project.ticker || undefined,
           styleTemplate: project.styleTemplate || undefined,
           userImageUrl: input.characterImageUrl,
+          userImageBase64: input.characterImageBase64, // Pass base64 to avoid 403 on CloudFront URLs
         }).catch(error => {
           console.error("[Launch] Background execution failed:", error);
         });

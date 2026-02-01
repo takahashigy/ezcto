@@ -4,7 +4,7 @@ import { analyzeProjectInput, generateWebsiteCode } from "./_core/claude";
 import { generateImage } from "./_core/imageGeneration";
 import { retryWithBackoff } from "./_core/retry";
 import { generateSubdomain, deployWebsite } from "./_core/deployment";
-import { uploadImageBatch } from "./_core/imageUpload";
+import { uploadBufferToR2 } from "./_core/imageUpload";
 import { 
   shouldSkipModule, 
   markModuleCompleted, 
@@ -57,12 +57,19 @@ interface AnalysisResult {
   featureIconPrompt: string; // Changed from array to single prompt
 }
 
+// Image asset with both URL (for DB storage) and Buffer (for R2 upload)
+interface ImageAssetWithBuffer {
+  url: string;
+  key: string;
+  buffer?: Buffer; // Buffer for direct R2 upload
+}
+
 interface ImageAssets {
-  paydexBanner: { url: string; key: string };
-  xBanner: { url: string; key: string };
-  logo: { url: string; key: string };
-  heroBackground: { url: string; key: string };
-  featureIcon: { url: string; key: string }; // Changed from array to single icon
+  paydexBanner: ImageAssetWithBuffer;
+  xBanner: ImageAssetWithBuffer;
+  logo: ImageAssetWithBuffer;
+  heroBackground: ImageAssetWithBuffer;
+  featureIcon: ImageAssetWithBuffer;
 }
 
 /**
@@ -188,7 +195,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     
     if (shouldSkipModule('images', progress)) {
       console.log(`[Launch] Skipping IMAGES module (already completed)`);
-      // Load images from database
+      // Load images from database (note: buffers are not stored, will need to re-download for deployment)
       const existingAssets = await db.getAssetsByProjectId(input.projectId);
       imageAssets = {
         paydexBanner: {
@@ -241,12 +248,12 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               { type: 'featureIcon', prompt: analysisResult.featureIconPrompt, size: "256x256" },
             ];
 
-            const results: any = {
-              paydexBanner: null,
-              xBanner: null,
-              logo: null,
-              heroBackground: null,
-              featureIcon: null,
+            const results: ImageAssets = {
+              paydexBanner: { url: '', key: '' },
+              xBanner: { url: '', key: '' },
+              logo: { url: '', key: '' },
+              heroBackground: { url: '', key: '' },
+              featureIcon: { url: '', key: '' },
             };
 
             const totalImages = imageGenerationTasks.length;
@@ -255,7 +262,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
 
             // Track completed images
             const completedImageTypes = new Set<string>();
-            const completedTasks: Array<{ task: any; assetData: any }> = [];
+            const completedTasks: Array<{ task: any; assetData: ImageAssetWithBuffer }> = [];
 
             // Generate images in batches of 2 to avoid rate limits
             const BATCH_SIZE = 2;
@@ -269,17 +276,19 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               const batchPromises = batch.map(async (task) => {
                 console.log(`[Launch] Starting generation of ${task.type}...`);
                 
+                // generateImage now returns both url and buffer
                 const result = await generateImage({
                   prompt: task.prompt,
                   size: task.size as any,
                 });
 
-                const assetData = {
+                const assetData: ImageAssetWithBuffer = {
                   url: result.url!,
                   key: `projects/${input.projectId}/${task.type}.png`,
+                  buffer: result.buffer, // Keep buffer for R2 upload
                 };
 
-                // Save to database immediately
+                // Save to database immediately (URL only, buffer is transient)
                 const assetTypeDb = task.type === 'paydexBanner' ? 'paydex_banner'
                   : task.type === 'xBanner' ? 'x_banner'
                   : task.type === 'heroBackground' ? 'hero_background'
@@ -336,9 +345,9 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               }
             }
 
-            // Organize results
+            // Organize results (including buffers)
             for (const { task, assetData } of completedTasks) {
-              results[task.type] = assetData;
+              (results as any)[task.type] = assetData;
             }
 
             return results;
@@ -469,25 +478,49 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     // Generate subdomain
     const subdomain = generateSubdomain(input.name, input.ticker);
 
-    // Upload all images to R2 under {slug}/assets/
-    const imagesToUpload = [
-      { url: imageAssets.paydexBanner.url, name: 'paydex-banner.png' },
-      { url: imageAssets.xBanner.url, name: 'x-banner.png' },
-      { url: imageAssets.logo.url, name: 'logo.png' },
-      { url: imageAssets.heroBackground.url, name: 'hero-background.png' },
-      { url: imageAssets.featureIcon.url, name: 'feature-icon.png' },
-    ];
+    // Upload all images to R2 using buffers directly (no re-download needed!)
+    // Map of image type to R2 relative URL
+    const uploadedImages: Record<string, string> = {};
 
-    const uploadedImages = await uploadImageBatch(imagesToUpload, subdomain);
+    // Helper to upload a single image
+    const uploadImageToR2Helper = async (
+      asset: ImageAssetWithBuffer, 
+      imageName: string
+    ): Promise<string> => {
+      if (asset.buffer) {
+        // Use buffer directly - no download needed!
+        console.log(`[Launch] Uploading ${imageName} to R2 using buffer...`);
+        const result = await uploadBufferToR2(asset.buffer, subdomain, imageName);
+        return result.url;
+      } else {
+        // Fallback: download from URL (for resumed generations)
+        console.log(`[Launch] Downloading ${imageName} from URL for R2 upload...`);
+        const response = await fetch(asset.url);
+        if (!response.ok) {
+          throw new Error(`Failed to download ${imageName}: ${response.statusText}`);
+        }
+        const buffer = Buffer.from(await response.arrayBuffer());
+        const result = await uploadBufferToR2(buffer, subdomain, imageName);
+        return result.url;
+      }
+    };
+
+    // Upload all images
+    uploadedImages['paydex-banner.png'] = await uploadImageToR2Helper(imageAssets.paydexBanner, 'paydex-banner.png');
+    uploadedImages['x-banner.png'] = await uploadImageToR2Helper(imageAssets.xBanner, 'x-banner.png');
+    uploadedImages['logo.png'] = await uploadImageToR2Helper(imageAssets.logo, 'logo.png');
+    uploadedImages['hero-background.png'] = await uploadImageToR2Helper(imageAssets.heroBackground, 'hero-background.png');
+    uploadedImages['feature-icon.png'] = await uploadImageToR2Helper(imageAssets.featureIcon, 'feature-icon.png');
+
     console.log(`[Launch] Uploaded ${Object.keys(uploadedImages).length} images to R2`);
 
     // Replace image URLs in HTML with relative paths
     let finalHTML = websiteHTML;
-    finalHTML = finalHTML.replace(imageAssets.paydexBanner.url, uploadedImages['paydex-banner.png'].url);
-    finalHTML = finalHTML.replace(imageAssets.xBanner.url, uploadedImages['x-banner.png'].url);
-    finalHTML = finalHTML.replace(imageAssets.logo.url, uploadedImages['logo.png'].url);
-    finalHTML = finalHTML.replace(imageAssets.heroBackground.url, uploadedImages['hero-background.png'].url);
-    finalHTML = finalHTML.replace(imageAssets.featureIcon.url, uploadedImages['feature-icon.png'].url);
+    finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.paydexBanner.url), 'g'), uploadedImages['paydex-banner.png']);
+    finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.xBanner.url), 'g'), uploadedImages['x-banner.png']);
+    finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.logo.url), 'g'), uploadedImages['logo.png']);
+    finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.heroBackground.url), 'g'), uploadedImages['hero-background.png']);
+    finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.featureIcon.url), 'g'), uploadedImages['feature-icon.png']);
 
     broadcastProgress(input.projectId, { 
       progress: 95, 
@@ -585,4 +618,9 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       error: (error as Error).message,
     };
   }
+}
+
+// Helper function to escape special regex characters
+function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

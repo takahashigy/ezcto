@@ -39,6 +39,7 @@ export type GenerateImageOptions = {
 
 export type GenerateImageResponse = {
   url?: string;
+  buffer?: Buffer; // Raw image buffer for direct R2 upload
 };
 
 export async function generateImage(
@@ -147,14 +148,18 @@ async function generateImageInternal(
 
   const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
 
-  // Save to S3
+  // Save to Manus S3 (as backup)
   const { url } = await storagePut(
     `generated/${Date.now()}.png`,
     imageBuffer,
     "image/png"
   );
 
+  // Return both URL and buffer
+  // - url: Manus S3 URL (backup)
+  // - buffer: Raw image data for direct R2 upload
   return {
     url,
+    buffer: imageBuffer,
   };
 }

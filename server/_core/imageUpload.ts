@@ -119,8 +119,68 @@ export async function downloadAndUploadImage(
 }
 
 /**
- * Batch upload multiple images
- * Returns map of image names to relative URLs
+ * Upload image buffer directly to R2 (no download needed)
+ * Use this when you already have the image buffer from generateImage()
+ */
+export async function uploadBufferToR2(
+  buffer: Buffer,
+  slug: string,
+  imageName: string
+): Promise<ImageUploadResult> {
+  try {
+    // Generate unique filename
+    const filename = generateFilename(imageName, buffer);
+    
+    // Determine content type from extension
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const contentType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
+      : ext === 'gif' ? 'image/gif'
+      : ext === 'webp' ? 'image/webp'
+      : 'image/png';
+    
+    // Upload to R2
+    const r2Key = await uploadToR2(slug, filename, buffer, contentType);
+    
+    console.log(`[ImageUpload] Buffer uploaded to R2: ${r2Key}`);
+    
+    // Return relative URL (for HTML) and full R2 key
+    return {
+      url: `/assets/${filename}`, // Relative URL for HTML
+      r2Key, // Full R2 key for reference
+      filename,
+    };
+  } catch (error) {
+    console.error(`[ImageUpload] Failed to upload buffer ${imageName}:`, error);
+    throw new Error(`Failed to upload buffer ${imageName}: ${(error as Error).message}`);
+  }
+}
+
+/**
+ * Batch upload multiple image buffers directly to R2
+ * Use this when you have buffers from generateImage()
+ */
+export async function uploadBufferBatch(
+  images: Array<{ buffer: Buffer; name: string }>,
+  slug: string
+): Promise<Record<string, ImageUploadResult>> {
+  console.log(`[ImageUpload] Uploading batch of ${images.length} buffers for slug: ${slug}`);
+  
+  const results: Record<string, ImageUploadResult> = {};
+  
+  // Upload images sequentially to avoid overwhelming the API
+  for (const image of images) {
+    const result = await uploadBufferToR2(image.buffer, slug, image.name);
+    results[image.name] = result;
+  }
+  
+  console.log(`[ImageUpload] Buffer batch upload complete. Uploaded ${Object.keys(results).length} images.`);
+  
+  return results;
+}
+
+/**
+ * Batch upload multiple images (legacy - downloads from URL)
+ * @deprecated Use uploadBufferBatch instead when you have buffers
  */
 export async function uploadImageBatch(
   images: Array<{ url: string; name: string }>,

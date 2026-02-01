@@ -151,15 +151,9 @@ export default function LaunchV2() {
         toast.info(language === 'zh' ? '🔑 Admin权限：跳过支付，直接开始生成...' : '🔑 Admin privilege: Skipping payment, starting generation...');
         
         try {
-          await triggerGenerationMutation.mutateAsync({
+          await launchTriggerMutation.mutateAsync({
             projectId: projectData.projectId,
             characterImageUrl: characterImageUrl || undefined,
-            socialLinks: {
-              twitter: formData.twitter || undefined,
-              telegram: formData.telegram || undefined,
-              discord: formData.discord || undefined,
-              website: formData.website || undefined,
-            },
           });
 
           toast.success(language === 'zh' ? '生成已启动！正在跳转...' : 'Generation started! Redirecting...');

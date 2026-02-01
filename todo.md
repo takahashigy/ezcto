@@ -947,4 +947,23 @@
 - [x] 实现重试逻辑：调用triggerGeneration API
 - [x] 重试后自动refetch项目状态，重新开始轮询
 - [x] 添加“创建新项目”备选按钮
-- [ ] 测试并保存checkpoint
+- [x] 保存checkpoint
+
+## 修复LaunchV2 triggerGenerationMutation缺失bug
+- [x] 修复：将triggerGenerationMutation改为launchTriggerMutation（已存在的mutation）
+- [x] 移除不存在的socialLinks参数
+- [ ] 测试admin用户创建项目流程
+- [ ] 保存checkpoint
+
+## 修复图片下载403 Forbidden错误
+- [ ] 检查imageUpload.ts的图片下载逻辑
+- [ ] 检查AI生成的图片URL格式和访问权限
+- [ ] 修复下载逻辑或调整为直接使用图片URL（不下载）
+- [ ] 测试修复并保存checkpoint
+
+## 修复图片上传：Buffer直传R2
+- [x] 修改imageGeneration.ts返回 { url, buffer }
+- [x] 修改imageUpload.ts添加uploadBufferToR2函数（接受Buffer输入）
+- [x] 修改launch.ts使用Buffer直接上传R2，不再调用downloadAndUploadImage
+- [ ] 测试完整生成流程
+- [ ] 保存checkpoint

@@ -1109,4 +1109,10 @@
 
 ## 修复重复生成任务问题
 - [x] 在launch.trigger路由添加检查：检查generationHistory和project.status是否已在generating状态
-- [ ] 测试并保存checkpoint
+- [x] 测试并保存checkpoint
+
+## 接入 remove.bg API 处理 Feature 图标背景
+- [x] 创建 server/_core/removeBg.ts 模块
+- [x] 在 launch.ts 中集成：Feature 图标生成后调用 remove.bg 去背景
+- [x] 添加错误处理：API 失败时降级使用原图（removeBackgroundWithFallback）
+- [ ] 测试并保存 checkpoint

@@ -13,6 +13,7 @@ import {
   type GenerationModule 
 } from "./resumableGeneration";
 import { updateGenerationProgress, initializeSteps, updateStep, type StepProgress } from "./progressTracker";
+import { removeBackgroundWithFallback } from "./_core/removeBg";
 
 /**
  * Launch自动化引擎核心逻辑
@@ -421,6 +422,41 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
             // Add logo buffer to results (logo uses user uploaded image, not generated)
             if (logoBuffer) {
               results.logo.buffer = logoBuffer;
+            }
+
+            // Process Feature Icon with remove.bg to ensure transparent background
+            if (results.featureIcon?.buffer) {
+              console.log('[Launch] Processing Feature Icon with remove.bg...');
+              broadcastProgress(input.projectId, { 
+                progress: 68, 
+                message: 'Removing background from Feature Icon...',
+                category: "images",
+                level: "info",
+                timestamp: new Date().toISOString()
+              });
+              
+              const removeBgResult = await removeBackgroundWithFallback(results.featureIcon.buffer);
+              results.featureIcon.buffer = removeBgResult.buffer;
+              
+              if (removeBgResult.backgroundRemoved) {
+                console.log('[Launch] Feature Icon background removed successfully');
+                broadcastProgress(input.projectId, { 
+                  progress: 69, 
+                  message: 'Feature Icon background removed',
+                  category: "images",
+                  level: "success",
+                  timestamp: new Date().toISOString()
+                });
+              } else {
+                console.log('[Launch] Feature Icon background removal failed, using original image');
+                broadcastProgress(input.projectId, { 
+                  progress: 69, 
+                  message: 'Using original Feature Icon (background removal skipped)',
+                  category: "images",
+                  level: "warning",
+                  timestamp: new Date().toISOString()
+                });
+              }
             }
 
             return results;

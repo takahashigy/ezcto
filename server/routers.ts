@@ -1015,6 +1015,21 @@ export const appRouter = router({
         console.log('[Launch Trigger] Received characterImageBase64 length:', input.characterImageBase64?.length || 0);
         console.log('[Launch Trigger] Received characterImageUrl:', input.characterImageUrl);
         
+        // Validate image data - at least one must be provided
+        const hasBase64 = input.characterImageBase64 && input.characterImageBase64.length > 100;
+        const hasUrl = input.characterImageUrl && input.characterImageUrl.length > 10;
+        
+        if (!hasBase64 && !hasUrl) {
+          console.error('[Launch Trigger] No valid image data provided');
+          throw new Error("IMAGE_REQUIRED: Please upload a character image before starting generation.");
+        }
+        
+        // Validate base64 format if provided
+        if (input.characterImageBase64 && !input.characterImageBase64.startsWith('data:image/')) {
+          console.error('[Launch Trigger] Invalid base64 format');
+          throw new Error("INVALID_IMAGE: Image data is invalid. Please re-upload the image.");
+        }
+        
         // Execute launch in background (non-blocking)
         executeLaunch({
           projectId: project.id,

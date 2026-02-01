@@ -121,6 +121,26 @@ export default function LaunchV2() {
       return;
     }
 
+    // Validate image is uploaded and ready
+    if (!uploadedImage || !imagePreview) {
+      toast.error(
+        language === 'zh' 
+          ? '请上传项目角色图片' 
+          : 'Please upload a character image for your project'
+      );
+      return;
+    }
+
+    // Validate image preview data is valid base64
+    if (!imagePreview.startsWith('data:image/')) {
+      toast.error(
+        language === 'zh' 
+          ? '图片数据无效，请重新上传' 
+          : 'Invalid image data, please re-upload'
+      );
+      return;
+    }
+
     setIsGenerating(true);
     toast.info(language === 'zh' ? '🚀 开始AI生成... 预计需要3-5分钟' : '🚀 Starting AI generation... This will take 3-5 minutes');
 

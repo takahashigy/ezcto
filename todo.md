@@ -1122,4 +1122,10 @@
 - [x] 添加后端代理 API（assets.proxyDownload）绕过 CORS
 - [x] 更新 zipDownload.ts 支持代理下载
 - [x] 更新 ProjectDetails.tsx 使用代理下载
+- [x] 测试并保存 checkpoint
+
+## 实现提交验证方案（防止空图片数据导致生成失败）
+- [x] 前端验证：LaunchV2.tsx 添加图片上传和 base64 格式检查
+- [x] 后端验证：launch.trigger 路由添加图片数据验证（hasBase64/hasUrl）
+- [x] 防重复逻辑：已有检查 generating 状态，失败状态的项目不会阻止新提交
 - [ ] 测试并保存 checkpoint

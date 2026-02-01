@@ -951,6 +951,19 @@ export const appRouter = router({
           throw new Error("Payment required. Please complete payment before starting generation.");
         }
 
+        // Check if there's already a generation in progress for this project
+        const existingHistory = await db.getLatestGenerationHistoryByProjectId(input.projectId);
+        if (existingHistory && existingHistory.status === 'generating') {
+          console.log('[Launch Trigger] Generation already in progress for project:', input.projectId, 'history:', existingHistory.id);
+          return { success: true, message: "Generation already in progress", alreadyInProgress: true };
+        }
+
+        // Also check if project status is already 'generating'
+        if (project.status === 'generating') {
+          console.log('[Launch Trigger] Project already in generating status:', input.projectId);
+          return { success: true, message: "Generation already in progress", alreadyInProgress: true };
+        }
+
         // Debug: Log received image data
         console.log('[Launch Trigger] Received characterImageBase64 length:', input.characterImageBase64?.length || 0);
         console.log('[Launch Trigger] Received characterImageUrl:', input.characterImageUrl);

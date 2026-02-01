@@ -1105,4 +1105,8 @@
 - [x] CA复制功能修复（HTML Prompt明确要求data-ca在button上，添加id="copy-ca-btn"）
 - [x] Banner左侧空白修复（移除“leave left space”要求，强调fill entire canvas）
 - [x] Marketing Kit下载修复（添加调试日志、修复URL解析、添加空文件检查）
+- [x] 测试并保存checkpoint
+
+## 修复重复生成任务问题
+- [x] 在launch.trigger路由添加检查：检查generationHistory和project.status是否已在generating状态
 - [ ] 测试并保存checkpoint

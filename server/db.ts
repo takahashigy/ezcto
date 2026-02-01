@@ -143,6 +143,17 @@ export async function getUserPaidProjects(userId: number) {
     .orderBy(desc(projects.paidAt));
 }
 
+export async function getUserGeneratingProject(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(projects)
+    .where(and(eq(projects.userId, userId), eq(projects.status, 'generating')))
+    .orderBy(desc(projects.createdAt))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function updateProjectStatus(projectId: number, status: "draft" | "generating" | "completed" | "failed") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

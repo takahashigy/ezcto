@@ -32,6 +32,10 @@ export const projects = mysqlTable("projects", {
   website: varchar("website", { length: 500 }),
   tokenomics: text("tokenomics"),
   contractAddress: varchar("contractAddress", { length: 100 }),
+  // Social links
+  twitterUrl: varchar("twitterUrl", { length: 500 }),
+  telegramUrl: varchar("telegramUrl", { length: 500 }),
+  discordUrl: varchar("discordUrl", { length: 500 }),
   status: mysqlEnum("status", ["draft", "generating", "completed", "failed"]).default("draft").notNull(),
   styleTemplate: varchar("styleTemplate", { length: 100 }),
   userImageUrl: varchar("userImageUrl", { length: 1000 }),

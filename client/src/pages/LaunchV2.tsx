@@ -57,6 +57,9 @@ export default function LaunchV2() {
     { slug: formData.slug },
     { enabled: false } // Manual trigger only
   );
+  
+  // Check for existing generating project to prevent duplicate submissions
+  const { data: generatingProject, isLoading: checkingGenerating } = trpc.projects.getGenerating.useQuery();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,6 +98,18 @@ export default function LaunchV2() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check for duplicate submission - if user has a project currently generating
+    if (generatingProject) {
+      toast.error(
+        language === 'zh' 
+          ? `您已有一个项目正在生成中 (${generatingProject.name})，请等待完成后再创建新项目` 
+          : `You already have a project generating (${generatingProject.name}). Please wait for it to complete.`
+      );
+      // Redirect to the generating project's preview page
+      setLocation(`/launch/preview?projectId=${generatingProject.id}`);
+      return;
+    }
 
     if (!formData.projectName || !formData.ticker || !formData.description) {
       toast.error(language === 'zh' ? '请填写项目名称、Ticker和描述' : 'Please fill in Project Name, Ticker, and Description');
@@ -140,6 +155,10 @@ export default function LaunchV2() {
         description: formData.description,
         tokenomics: formData.tokenomics || undefined,
         contractAddress: formData.contractAddress || undefined,
+        // Social links
+        twitterUrl: formData.twitter || undefined,
+        telegramUrl: formData.telegram || undefined,
+        discordUrl: formData.discord || undefined,
       });
 
       toast.success("Project created!");
@@ -149,6 +168,11 @@ export default function LaunchV2() {
       if (user?.role === 'admin') {
         // Admin users skip payment and start generation immediately
         toast.info(language === 'zh' ? '🔑 Admin权限：跳过支付，直接开始生成...' : '🔑 Admin privilege: Skipping payment, starting generation...');
+        
+        // Debug: Log image data before sending
+        console.log('[LaunchV2] Admin trigger - imagePreview length:', imagePreview?.length || 0);
+        console.log('[LaunchV2] Admin trigger - imagePreview starts with:', imagePreview?.substring(0, 50));
+        console.log('[LaunchV2] Admin trigger - characterImageUrl:', characterImageUrl);
         
         try {
           await launchTriggerMutation.mutateAsync({
@@ -556,22 +580,59 @@ export default function LaunchV2() {
                   </div>
                 </div>
 
+                {/* Warning if user has a generating project */}
+                {generatingProject && (
+                  <div className="bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-yellow-700">
+                        {language === 'zh' ? '您有一个项目正在生成中' : 'You have a project generating'}
+                      </p>
+                      <p className="text-sm text-yellow-600 mt-1">
+                        {language === 'zh' 
+                          ? `项目 "${generatingProject.name}" 正在生成，请等待完成后再创建新项目。`
+                          : `Project "${generatingProject.name}" is being generated. Please wait for it to complete.`
+                        }
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 text-yellow-700 border-yellow-500 hover:bg-yellow-500/10"
+                        onClick={() => setLocation(`/launch/preview?projectId=${generatingProject.id}`)}
+                      >
+                        {language === 'zh' ? '查看进度' : 'View Progress'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={isGenerating}
-                  className="w-full font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] text-lg px-8 py-6 transition-all"
+                  disabled={isGenerating || checkingGenerating || !!generatingProject}
+                  className="w-full font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] text-lg px-8 py-6 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isGenerating ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Launching...
+                      {language === 'zh' ? '正在启动...' : 'Launching...'}
+                    </>
+                  ) : checkingGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      {language === 'zh' ? '检查中...' : 'Checking...'}
+                    </>
+                  ) : generatingProject ? (
+                    <>
+                      <AlertCircle className="mr-2 h-5 w-5" />
+                      {language === 'zh' ? '请等待当前项目完成' : 'Wait for current project'}
                     </>
                   ) : (
                     <>
                       <Rocket className="mr-2 h-5 w-5" />
-                      Launch Project with AI
+                      {language === 'zh' ? 'AI 启动项目' : 'Launch Project with AI'}
                     </>
                   )}
                 </Button>

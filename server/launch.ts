@@ -29,6 +29,10 @@ export interface LaunchInput {
   description?: string;
   ticker?: string;
   tokenomics?: string;
+  // Social links
+  twitterUrl?: string;
+  telegramUrl?: string;
+  discordUrl?: string;
   styleTemplate?: string;
   userImageUrl?: string; // Primary image (for backward compatibility)
   userImageBase64?: string; // Base64 encoded image data (to avoid 403 on CloudFront URLs)
@@ -484,6 +488,11 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               projectName: input.name,
               ticker: input.ticker || "",
               description: input.description || "",
+              contractAddress: project?.contractAddress || undefined,
+              // Social links
+              twitterUrl: input.twitterUrl,
+              telegramUrl: input.telegramUrl,
+              discordUrl: input.discordUrl,
               language: analysisResult.language,
               brandStrategy: analysisResult.brandStrategy,
               colorScheme: analysisResult.colorScheme,

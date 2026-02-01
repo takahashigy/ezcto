@@ -14,7 +14,7 @@ import { ALL_PRODUCTS } from "./products";
 import { storagePut } from "./storage";
 import { removeBackground } from "./_core/backgroundRemoval";
 import { notifyOwner } from "./_core/notification";
-import { uploadToR2 } from "./cloudflareR2";
+import { uploadToR2, uploadPreviewToR2 } from "./cloudflareR2";
 import { cryptoRouter } from "./routers/crypto";
 import { enhanceDescription } from "./_core/claude";
 import { checkSlugAvailability } from "./_core/deployment";
@@ -93,6 +93,11 @@ export const appRouter = router({
       return await db.getProjectsByUserId(ctx.user.id);
     }),
 
+    // Check if user has a project currently generating
+    getGenerating: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUserGeneratingProject(ctx.user.id);
+    }),
+
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input, ctx }) => {
@@ -114,6 +119,10 @@ export const appRouter = router({
         ticker: z.string().max(50).optional(),
         tokenomics: z.string().optional(),
         contractAddress: z.string().max(100).optional(),
+        // Social links
+        twitterUrl: z.string().max(500).optional(),
+        telegramUrl: z.string().max(500).optional(),
+        discordUrl: z.string().max(500).optional(),
         styleTemplate: z.string().max(100).optional(),
         userImageUrl: z.string().optional(),
         userImageKey: z.string().optional(),
@@ -142,6 +151,10 @@ export const appRouter = router({
           ticker: input.ticker,
           tokenomics: input.tokenomics,
           contractAddress: input.contractAddress,
+          // Social links
+          twitterUrl: input.twitterUrl,
+          telegramUrl: input.telegramUrl,
+          discordUrl: input.discordUrl,
           styleTemplate: input.styleTemplate,
           userImageUrl: input.userImageUrl,
           userImageKey: input.userImageKey,
@@ -167,6 +180,10 @@ export const appRouter = router({
             description: input.description,
             ticker: input.ticker,
             tokenomics: input.tokenomics,
+            // Social links
+            twitterUrl: input.twitterUrl,
+            telegramUrl: input.telegramUrl,
+            discordUrl: input.discordUrl,
             styleTemplate: input.styleTemplate,
             userImageUrl: input.userImageUrl,
             userImages: input.userImages ? JSON.parse(input.userImages) : undefined,
@@ -535,6 +552,62 @@ export const appRouter = router({
         };
       }),
 
+    // Preview website before publishing
+    previewWebsite: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        console.log(`[PreviewWebsite] Creating preview for project ${input.projectId}`);
+
+        // 1. Verify project ownership
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        // 2. Get website HTML from assets
+        const assets = await db.getAssetsByProjectId(input.projectId);
+        const websiteAsset = assets.find(a => a.assetType === "website");
+        
+        // Check for HTML content - prefer textContent (stored directly), fallback to fileUrl (S3)
+        let htmlContent: string | null = null;
+        
+        if (websiteAsset?.textContent) {
+          htmlContent = websiteAsset.textContent;
+          console.log(`[PreviewWebsite] Using textContent from database (${htmlContent.length} chars)`);
+        } else if (websiteAsset?.fileUrl) {
+          console.log(`[PreviewWebsite] Fetching HTML from S3: ${websiteAsset.fileUrl}`);
+          const htmlResponse = await fetch(websiteAsset.fileUrl);
+          if (htmlResponse.ok) {
+            htmlContent = await htmlResponse.text();
+            console.log(`[PreviewWebsite] Fetched HTML from S3 (${htmlContent.length} chars)`);
+          }
+        }
+        
+        if (!htmlContent) {
+          throw new Error("Website HTML not found. Please generate the website first.");
+        }
+
+        try {
+          // 3. Upload to R2 preview path
+          const previewUrl = await uploadPreviewToR2(input.projectId, htmlContent);
+          console.log(`[PreviewWebsite] Preview uploaded to: ${previewUrl}`);
+
+          return {
+            success: true,
+            previewUrl,
+            expiresIn: "24 hours", // Preview links are temporary
+          };
+        } catch (error) {
+          console.error(`[PreviewWebsite] Preview creation failed:`, error);
+          throw new Error("Failed to create preview. Please try again.");
+        }
+      }),
+
     // Publish website with subdomain
     publishWebsite: protectedProcedure
       .input(z.object({
@@ -876,12 +949,21 @@ export const appRouter = router({
           throw new Error("Payment required. Please complete payment before starting generation.");
         }
 
+        // Debug: Log received image data
+        console.log('[Launch Trigger] Received characterImageBase64 length:', input.characterImageBase64?.length || 0);
+        console.log('[Launch Trigger] Received characterImageUrl:', input.characterImageUrl);
+        
         // Execute launch in background (non-blocking)
         executeLaunch({
           projectId: project.id,
           name: project.name,
           description: project.description || undefined,
           ticker: project.ticker || undefined,
+          tokenomics: project.tokenomics || undefined,
+          // Social links from project
+          twitterUrl: project.twitterUrl || undefined,
+          telegramUrl: project.telegramUrl || undefined,
+          discordUrl: project.discordUrl || undefined,
           styleTemplate: project.styleTemplate || undefined,
           userImageUrl: input.characterImageUrl,
           userImageBase64: input.characterImageBase64, // Pass base64 to avoid 403 on CloudFront URLs

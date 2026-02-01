@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Check, X, Globe, Lock, ShoppingCart, ExternalLink } from "lucide-react";
+import { Loader2, Check, X, Globe, Lock, ShoppingCart, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 interface PublishModalProps {
@@ -34,8 +34,19 @@ export function PublishModal({
     message: string;
     fullDomain?: string;
   } | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const checkSubdomainMutation = trpc.projects.checkSubdomain.useMutation();
+  const previewMutation = trpc.projects.previewWebsite.useMutation({
+    onSuccess: (data) => {
+      setPreviewUrl(data.previewUrl);
+      toast.success("Preview created! Opening in new tab...");
+      window.open(data.previewUrl, '_blank');
+    },
+    onError: (error) => {
+      toast.error(`Failed to create preview: ${error.message}`);
+    },
+  });
   const publishMutation = trpc.projects.publishWebsite.useMutation({
     onSuccess: (data) => {
       if (isEdit) {
@@ -63,6 +74,7 @@ export function PublishModal({
         setSubdomain(slug);
       }
       setAvailabilityStatus(null);
+      setPreviewUrl(null);
     }
   }, [open, projectName, currentSubdomain, isEdit]);
 
@@ -102,6 +114,10 @@ export function PublishModal({
     }
   };
 
+  const handlePreview = async () => {
+    await previewMutation.mutateAsync({ projectId });
+  };
+
   const handlePublish = async () => {
     if (!availabilityStatus?.available) {
       toast.error("Please check subdomain availability first");
@@ -129,6 +145,65 @@ export function PublishModal({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Preview Section */}
+          <div className="border-2 border-blue-300 rounded-lg p-4 bg-blue-50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Eye className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-blue-900">Preview Before Publishing</h4>
+                  <p className="text-sm text-blue-700">
+                    See how your website looks before making it live
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={handlePreview}
+                disabled={previewMutation.isPending || publishMutation.isPending}
+                variant="outline"
+                className="border-blue-400 text-blue-700 hover:bg-blue-100"
+              >
+                {previewMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Preview
+                  </>
+                )}
+              </Button>
+            </div>
+            {previewUrl && (
+              <div className="mt-3 p-3 bg-white rounded border border-green-200">
+                <div className="flex items-center gap-3">
+                  <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-green-900">
+                      Preview created successfully!
+                    </p>
+                    <p className="text-xs text-green-600 mt-0.5">
+                      Expires in 24 hours
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-green-400 text-green-700 hover:bg-green-50 flex-shrink-0"
+                    onClick={() => window.open(previewUrl, '_blank')}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-1" />
+                    Open
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Option 1: Free Subdomain (Active) */}
           <div className="border-2 border-[#2d3e2d] rounded-lg p-6 bg-white">
             <div className="flex items-start gap-4">

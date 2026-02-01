@@ -164,6 +164,20 @@ ${input.tokenomics ? `- Tokenomics: ${input.tokenomics}` : ""}
 
 Your task is to provide a complete brand strategy and image generation prompts. Focus on creating a cohesive visual identity that will drive conversions.
 
+**LANGUAGE DETECTION AND CONTENT GENERATION:**
+- Detect the primary language of the project description
+- If description is in Chinese (中文), generate ALL websiteContent fields in Chinese
+- If description is in Japanese (日本語), generate ALL websiteContent fields in Japanese
+- If description is in Korean (한국어), generate ALL websiteContent fields in Korean
+- Otherwise, generate content in English
+- Keep project name "${input.projectName}" and ticker "${input.ticker}" as-is (don't translate)
+- The headline, tagline, about, and features MUST match the detected language
+
+**CRITICAL RULE - DO NOT FABRICATE DATA:**
+- If tokenomics field is empty or not provided, set websiteContent.tokenomics.totalSupply and websiteContent.tokenomics.distribution to empty strings ""
+- NEVER invent or guess tokenomics data - only use what the user explicitly provides
+- Empty tokenomics means the section will be hidden on the website
+
 **CRITICAL REQUIREMENTS FOR BANNER PROMPTS:**
 - PayDex and X/Twitter banners MUST have the ticker "${input.ticker}" (WITHOUT $ symbol) as the most prominent, centered text element
 - Text must be bold, highly readable, with strong contrast against background
@@ -186,7 +200,7 @@ Please provide your analysis in the following JSON format:
   "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
   "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. MUST include: 'Large bold text ${input.ticker} centered prominently, social media header style, leave left 200px space for profile picture, high contrast for text visibility, [visual style details]'",
   "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
-  "featureIconPrompt": "Detailed prompt for 256x256 feature icon (simple, iconic, matches brand style)",
+  "featureIconPrompt": "Detailed prompt for 256x256 feature icon with TRANSPARENT BACKGROUND (PNG with alpha channel, simple iconic design, no background color, matches brand style)",
   "communityScenePrompt": "Detailed prompt for 800x600 community scene image showing enthusiastic supporters, community gathering, or social atmosphere that matches the brand personality",
   "websiteContent": {
     "headline": "Catchy main headline for hero section",
@@ -276,54 +290,143 @@ Remember: The ticker text "${input.ticker}" (without $) MUST be clearly visible 
  * Generate HTML structure (Step 1 of 3)
  */
 async function generateHTMLStructure(input: any, opusApiKey: string): Promise<string> {
+  // Build tokenomics section instruction based on whether data exists
+  const hasTokenomics = input.websiteContent.tokenomics.totalSupply && input.websiteContent.tokenomics.distribution;
+  const tokenomicsInstruction = hasTokenomics 
+    ? `5. Tokenomics section (id="tokenomics"):
+   - Supply: ${input.websiteContent.tokenomics.totalSupply}
+   - Distribution: ${input.websiteContent.tokenomics.distribution}
+   - Use visual representation: pie chart (CSS-based) OR progress bars for distribution percentages
+   - Make it visually appealing, not just plain text`
+    : `5. Tokenomics section: DO NOT INCLUDE THIS SECTION - user did not provide tokenomics data`;
+
+  // Build CA instruction based on whether contract address exists
+  const hasCA = input.contractAddress && input.contractAddress.trim();
+  const caInstruction = hasCA
+    ? `**CONTRACT ADDRESS (CA):**
+- CA: ${input.contractAddress}
+- Display prominently in Hero section (below CTA buttons) or in a dedicated section
+- Add a "Copy" button next to the CA
+- Use data-ca attribute to store the address for JavaScript copy functionality
+- Example: <div class="ca-container" data-ca="${input.contractAddress}"><span class="ca-text">${input.contractAddress}</span><button class="copy-btn">Copy</button></div>`
+    : '';
+
+  // Build language instruction based on detected language
+  const languageInstruction = input.language === 'zh-CN' 
+    ? `**LANGUAGE: 简体中文 (Chinese)**
+- ALL text content MUST be in Chinese, including:
+  - Navigation links: 首页, 关于, 特性, ${hasTokenomics ? '代币经济, ' : ''}社区
+  - Button text: 立即购买, 了解更多, 加入社区, 复制, 下载
+  - Section titles: 关于我们, 核心特性, 代币经济, 社区
+  - Footer text: 版权所有, 下载营销素材
+- Keep project name "${input.projectName}" and ticker "${input.ticker}" as-is (don't translate)
+- Keep technical terms like CA address as-is`
+    : input.language === 'ja'
+    ? `**LANGUAGE: 日本語 (Japanese)**
+- ALL text content MUST be in Japanese, including:
+  - Navigation links: ホーム, 概要, 特徴, ${hasTokenomics ? 'トークノミクス, ' : ''}コミュニティ
+  - Button text: 今すぐ購入, 詳細を見る, コミュニティに参加, コピー, ダウンロード
+  - Section titles, footer text, etc.
+- Keep project name "${input.projectName}" and ticker "${input.ticker}" as-is`
+    : input.language === 'ko'
+    ? `**LANGUAGE: 한국어 (Korean)**
+- ALL text content MUST be in Korean, including:
+  - Navigation links: 홈, 소개, 기능, ${hasTokenomics ? '토큰노믹스, ' : ''}커뮤니티
+  - Button text: 지금 구매, 자세히 보기, 커뮤니티 참여, 복사, 다운로드
+  - Section titles, footer text, etc.
+- Keep project name "${input.projectName}" and ticker "${input.ticker}" as-is`
+    : `**LANGUAGE: English**
+- ALL text content should be in English
+- Use professional, engaging copywriting style`;
+
   const prompt = `Generate ONLY the HTML structure for a meme coin landing page. No CSS, no JavaScript.
 
 **PROJECT:** ${input.projectName} (${input.ticker})
+${languageInstruction}
+**BRAND PERSONALITY:** ${input.brandStrategy.personality}
+**VISUAL STYLE:** ${input.brandStrategy.visualStyle}
+
 **CONTENT:**
 - Headline: ${input.websiteContent.headline}
 - Tagline: ${input.websiteContent.tagline}
 - About: ${input.websiteContent.about}
 - Features: ${input.websiteContent.features.join(", ")}
 
-**IMAGES (use these exact URLs):**
-- Logo: ${input.logoUrl} (user's original uploaded image - DO NOT replace)
-- Hero BG: ${input.heroBackgroundUrl} (MUST be prominently visible as hero section background)
-- Community Scene: ${input.communitySceneUrl || ''} (use in About/Community section)
-- Feature Icon: ${input.featureIconUrl}
-- PayDex Banner: ${input.paydexBannerUrl} (for download only, NOT for display in main content)
-- X Banner: ${input.xBannerUrl} (for download only, NOT for display in main content)
+${caInstruction}
 
-**STRUCTURE:**
-1. Hero section:
-   - Logo in navbar (use logoUrl directly)
-   - Hero background image MUST be visible (use heroBackgroundUrl as <img> or background-image)
-   - Headline, tagline, CTA buttons
-2. About section (MUST include Community Scene image):
-   - Community scene image (use communitySceneUrl) - THIS IS REQUIRED, display prominently
+**IMAGES (use these exact URLs):**
+- Logo: ${input.logoUrl} (user's original uploaded image - use in navbar and footer)
+- Hero BG: ${input.heroBackgroundUrl} (MUST be the FULL BACKGROUND of hero section, prominently visible)
+- Community Scene: ${input.communitySceneUrl || ''} (use as main visual in About section)
+- Feature Icon: ${input.featureIconUrl} (use as SMALL decorative icon, max 64px-80px, in feature cards)
+- PayDex Banner: ${input.paydexBannerUrl} (can be used for decoration, MUST be responsive)
+- X Banner: ${input.xBannerUrl} (can be used for decoration, MUST be responsive)
+
+**PAGE STRUCTURE:**
+1. Navigation bar (fixed at top):
+   - Logo on left (use logoUrl, reasonable size ~40-50px height)
+   - Nav links: About, Features, ${hasTokenomics ? 'Tokenomics, ' : ''}Community
+   - Each nav link should have data-section attribute matching section IDs
+   - Add class "active" to current section's nav link (JS will handle this)
+
+2. Hero section (id="hero", FULL VIEWPORT HEIGHT):
+   - Use heroBackgroundUrl as the FULL SECTION BACKGROUND (background-image style)
+   - Overlay text: Headline, Tagline
+   - CTA buttons:
+     ${hasCA ? `- "Buy Now" button: <a href="https://gmgn.ai/bsc/token/${input.contractAddress}" target="_blank" class="buy-btn">Buy Now</a>` : '- NO Buy Now button (no contract address provided)'}
+     - "Learn More" button (scrolls to about section)
+   ${hasCA ? `- Contract Address display: Show "${input.contractAddress}" with a Copy button (id="copy-ca-btn", data-ca="${input.contractAddress}")` : '- NO Contract Address display (user did not provide CA)'}
+   - The hero background image MUST be clearly visible, not hidden by dark overlays
+
+3. About section (id="about"):
+   - Use communitySceneUrl as the MAIN VISUAL (large, prominent, ~400-600px max-width)
    - Project description text alongside or below the image
-   - Use a visually appealing layout (e.g., image on left, text on right, or image as section highlight)
-3. Features section:
-   - 3 feature cards with icons (use featureIconUrl)
-4. Tokenomics section:
-   - Supply: ${input.websiteContent.tokenomics.totalSupply}
-   - Distribution: ${input.websiteContent.tokenomics.distribution}
-5. Community section:
-   - Social links (Twitter/X, Telegram, Discord)
-   - Final CTA
-6. Footer:
-   - Download buttons for marketing assets (PayDex Banner, X Banner)
-   - These banners are for DOWNLOAD only, not for display
+   - Layout: image on one side, text on the other (or stacked on mobile)
+
+4. Features section (id="features"):
+   - 3 feature cards in a row (grid or flexbox)
+   - Each card has: small icon (featureIconUrl, MAX 64px), title, description
+   - The feature icon should be SMALL and decorative, NOT full-width
+
+${tokenomicsInstruction}
+
+6. Community section (id="community"):
+   - Social links container with class "social-links" (MUST be HORIZONTAL row layout)
+   - Use Font Awesome icons (ONLY show links that have URLs provided):
+     ${input.twitterUrl ? `- Twitter/X: <a href="${input.twitterUrl}" target="_blank" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>` : '- NO Twitter link (user did not provide)'}
+     ${input.telegramUrl ? `- Telegram: <a href="${input.telegramUrl}" target="_blank" class="social-link"><i class="fa-brands fa-telegram"></i></a>` : '- NO Telegram link (user did not provide)'}
+     ${input.discordUrl ? `- Discord: <a href="${input.discordUrl}" target="_blank" class="social-link"><i class="fa-brands fa-discord"></i></a>` : '- NO Discord link (user did not provide)'}
+   - CRITICAL: Wrap all social links in <div class="social-links"> container
+   - CRITICAL: Social links MUST be displayed in a HORIZONTAL ROW, NOT vertical
+   - IMPORTANT: Do NOT show social icons for links that are not provided
+   - Final CTA button
+
+7. Marketing Banners section (id="banners", before footer):
+   - Section title: "Marketing Assets" or similar
+   - Display PayDex Banner as responsive image: <img src="${input.paydexBannerUrl}" class="banner-preview" alt="PayDex Banner">
+   - Display X Banner as responsive image: <img src="${input.xBannerUrl}" class="banner-preview" alt="X Banner">
+   - Each banner should have a download button below it
+   - Banners MUST be displayed adaptively (width: 100%, max-width: 800px, centered)
+   - Add download attribute to links: <a href="${input.paydexBannerUrl}" download>Download PayDex Banner</a>
+
+8. Footer:
+   - Logo (small)
+   - Quick download links for marketing assets (smaller buttons)
+   - Copyright text
 
 **CRITICAL RULES:**
-- Logo MUST use the exact logoUrl provided (user's original image)
-- Hero background MUST be clearly visible, not hidden by overlays
-- Community Scene image MUST be displayed in the About section on the homepage (NOT hidden, NOT optional)
-- Banners (PayDex, X) are download assets, NOT display elements
-- All images must use max-width: 100% for responsive sizing
-- ALL <img> tags MUST include loading="lazy" attribute for lazy loading (except hero background which should load immediately)
-- Add decoding="async" attribute to all images for better performance
+1. Hero background (heroBackgroundUrl) MUST be visible as full-section background, NOT as a small image
+2. Community scene (communitySceneUrl) MUST be displayed prominently in About section
+3. Feature icon (featureIconUrl) MUST be SMALL (max 64-80px), used as decorative element in cards
+4. All images MUST have: loading="lazy" (except hero bg), decoding="async", alt text
+5. All images MUST be responsive: max-width: 100%; height: auto;
+6. ${hasTokenomics ? 'Tokenomics MUST have visual representation (pie chart or progress bars)' : 'DO NOT include Tokenomics section'}
+7. Navigation links MUST have data-section attributes for scroll-spy functionality
+8. ${hasCA ? 'Contract Address MUST be copyable with visual feedback' : 'No contract address to display'}
+9. Use Font Awesome for social icons (CDN will be added in head)
+10. Text style MUST match the brand personality: ${input.brandStrategy.personality}
 
-Return ONLY semantic HTML5 with proper tags, IDs, and classes. No inline styles.`;
+Return ONLY semantic HTML5 with proper tags, IDs, classes, and data attributes. No inline styles.`;
 
   return await callClaude([{ role: "user", content: prompt }], {
     model: "claude-opus-4-5-20251101",
@@ -339,7 +442,7 @@ Return ONLY semantic HTML5 with proper tags, IDs, and classes. No inline styles.
 async function generateCSS(input: any, htmlStructure: string, opusApiKey: string): Promise<string> {
   const prompt = `Generate ONLY the CSS for this HTML structure:
 
-${htmlStructure.substring(0, 3000)}...
+${htmlStructure.substring(0, 4000)}...
 
 **DESIGN SYSTEM:**
 - Primary: ${input.colorScheme.primary}
@@ -350,33 +453,77 @@ ${htmlStructure.substring(0, 3000)}...
 
 **REQUIREMENTS:**
 - Responsive (mobile-first, breakpoints: 640px, 768px, 1024px, 1280px)
-- Smooth animations (fade-in on scroll, hover effects, parallax)
+- Smooth animations (fade-in on scroll, hover effects)
 - Modern typography matching visual style
-- High-conversion CTAs
+- High-conversion CTAs with hover effects
+- Text colors MUST have good contrast against backgrounds
 
 **CRITICAL CSS RULES:**
-1. HERO BACKGROUND VISIBILITY:
-   - The hero background image MUST be clearly visible
-   - If using overlay/gradient on hero, opacity MUST NOT exceed 0.4 (40%)
-   - Example: background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(...);
-   - DO NOT use solid colors or opaque gradients that hide the background image
 
-2. IMAGE RESPONSIVENESS:
-   - All images MUST have: max-width: 100%; height: auto;
-   - Banners and large images must NEVER overflow the viewport
+1. HERO SECTION (MOST IMPORTANT):
+   - Hero section MUST be min-height: 100vh (full viewport)
+   - Hero background image MUST be clearly visible
+   - Use: background-size: cover; background-position: center;
+   - If using overlay, opacity MUST NOT exceed 0.3 (30%)
+   - Example: background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url(...);
+   - DO NOT use solid colors that hide the background image
+
+2. NAVIGATION:
+   - Fixed position at top (position: fixed; top: 0; width: 100%; z-index: 1000;)
+   - Nav links with .active class should have distinct styling (underline, color change, or background)
+   - Smooth transition for active state changes
+
+3. FEATURE ICONS:
+   - Feature icons MUST be SMALL: max-width: 64px; max-height: 64px;
+   - Center icons in feature cards
+   - DO NOT make feature icons full-width
+
+4. COMMUNITY SCENE IMAGE:
+   - In About section: max-width: 500px; width: 100%;
+   - Add border-radius and subtle shadow for polish
+   - Responsive: scales down on mobile
+
+5. IMAGE RESPONSIVENESS:
+   - All images: max-width: 100%; height: auto;
+   - Banners MUST NOT overflow viewport
    - Use object-fit: cover for background images
 
-3. BANNER DOWNLOAD SECTION:
-   - Banner images in footer/download section should be contained within viewport width
-   - Use a container with max-width and center alignment
+6. CONTRACT ADDRESS (CA) STYLING:
+   - .ca-container: prominent display, centered or left-aligned
+   - .ca-text: monospace font, truncate on mobile if needed
+   - .copy-btn: clear button styling with hover effect
+   - .copy-success: visual feedback class (green color, checkmark)
 
-4. IMAGE LAZY LOADING TRANSITIONS:
-   - Images should start with opacity: 0
-   - Add transition: opacity 0.3s ease-in-out
-   - When image loads (has .loaded class), set opacity: 1
-   - Example:
-     img { opacity: 0; transition: opacity 0.3s ease-in-out; }
-     img.loaded { opacity: 1; }
+7. TOKENOMICS VISUALIZATION (if present):
+   - Pie chart: use CSS conic-gradient or SVG
+   - Progress bars: colored bars with percentage labels
+   - Make it visually appealing, not just plain text
+
+8. SOCIAL MEDIA LINKS (CRITICAL):
+   - Social links MUST be displayed as HORIZONTAL inline buttons/icons
+   - Use flexbox: display: flex; flex-direction: row; gap: 1rem; justify-content: center;
+   - Each social link: display: inline-flex; align-items: center; justify-content: center;
+   - Icon size: font-size: 1.5rem to 2rem;
+   - Add hover effects (scale, color change)
+   - NEVER use vertical layout (flex-direction: column) for social links
+   - Example: .social-links { display: flex; flex-direction: row; gap: 1rem; }
+   - Example: .social-links a { display: inline-flex; width: 48px; height: 48px; border-radius: 50%; }
+
+9. MARKETING BANNERS SECTION:
+   - .banner-preview: width: 100%; max-width: 800px; height: auto; margin: 0 auto; display: block;
+   - Banners should be centered with margin: 2rem auto;
+   - Add subtle shadow or border for visual separation
+   - Download buttons below each banner, styled as secondary CTAs
+   - Responsive: on mobile, banners stack vertically with full width
+
+10. FOOTER:
+   - Clean layout with proper spacing
+   - Quick download links (smaller than main CTAs)
+   - Copyright text
+
+11. LAZY LOADING TRANSITIONS:
+   - img { opacity: 0; transition: opacity 0.3s ease-in-out; }
+   - img.loaded { opacity: 1; }
 
 Return ONLY the CSS code inside <style> tags.`;
 
@@ -394,24 +541,87 @@ Return ONLY the CSS code inside <style> tags.`;
 async function generateJavaScript(opusApiKey: string): Promise<string> {
   const prompt = `Generate ONLY the JavaScript for a meme coin landing page.
 
-**FEATURES:**
-1. Smooth scroll navigation (for anchor links)
-2. Fade-in on scroll animations using IntersectionObserver
-3. Copy contract address to clipboard with visual feedback
-4. Download marketing assets (trigger file download)
-5. Enhanced lazy loading with IntersectionObserver fallback:
-   - Use IntersectionObserver to detect when images enter viewport
-   - For browsers without native loading="lazy" support
-   - Add fade-in effect when images load
-   - Preload critical images (logo, hero background)
+**REQUIRED FEATURES:**
 
-**LAZY LOADING IMPLEMENTATION:**
-- Check if browser supports native lazy loading
-- If not, use IntersectionObserver polyfill pattern
-- Add 'loaded' class to images when they finish loading
-- Implement smooth fade-in transition for loaded images
+1. NAVIGATION SCROLL-SPY (MOST IMPORTANT):
+   - Track which section is currently in viewport
+   - Update nav link .active class based on scroll position
+   - Use IntersectionObserver to detect section visibility
+   - When a section enters viewport (threshold: 0.3-0.5), add .active to corresponding nav link
+   - Remove .active from other nav links
+   - Example:
+     const sections = document.querySelectorAll('section[id]');
+     const navLinks = document.querySelectorAll('nav a[data-section]');
+     const observer = new IntersectionObserver((entries) => {
+       entries.forEach(entry => {
+         if (entry.isIntersecting) {
+           navLinks.forEach(link => link.classList.remove('active'));
+           const activeLink = document.querySelector(\`nav a[data-section="\${entry.target.id}"]\`);
+           if (activeLink) activeLink.classList.add('active');
+         }
+       });
+     }, { threshold: 0.3 });
+     sections.forEach(section => observer.observe(section));
 
-Return ONLY the JavaScript code inside <script> tags. Keep it minimal and performant.`;
+2. SMOOTH SCROLL NAVIGATION:
+   - All anchor links scroll smoothly to target section
+   - Use behavior: 'smooth' or custom easing
+   - Account for fixed navbar height offset
+
+3. CONTRACT ADDRESS COPY (CRITICAL - MUST WORK):
+   - Find the copy button by id="copy-ca-btn" or class="copy-btn"
+   - Get the contract address from data-ca attribute on the button
+   - On click:
+     a. Get CA from button.getAttribute('data-ca') or button.dataset.ca
+     b. Copy to clipboard: navigator.clipboard.writeText(ca)
+     c. Show visual feedback:
+        - Change button text to "Copied!" temporarily
+        - Add .copy-success class
+        - After 2 seconds, revert to original text
+   - IMPORTANT: Use this exact pattern:
+     const copyBtn = document.getElementById('copy-ca-btn') || document.querySelector('.copy-btn');
+     if (copyBtn) {
+       copyBtn.addEventListener('click', async () => {
+         const ca = copyBtn.getAttribute('data-ca');
+         if (ca) {
+           try {
+             await navigator.clipboard.writeText(ca);
+             const originalText = copyBtn.textContent;
+             copyBtn.textContent = 'Copied!';
+             copyBtn.classList.add('copy-success');
+             setTimeout(() => {
+               copyBtn.textContent = originalText;
+               copyBtn.classList.remove('copy-success');
+             }, 2000);
+           } catch (err) {
+             console.error('Failed to copy:', err);
+           }
+         }
+       });
+     }
+
+4. FADE-IN ON SCROLL ANIMATIONS:
+   - Use IntersectionObserver for elements with .fade-in class
+   - Add .visible class when element enters viewport
+   - CSS handles the actual animation
+
+5. IMAGE LAZY LOADING:
+   - Add 'loaded' class to images when they finish loading
+   - Use img.onload or img.complete check
+   - Smooth fade-in transition via CSS
+
+6. DOWNLOAD BUTTONS:
+   - For download links, ensure proper download attribute
+   - Optional: track download clicks
+
+**CODE QUALITY:**
+- Use modern ES6+ syntax
+- Use event delegation where appropriate
+- Handle edge cases (missing elements, API failures)
+- Keep code minimal and performant
+- Use DOMContentLoaded to ensure DOM is ready
+
+Return ONLY the JavaScript code inside <script> tags.`;
 
   return await callClaude([{ role: "user", content: prompt }], {
     model: "claude-opus-4-5-20251101",
@@ -425,6 +635,11 @@ export async function generateWebsiteCode(input: {
   projectName: string;
   ticker: string;
   description: string;
+  contractAddress?: string; // User's contract address (CA) for copy functionality
+  // Social links
+  twitterUrl?: string;
+  telegramUrl?: string;
+  discordUrl?: string;
   language: string;
   brandStrategy: {
     personality: string;
@@ -536,6 +751,10 @@ function combineHTMLParts(htmlStructure: string, cssCode: string, jsCode: string
     .replace(/\s*```$/i, '')
     .trim();
   
+  // CRITICAL: Escape </script> in JavaScript code to prevent premature tag closure
+  // This is a common issue when JS code contains string literals with </script>
+  const safeJsCode = jsCode.replace(/<\/script>/gi, '<\\/script>');
+  
   // Build complete HTML document
   return `<!DOCTYPE html>
 <html lang="en">
@@ -548,6 +767,7 @@ function combineHTMLParts(htmlStructure: string, cssCode: string, jsCode: string
     <meta property="og:description" content="${input.websiteContent.tagline}">
     <meta property="og:image" content="${input.logoUrl}">
     <link rel="icon" href="${input.logoUrl}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
 ${cssCode}
     </style>
@@ -555,7 +775,7 @@ ${cssCode}
 <body>
 ${bodyContent}
     <script>
-${jsCode}
+${safeJsCode}
     </script>
 </body>
 </html>`;

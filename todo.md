@@ -1044,4 +1044,51 @@
 - [x] 修复API代码（优先使用textContent，fallback到fileUrl）
 - [x] 修复R2上传路径（与deployment.ts保持一致）
 - [x] 测试修复结果（成功！）
+- [x] 保存checkpoint (9780fbcf)
+
+## 发布前网站预览功能
+- [x] 设计预览功能方案（临时预览链接）
+- [x] 实现后端API（uploadPreviewToR2 + previewWebsite）
+- [x] 实现前端预览UI（PublishModal中添加Preview按钮）
+- [ ] 测试预览功能
 - [ ] 保存checkpoint
+
+## 优化Claude生成网站的Prompt
+- [x] 查看当前生成网站的Prompt代码
+- [x] 优化图片使用规则（hero-background首屏、community-scene第二屏、feature-icon小图标、banner装饰）
+- [x] 添加交互逻辑规则（导航高亮跟随滚动、CA点击复制、Font Awesome社交图标）
+- [x] 添加内容规则（空字段不编造、文字风格协调、Tokenomics可视化）
+- [x] 添加布局规则（图片自适应尺寸、Footer整齐）
+- [ ] 测试生成效果
+- [ ] 保存checkpoint
+
+## 多语言智能适配（根据用户输入语言生成对应语言网站）
+- [x] 在analyzeProjectInput中添加语言检测指令
+- [x] 在generateHTMLStructure中添加详细的多语言指令（中文/日文/韩文/英文）
+- [x] 导航、按钮、标题等文字内容根据语言自动适配
+- [ ] 测试中文输入生成中文网站
+- [ ] 测试英文输入生成英文网站
+- [ ] 保存checkpoint
+
+## 修复生成网站的多个问题
+- [ ] 修复Footer JavaScript乱码问题（最严重）
+- [ ] 确保Community Scene图片在About区域显示
+- [ ] 确保Feature Icon在Features卡片中显示
+- [ ] 传递用户填写的社交链接URL到网站生成
+- [ ] 未填写的社交链接应该隐藏
+- [ ] Banner需要在Footer展示预览图
+- [ ] 测试修复效果
+- [ ] 保存checkpoint
+
+## 购买按钮和CA复制功能
+- [x] 购买按钮跳转到GMGN（https://gmgn.ai/bsc/token/{CA}）
+- [x] 没有CA时不显示购买按钮和CA展示区域
+- [x] 修复CA复制功能（优化JavaScript Prompt）
+- [ ] 测试功能
+
+## 修复网站生成的4个问题
+- [x] Features图片生成为透明背景PNG（更新featureIconPrompt添加TRANSPARENT BACKGROUND要求）
+- [x] 修复社交媒体按钮显示问题（HTML添加social-links容器，CSS添加水平布局规则）
+- [x] Banner自适应展示（添加Marketing Banners section，CSS添加banner-preview样式）
+- [x] 添加防重复提交逻辑（db.getUserGeneratingProject + trpc.projects.getGenerating API + 前端检查和禁用按钮）
+- [ ] 测试并保存checkpoint

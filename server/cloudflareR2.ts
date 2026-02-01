@@ -38,6 +38,33 @@ export async function uploadToR2(subdomain: string, htmlContent: string): Promis
 }
 
 /**
+ * Upload HTML content to R2 for preview (temporary path)
+ * @param projectId - The project ID
+ * @param htmlContent - The HTML content to upload
+ * @returns The preview URL
+ */
+export async function uploadPreviewToR2(projectId: number, htmlContent: string): Promise<string> {
+  // Use a preview-specific path with timestamp for uniqueness
+  const timestamp = Date.now();
+  const key = `preview/${projectId}-${timestamp}/index.html`;
+
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    Body: htmlContent,
+    ContentType: "text/html; charset=utf-8",
+    CacheControl: "no-cache, no-store, must-revalidate", // No caching for preview
+  });
+
+  await r2Client.send(command);
+
+  // Return the preview URL using assets domain
+  // Preview files are accessed via: https://assets.ezcto.fun/preview/{projectId}-{timestamp}/index.html
+  const publicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL || `https://assets.${customDomain}`;
+  return `${publicUrl}/preview/${projectId}-${timestamp}/index.html`;
+}
+
+/**
  * Test R2 connection by checking if bucket exists
  * @returns true if connection is successful
  */

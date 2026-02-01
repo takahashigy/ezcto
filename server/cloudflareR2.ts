@@ -20,7 +20,8 @@ const customDomain = process.env.CLOUDFLARE_CUSTOM_DOMAIN!;
  * @returns The public URL of the uploaded file
  */
 export async function uploadToR2(subdomain: string, htmlContent: string): Promise<string> {
-  const key = `sites/${subdomain}/index.html`;
+  // Use same path format as deployment.ts: {subdomain}/index.html (not sites/{subdomain}/index.html)
+  const key = `${subdomain}/index.html`;
 
   const command = new PutObjectCommand({
     Bucket: bucketName,

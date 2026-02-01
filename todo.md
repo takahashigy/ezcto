@@ -1038,3 +1038,10 @@
 - [x] 修改launch流程直接使用base64转buffer
 - [x] 测试完整生成流程（成功！）
 - [ ] 保存checkpoint
+
+## 修复Dashboard页面"Website HTML not found"错误
+- [x] 分析错误来源（publishWebsite API检查fileUrl而不是textContent）
+- [x] 修复API代码（优先使用textContent，fallback到fileUrl）
+- [x] 修复R2上传路径（与deployment.ts保持一致）
+- [x] 测试修复结果（成功！）
+- [ ] 保存checkpoint

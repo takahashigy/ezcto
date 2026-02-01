@@ -571,7 +571,25 @@ export const appRouter = router({
         // 3. Get website HTML from assets
         const assets = await db.getAssetsByProjectId(input.projectId);
         const websiteAsset = assets.find(a => a.assetType === "website");
-        if (!websiteAsset || !websiteAsset.fileUrl) {
+        
+        // Check for HTML content - prefer textContent (stored directly), fallback to fileUrl (S3)
+        let htmlContent: string | null = null;
+        
+        if (websiteAsset?.textContent) {
+          // Use textContent directly (stored in database during generation)
+          htmlContent = websiteAsset.textContent;
+          console.log(`[PublishWebsite] Using textContent from database (${htmlContent.length} chars)`);
+        } else if (websiteAsset?.fileUrl) {
+          // Fallback: fetch from S3 URL
+          console.log(`[PublishWebsite] Fetching HTML from S3: ${websiteAsset.fileUrl}`);
+          const htmlResponse = await fetch(websiteAsset.fileUrl);
+          if (htmlResponse.ok) {
+            htmlContent = await htmlResponse.text();
+            console.log(`[PublishWebsite] Fetched HTML from S3 (${htmlContent.length} chars)`);
+          }
+        }
+        
+        if (!htmlContent) {
           throw new Error("Website HTML not found. Please generate the website first.");
         }
 
@@ -581,13 +599,6 @@ export const appRouter = router({
             deploymentStatus: "deploying",
             subdomain: input.subdomain,
           });
-
-          // 5. Fetch HTML content from S3
-          const htmlResponse = await fetch(websiteAsset.fileUrl);
-          if (!htmlResponse.ok) {
-            throw new Error("Failed to fetch website HTML from storage");
-          }
-          const htmlContent = await htmlResponse.text();
 
           // 6. Upload to Cloudflare R2
           const deploymentUrl = await uploadToR2(input.subdomain, htmlContent);
@@ -635,7 +646,7 @@ export const appRouter = router({
             success: true,
             subdomain: input.subdomain,
             fullDomain,
-            deploymentUrl: websiteAsset.fileUrl,
+            deploymentUrl,
           };
         } catch (error) {
           console.error(`[PublishWebsite] Deployment failed:`, error);

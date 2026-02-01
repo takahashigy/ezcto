@@ -1,4 +1,4 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, customOrders, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory, InsertCustomOrder } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -151,7 +151,25 @@ export async function getUserGeneratingProject(userId: number) {
     .where(and(eq(projects.userId, userId), eq(projects.status, 'generating')))
     .orderBy(desc(projects.createdAt))
     .limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  
+  if (result.length === 0) return undefined;
+  
+  const project = result[0];
+  
+  // Check if the generating project has timed out (15 minutes)
+  const TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+  const projectAge = Date.now() - new Date(project.updatedAt).getTime();
+  
+  if (projectAge > TIMEOUT_MS) {
+    // Auto-mark as failed due to timeout
+    console.log(`[DB] Project ${project.id} has been generating for ${Math.round(projectAge / 60000)} minutes, marking as failed`);
+    await db.update(projects)
+      .set({ status: 'failed', updatedAt: new Date() })
+      .where(eq(projects.id, project.id));
+    return undefined; // Return undefined so user can create new project
+  }
+  
+  return project;
 }
 
 export async function updateProjectStatus(projectId: number, status: "draft" | "generating" | "completed" | "failed") {
@@ -159,6 +177,42 @@ export async function updateProjectStatus(projectId: number, status: "draft" | "
   if (!db) throw new Error("Database not available");
 
   await db.update(projects).set({ status, updatedAt: new Date() }).where(eq(projects.id, projectId));
+}
+
+/**
+ * Clean up stale generating projects that have timed out
+ * This function marks projects that have been in 'generating' status for more than 15 minutes as 'failed'
+ * @returns Number of projects cleaned up
+ */
+export async function cleanupStaleGeneratingProjects(): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+  const cutoffTime = new Date(Date.now() - TIMEOUT_MS);
+
+  // Find all stale generating projects
+  const staleProjects = await db.select().from(projects)
+    .where(and(
+      eq(projects.status, 'generating'),
+      lt(projects.updatedAt, cutoffTime)
+    ));
+
+  if (staleProjects.length === 0) {
+    return 0;
+  }
+
+  console.log(`[DB] Found ${staleProjects.length} stale generating projects to clean up`);
+
+  // Mark them all as failed
+  for (const project of staleProjects) {
+    console.log(`[DB] Marking project ${project.id} (${project.name}) as failed due to timeout`);
+    await db.update(projects)
+      .set({ status: 'failed', updatedAt: new Date() })
+      .where(eq(projects.id, project.id));
+  }
+
+  return staleProjects.length;
 }
 
 export async function updateProject(projectId: number, updates: Partial<Omit<InsertProject, 'id' | 'userId' | 'createdAt'>>) {

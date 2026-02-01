@@ -92,6 +92,20 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
   let historyId: number | undefined;
   
   try {
+    // ========== PRE-FLIGHT VALIDATION ==========
+    // Validate image data is available BEFORE creating any records
+    const hasBase64 = input.userImageBase64 && input.userImageBase64.length > 100;
+    const hasUrl = input.userImageUrl && input.userImageUrl.length > 0;
+    
+    if (!hasBase64 && !hasUrl) {
+      console.error(`[Launch] PRE-FLIGHT FAILED: No image data available`);
+      console.error(`[Launch] userImageBase64 length: ${input.userImageBase64?.length || 0}`);
+      console.error(`[Launch] userImageUrl: ${input.userImageUrl || 'undefined'}`);
+      throw new Error('IMAGE_DATA_MISSING: Character image is required. Please upload an image before starting generation.');
+    }
+    
+    console.log(`[Launch] PRE-FLIGHT PASSED: hasBase64=${hasBase64}, hasUrl=${hasUrl}`);
+    
     // 创建生成历史记录
     const project = await db.getProjectById(input.projectId);
     if (!project) {
@@ -311,7 +325,8 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
             }
             
             if (!logoBuffer) {
-              console.warn(`[Launch] No logo buffer available - deployment may fail`);
+              console.error(`[Launch] CRITICAL: No logo buffer available - cannot proceed`);
+              throw new Error('Logo image data is missing. Please ensure the character image is uploaded correctly.');
             }
             
             // Save logo asset to database (even without buffer, for URL reference)

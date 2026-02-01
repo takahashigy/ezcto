@@ -1133,4 +1133,12 @@
 ## 修复重试时图片数据丢失问题
 - [x] LaunchV2Preview.tsx handleRetry 函数添加 characterImageBase64 参数
 - [x] LaunchV2.tsx Admin 用户提交时也存储图片数据到 localStorage
-- [ ] 测试并保存 checkpoint
+- [x] 测试并保存 checkpoint
+
+## 实现生成任务完整预防措施
+- [x] 生成超时自动失败：getUserGeneratingProject中检查15分钟超时自动标记failed
+- [x] executeLaunch启动前验证：PRE-FLIGHT VALIDATION检查图片数据，无效则不创建任务
+- [x] 确保failed状态不阻止新提交：只检查generating状态
+- [x] 定时清理超时任务：添加cleanupStaleGeneratingProjects函数
+- [x] 清理当前卡住的项目960002（SQL直接更新）
+- [ ] 测试并保存checkpoint

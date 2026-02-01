@@ -983,5 +983,15 @@
 - [x] 修改launch.ts存储assetsBaseUrl到项目记录
 - [x] 修改launch.ts在部署后更新assets表的fileUrl为R2公开URL
 - [x] 添加db.updateAssetFileUrl函数
-- [ ] 测试图片显示和下载功能
+- [ ] 测试图片显示和下载功能（需要新建项目测试）
+- [x] 保存checkpoint (25f48a04)
+
+## 优化网站生成逻辑（Prompt优化）
+- [x] 1. Logo使用用户上传原图，不再用Nanobanana生成
+- [x] 2. Favicon使用用户上传原图（裁剪适配）
+- [x] 3. Hero背景清晰可见，CSS遮罩透明度≤40%
+- [x] 4. Marketing Assets不显示在主页正文，放底部下载区
+- [x] 5. 生成并使用Community Scene (800x600)显示在社区/关于板块
+- [x] 6. Banner自适应屏幕宽度，max-width: 100%
+- [x] 7. 清理HTML输出中的Markdown标记（```html）
 - [ ] 保存checkpoint

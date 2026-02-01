@@ -1,0 +1,280 @@
+{
+  "query": "SELECT p.id, p.name, p.subdomain, p.assetsBaseUrl, a.id as asset_id, a.assetType, a.fileUrl \nFROM projects p \nLEFT JOIN assets a ON p.id = a.projectId \nWHERE p.name LIKE '%OpenClaw%' OR p.subdomain LIKE '%openclaw%'\nORDER BY a.assetType;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute SELECT p.id, p.name, p.subdomain, p.assetsBaseUrl, a.id as asset_id, a.assetType, a.fileUrl \nFROM projects p \nLEFT JOIN assets a ON p.id = a.projectId \nWHERE p.name LIKE '%OpenClaw%' OR p.subdomain LIKE '%openclaw%'\nORDER BY a.assetType;",
+  "rows": [
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690011",
+      "assetType": "logo",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937519656.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690007",
+      "assetType": "logo",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937442919.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660027",
+      "assetType": "logo",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901855576.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660016",
+      "assetType": "logo",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901037027.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660017",
+      "assetType": "logo",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901037975.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660023",
+      "assetType": "paydex_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901365223.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690006",
+      "assetType": "paydex_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937399255.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660011",
+      "assetType": "paydex_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900872589.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690003",
+      "assetType": "paydex_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937364329.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660013",
+      "assetType": "paydex_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900894311.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660025",
+      "assetType": "paydex_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901703978.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660026",
+      "assetType": "x_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901708328.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660012",
+      "assetType": "x_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900891566.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660009",
+      "assetType": "x_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900781909.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660010",
+      "assetType": "x_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900856963.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690005",
+      "assetType": "x_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937381241.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690004",
+      "assetType": "x_banner",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937368617.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690009",
+      "assetType": "hero_background",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937488077.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660014",
+      "assetType": "hero_background",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900966687.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690008",
+      "assetType": "hero_background",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937446292.png"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660018",
+      "assetType": "feature_icon",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901129590.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690010",
+      "assetType": "feature_icon",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937517778.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690012",
+      "assetType": "feature_icon",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937573409.png"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690002",
+      "assetType": "website",
+      "fileUrl": ""
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690001",
+      "assetType": "website",
+      "fileUrl": ""
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660005",
+      "assetType": "website",
+      "fileUrl": ""
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660024",
+      "assetType": "website",
+      "fileUrl": "NULL"
+    },
+    {
+      "id": "840003",
+      "name": "OpenClaw",
+      "subdomain": "NULL",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "660006",
+      "assetType": "website",
+      "fileUrl": ""
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690013",
+      "assetType": "website",
+      "fileUrl": "NULL"
+    },
+    {
+      "id": "870001",
+      "name": "OpenClaw",
+      "subdomain": "openclaw-wzms",
+      "assetsBaseUrl": "NULL",
+      "asset_id": "690014",
+      "assetType": "website",
+      "fileUrl": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tsubdomain\tassetsBaseUrl\tasset_id\tassetType\tfileUrl\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690011\tlogo\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937519656.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690007\tlogo\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937442919.png\n840003\tOpenClaw\tNULL\tNULL\t660027\tlogo\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901855576.png\n840003\tOpenClaw\tNULL\tNULL\t660016\tlogo\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901037027.png\n840003\tOpenClaw\tNULL\tNULL\t660017\tlogo\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901037975.png\n840003\tOpenClaw\tNULL\tNULL\t660023\tpaydex_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901365223.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690006\tpaydex_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937399255.png\n840003\tOpenClaw\tNULL\tNULL\t660011\tpaydex_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900872589.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690003\tpaydex_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937364329.png\n840003\tOpenClaw\tNULL\tNULL\t660013\tpaydex_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900894311.png\n840003\tOpenClaw\tNULL\tNULL\t660025\tpaydex_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901703978.png\n840003\tOpenClaw\tNULL\tNULL\t660026\tx_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901708328.png\n840003\tOpenClaw\tNULL\tNULL\t660012\tx_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900891566.png\n840003\tOpenClaw\tNULL\tNULL\t660009\tx_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900781909.png\n840003\tOpenClaw\tNULL\tNULL\t660010\tx_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900856963.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690005\tx_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937381241.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690004\tx_banner\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937368617.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690009\thero_background\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937488077.png\n840003\tOpenClaw\tNULL\tNULL\t660014\thero_background\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769900966687.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690008\thero_background\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937446292.png\n840003\tOpenClaw\tNULL\tNULL\t660018\tfeature_icon\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769901129590.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690010\tfeature_icon\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937517778.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690012\tfeature_icon\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769937573409.png\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690002\twebsite\t\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690001\twebsite\t\n840003\tOpenClaw\tNULL\tNULL\t660005\twebsite\t\n840003\tOpenClaw\tNULL\tNULL\t660024\twebsite\tNULL\n840003\tOpenClaw\tNULL\tNULL\t660006\twebsite\t\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690013\twebsite\tNULL\n870001\tOpenClaw\topenclaw-wzms\tNULL\t690014\twebsite\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1630
+}

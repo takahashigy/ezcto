@@ -185,9 +185,9 @@ Please provide your analysis in the following JSON format:
   },
   "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
   "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. MUST include: 'Large bold text ${input.ticker} centered prominently, social media header style, leave left 200px space for profile picture, high contrast for text visibility, [visual style details]'",
-  "logoPrompt": "Detailed prompt for 512x512 logo (clean, memorable, works at small sizes)",
   "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
   "featureIconPrompt": "Detailed prompt for 256x256 feature icon (simple, iconic, matches brand style)",
+  "communityScenePrompt": "Detailed prompt for 800x600 community scene image showing enthusiastic supporters, community gathering, or social atmosphere that matches the brand personality",
   "websiteContent": {
     "headline": "Catchy main headline for hero section",
     "tagline": "Brief memorable tagline",
@@ -285,20 +285,39 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
 - About: ${input.websiteContent.about}
 - Features: ${input.websiteContent.features.join(", ")}
 
-**IMAGES:**
-- Logo: ${input.logoUrl}
-- Hero BG: ${input.heroBackgroundUrl}
-- PayDex Banner: ${input.paydexBannerUrl}
-- X Banner: ${input.xBannerUrl}
+**IMAGES (use these exact URLs):**
+- Logo: ${input.logoUrl} (user's original uploaded image - DO NOT replace)
+- Hero BG: ${input.heroBackgroundUrl} (MUST be prominently visible as hero section background)
+- Community Scene: ${input.communitySceneUrl || ''} (use in About/Community section)
 - Feature Icon: ${input.featureIconUrl}
+- PayDex Banner: ${input.paydexBannerUrl} (for download only, NOT for display in main content)
+- X Banner: ${input.xBannerUrl} (for download only, NOT for display in main content)
 
 **STRUCTURE:**
-1. Hero (logo, headline, tagline, CTA buttons)
-2. About (community image, description)
-3. Features (3 cards with icons)
-4. Tokenomics (supply: ${input.websiteContent.tokenomics.totalSupply}, distribution: ${input.websiteContent.tokenomics.distribution})
-5. Marketing Assets (banners with download buttons)
-6. Community (social links, final CTA)
+1. Hero section:
+   - Logo in navbar (use logoUrl directly)
+   - Hero background image MUST be visible (use heroBackgroundUrl as <img> or background-image)
+   - Headline, tagline, CTA buttons
+2. About section:
+   - Community scene image (use communitySceneUrl)
+   - Project description
+3. Features section:
+   - 3 feature cards with icons (use featureIconUrl)
+4. Tokenomics section:
+   - Supply: ${input.websiteContent.tokenomics.totalSupply}
+   - Distribution: ${input.websiteContent.tokenomics.distribution}
+5. Community section:
+   - Social links (Twitter/X, Telegram, Discord)
+   - Final CTA
+6. Footer:
+   - Download buttons for marketing assets (PayDex Banner, X Banner)
+   - These banners are for DOWNLOAD only, not for display
+
+**CRITICAL RULES:**
+- Logo MUST use the exact logoUrl provided (user's original image)
+- Hero background MUST be clearly visible, not hidden by overlays
+- Banners (PayDex, X) are download assets, NOT display elements
+- All images must use max-width: 100% for responsive sizing
 
 Return ONLY semantic HTML5 with proper tags, IDs, and classes. No inline styles.`;
 
@@ -330,6 +349,22 @@ ${htmlStructure.substring(0, 3000)}...
 - Smooth animations (fade-in on scroll, hover effects, parallax)
 - Modern typography matching visual style
 - High-conversion CTAs
+
+**CRITICAL CSS RULES:**
+1. HERO BACKGROUND VISIBILITY:
+   - The hero background image MUST be clearly visible
+   - If using overlay/gradient on hero, opacity MUST NOT exceed 0.4 (40%)
+   - Example: background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(...);
+   - DO NOT use solid colors or opaque gradients that hide the background image
+
+2. IMAGE RESPONSIVENESS:
+   - All images MUST have: max-width: 100%; height: auto;
+   - Banners and large images must NEVER overflow the viewport
+   - Use object-fit: cover for background images
+
+3. BANNER DOWNLOAD SECTION:
+   - Banner images in footer/download section should be contained within viewport width
+   - Use a container with max-width and center alignment
 
 Return ONLY the CSS code inside <style> tags.`;
 
@@ -391,9 +426,10 @@ export async function generateWebsiteCode(input: {
   // All generated image URLs
   paydexBannerUrl: string;
   xBannerUrl: string;
-  logoUrl: string;
+  logoUrl: string; // User's original uploaded image
   heroBackgroundUrl: string;
   featureIconUrl: string;
+  communitySceneUrl?: string; // New: community scene image
 }): Promise<string> {
   console.log("[generateWebsiteCode] Step 1: Generating HTML structure...");
   
@@ -429,17 +465,25 @@ export async function generateWebsiteCode(input: {
 
 /**
  * Extract code from Claude response (handles markdown blocks)
+ * Also cleans up any remaining markdown artifacts
  */
 function extractCode(response: string, type: 'html' | 'css' | 'js'): string {
-  // Remove markdown code blocks
-  const codeBlockMatch = response.match(/```(?:html|css|javascript|js)?\s*([\s\S]*?)```/i);
+  let code = response;
+  
+  // Remove markdown code blocks (```html, ```css, ```javascript, ```js, or just ```)
+  const codeBlockMatch = code.match(/```(?:html|css|javascript|js)?\s*([\s\S]*?)```/i);
   if (codeBlockMatch) {
-    return codeBlockMatch[1].trim();
+    code = codeBlockMatch[1].trim();
   }
+  
+  // Clean up any remaining markdown artifacts at the start
+  code = code.replace(/^```(?:html|css|javascript|js)?\s*/i, '');
+  // Clean up any remaining markdown artifacts at the end
+  code = code.replace(/\s*```$/i, '');
   
   // For CSS, extract <style> tags
   if (type === 'css') {
-    const styleMatch = response.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+    const styleMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
     if (styleMatch) {
       return styleMatch[1].trim();
     }
@@ -447,13 +491,13 @@ function extractCode(response: string, type: 'html' | 'css' | 'js'): string {
   
   // For JS, extract <script> tags
   if (type === 'js') {
-    const scriptMatch = response.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+    const scriptMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
     if (scriptMatch) {
       return scriptMatch[1].trim();
     }
   }
   
-  return response.trim();
+  return code.trim();
 }
 
 /**
@@ -462,7 +506,13 @@ function extractCode(response: string, type: 'html' | 'css' | 'js'): string {
 function combineHTMLParts(htmlStructure: string, cssCode: string, jsCode: string, input: any): string {
   // Extract body content from HTML structure
   const bodyMatch = htmlStructure.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  const bodyContent = bodyMatch ? bodyMatch[1].trim() : htmlStructure;
+  let bodyContent = bodyMatch ? bodyMatch[1].trim() : htmlStructure;
+  
+  // Final cleanup: remove any remaining markdown artifacts from body content
+  bodyContent = bodyContent
+    .replace(/^```(?:html)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
   
   // Build complete HTML document
   return `<!DOCTYPE html>

@@ -1128,4 +1128,9 @@
 - [x] 前端验证：LaunchV2.tsx 添加图片上传和 base64 格式检查
 - [x] 后端验证：launch.trigger 路由添加图片数据验证（hasBase64/hasUrl）
 - [x] 防重复逻辑：已有检查 generating 状态，失败状态的项目不会阻止新提交
+- [x] 测试并保存 checkpoint
+
+## 修复重试时图片数据丢失问题
+- [x] LaunchV2Preview.tsx handleRetry 函数添加 characterImageBase64 参数
+- [x] LaunchV2.tsx Admin 用户提交时也存储图片数据到 localStorage
 - [ ] 测试并保存 checkpoint

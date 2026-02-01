@@ -108,12 +108,24 @@ export default function LaunchV2Preview() {
     if (!projectId || !project) return;
 
     try {
-      // Get stored image URL if exists
+      // Get stored image URL and base64 if exists
       const storedImageUrl = localStorage.getItem(`project_${projectId}_imageUrl`);
+      const storedImageBase64 = localStorage.getItem(`project_${projectId}_imageBase64`);
+      
+      // Check if we have image data
+      if (!storedImageUrl && !storedImageBase64) {
+        toast.error(
+          language === 'zh' 
+            ? '图片数据已丢失，请返回创建新项目' 
+            : 'Image data lost. Please create a new project.'
+        );
+        return;
+      }
       
       await retryGenerationMutation.mutateAsync({
         projectId: projectId,
         characterImageUrl: storedImageUrl || undefined,
+        characterImageBase64: storedImageBase64 || undefined,
       });
     } catch (error) {
       console.error('[LaunchV2Preview] Retry error:', error);

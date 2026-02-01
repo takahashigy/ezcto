@@ -189,6 +189,14 @@ export default function LaunchV2() {
         // Admin users skip payment and start generation immediately
         toast.info(language === 'zh' ? '🔑 Admin权限：跳过支付，直接开始生成...' : '🔑 Admin privilege: Skipping payment, starting generation...');
         
+        // Store image data for retry (in case generation fails)
+        if (characterImageUrl) {
+          localStorage.setItem(`project_${projectData.projectId}_imageUrl`, characterImageUrl);
+        }
+        if (imagePreview) {
+          localStorage.setItem(`project_${projectData.projectId}_imageBase64`, imagePreview);
+        }
+        
         // Debug: Log image data before sending
         console.log('[LaunchV2] Admin trigger - imagePreview length:', imagePreview?.length || 0);
         console.log('[LaunchV2] Admin trigger - imagePreview starts with:', imagePreview?.substring(0, 50));

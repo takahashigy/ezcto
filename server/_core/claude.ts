@@ -320,6 +320,8 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
 - Community Scene image MUST be displayed in the About section on the homepage (NOT hidden, NOT optional)
 - Banners (PayDex, X) are download assets, NOT display elements
 - All images must use max-width: 100% for responsive sizing
+- ALL <img> tags MUST include loading="lazy" attribute for lazy loading (except hero background which should load immediately)
+- Add decoding="async" attribute to all images for better performance
 
 Return ONLY semantic HTML5 with proper tags, IDs, and classes. No inline styles.`;
 
@@ -368,6 +370,14 @@ ${htmlStructure.substring(0, 3000)}...
    - Banner images in footer/download section should be contained within viewport width
    - Use a container with max-width and center alignment
 
+4. IMAGE LAZY LOADING TRANSITIONS:
+   - Images should start with opacity: 0
+   - Add transition: opacity 0.3s ease-in-out
+   - When image loads (has .loaded class), set opacity: 1
+   - Example:
+     img { opacity: 0; transition: opacity 0.3s ease-in-out; }
+     img.loaded { opacity: 1; }
+
 Return ONLY the CSS code inside <style> tags.`;
 
   return await callClaude([{ role: "user", content: prompt }], {
@@ -385,11 +395,21 @@ async function generateJavaScript(opusApiKey: string): Promise<string> {
   const prompt = `Generate ONLY the JavaScript for a meme coin landing page.
 
 **FEATURES:**
-1. Smooth scroll navigation
-2. Fade-in on scroll animations
-3. Copy contract address to clipboard
-4. Download marketing assets
-5. Lazy load images
+1. Smooth scroll navigation (for anchor links)
+2. Fade-in on scroll animations using IntersectionObserver
+3. Copy contract address to clipboard with visual feedback
+4. Download marketing assets (trigger file download)
+5. Enhanced lazy loading with IntersectionObserver fallback:
+   - Use IntersectionObserver to detect when images enter viewport
+   - For browsers without native loading="lazy" support
+   - Add fade-in effect when images load
+   - Preload critical images (logo, hero background)
+
+**LAZY LOADING IMPLEMENTATION:**
+- Check if browser supports native lazy loading
+- If not, use IntersectionObserver polyfill pattern
+- Add 'loaded' class to images when they finish loading
+- Implement smooth fade-in transition for loaded images
 
 Return ONLY the JavaScript code inside <script> tags. Keep it minimal and performant.`;
 

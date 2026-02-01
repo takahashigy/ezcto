@@ -998,4 +998,10 @@
 
 ## Community Scene显示在首页
 - [x] 更新HTML生成prompt，明确要求Community Scene显示在首页About/Community板块
+- [x] 保存checkpoint (60c62c0a)
+
+## 图片懒加载功能
+- [x] 修改HTML生成prompt，为所有img标签添加loading="lazy"和decoding="async"属性
+- [x] 修改CSS生成prompt，添加图片加载过渡效果
+- [x] 修改JavaScript生成prompt，添加IntersectionObserver懒加载逻辑（兼容旧浏览器）
 - [ ] 保存checkpoint

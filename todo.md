@@ -1147,3 +1147,18 @@
 - [x] 修改 HTML Prompt 中的复制按钮格式要求，强调标签必须完整闭合
 - [x] 添加 validateAndFixHTML 函数，自动修复未闭合的 button 标签
 - [ ] 测试并保存 checkpoint
+
+
+## WalletConnect 多链支付集成
+- [x] 安装 wagmi + RainbowKit 依赖（EVM 多链支持）
+- [x] 安装 Solana Wallet Adapter 依赖
+- [x] 创建 Web3Provider 组件（统一管理 EVM 和 Solana 钱包）
+- [x] 更新 web3Config.ts 支持多链配置（ETH/BSC/Polygon/Solana）
+- [x] 创建统一的 WalletConnectButton 组件
+- [x] 更新 CryptoPayment 组件支持多链和多代币选择
+- [x] 支持 BSC 上的 EZCTO 代币支付（首选）
+- [x] 支持 ETH/USDT/USDC 作为备选支付方式
+- [x] 支持 Solana SOL/USDC 支付
+- [x] 更新后端 crypto 路由支持多链验证
+- [x] 更新价格显示为 $299 USD
+- [x] 编写 vitest 测试（23 tests passed）

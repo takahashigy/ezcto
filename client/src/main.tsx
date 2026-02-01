@@ -8,6 +8,7 @@ import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { Web3Provider } from "./components/Web3Provider";
 
 const queryClient = new QueryClient();
 
@@ -56,9 +57,11 @@ const trpcClient = trpc.createClient({
 createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <App />
-      </LanguageProvider>
+      <Web3Provider>
+        <LanguageProvider>
+          <App />
+        </LanguageProvider>
+      </Web3Provider>
     </QueryClientProvider>
   </trpc.Provider>
 );

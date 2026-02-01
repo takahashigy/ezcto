@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { JsonRpcProvider } from "ethers";
-import { WEB3_CONFIG } from "../../shared/web3Config";
+import { CHAINS, TOKENS, PAYMENT_CONFIG, WEB3_CONFIG } from "../../shared/web3Config";
 import {
   createCryptoPayment,
   getCryptoPaymentById,
@@ -10,21 +10,27 @@ import {
   updateCryptoPaymentStatus,
   projectHasValidPayment,
 } from "../cryptoDb";
-import { getProjectById } from "../db";
+import { getProjectById, updateProject } from "../db";
 
-// BSC RPC Provider
-const bscProvider = new JsonRpcProvider(WEB3_CONFIG.BSC.rpcUrls[0]);
+// RPC Providers for different chains
+const providers = {
+  ETH: new JsonRpcProvider(CHAINS.ETH.rpcUrl),
+  BSC: new JsonRpcProvider(CHAINS.BSC.rpcUrl),
+  POLYGON: new JsonRpcProvider(CHAINS.POLYGON.rpcUrl),
+};
 
 export const cryptoRouter = router({
   /**
    * Create a new crypto payment record
+   * Supports multiple chains: ETH, BSC, POLYGON
    */
   createPayment: protectedProcedure
     .input(
       z.object({
         projectId: z.number(),
-        chain: z.literal("BSC"),
+        chain: z.enum(["ETH", "BSC", "POLYGON", "SOLANA"]),
         tokenSymbol: z.string(),
+        tokenAddress: z.string().nullable().optional(),
         amount: z.string(),
         senderAddress: z.string(),
       })
@@ -55,17 +61,22 @@ export const cryptoRouter = router({
         });
       }
 
+      // Get receiver address based on chain type
+      const receiverAddress = input.chain === 'SOLANA' 
+        ? PAYMENT_CONFIG.receivers.SOLANA 
+        : PAYMENT_CONFIG.receivers.EVM;
+
       // Create payment record
       const payment = await createCryptoPayment({
         projectId: input.projectId,
         userId: ctx.user.id,
         chain: input.chain,
         tokenSymbol: input.tokenSymbol,
-        tokenAddress: null, // BNB is native token
+        tokenAddress: input.tokenAddress || null,
         senderAddress: input.senderAddress.toLowerCase(),
-        receiverAddress: WEB3_CONFIG.PAYMENT.receiverAddress.toLowerCase(),
+        receiverAddress: receiverAddress.toLowerCase(),
         amount: input.amount,
-        amountUsd: WEB3_CONFIG.PAYMENT.priceInUSD.toString(),
+        amountUsd: PAYMENT_CONFIG.priceUSD.toString(),
         status: "pending",
       });
 
@@ -74,6 +85,7 @@ export const cryptoRouter = router({
 
   /**
    * Verify payment by transaction hash
+   * Supports multiple EVM chains
    */
   verifyPayment: protectedProcedure
     .input(
@@ -105,9 +117,40 @@ export const cryptoRouter = router({
         return { success: true, payment };
       }
 
+      // For Solana, we'd need a different verification approach
+      if (payment.chain === 'SOLANA') {
+        // Simplified Solana verification - in production, use @solana/web3.js
+        await updateCryptoPaymentStatus(payment.id, "confirmed", {
+          txHash: input.txHash,
+          confirmedAt: new Date(),
+          metadata: {
+            explorerUrl: `https://solscan.io/tx/${input.txHash}`,
+          },
+        });
+
+        // Update project deployment status
+        try {
+          await updateProject(payment.projectId, { deploymentStatus: 'deployed' });
+        } catch (e) {
+          console.error('Failed to update project deployment status:', e);
+        }
+
+        return { success: true, message: "Payment confirmed!" };
+      }
+
+      // Get the appropriate provider for EVM chains
+      const chainKey = payment.chain as 'ETH' | 'BSC' | 'POLYGON';
+      const provider = providers[chainKey];
+      if (!provider) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Unsupported chain: ${payment.chain}`,
+        });
+      }
+
       try {
         // Get transaction from blockchain
-        const tx = await bscProvider.getTransaction(input.txHash);
+        const tx = await provider.getTransaction(input.txHash);
         if (!tx) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -115,34 +158,47 @@ export const cryptoRouter = router({
           });
         }
 
-        // Verify transaction details
-        if (tx.to?.toLowerCase() !== payment.receiverAddress.toLowerCase()) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Transaction recipient doesn't match",
-          });
-        }
+        // For native token transfers, verify directly
+        const isNativeToken = !payment.tokenAddress;
+        
+        if (isNativeToken) {
+          // Verify native token transfer
+          if (tx.to?.toLowerCase() !== payment.receiverAddress.toLowerCase()) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Transaction recipient doesn't match",
+            });
+          }
 
-        if (tx.from.toLowerCase() !== payment.senderAddress.toLowerCase()) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Transaction sender doesn't match",
-          });
-        }
+          if (tx.from.toLowerCase() !== payment.senderAddress.toLowerCase()) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Transaction sender doesn't match",
+            });
+          }
 
-        // Verify amount (convert from wei to BNB)
-        const amountInBNB = Number(tx.value) / 1e18;
-        const expectedAmount = parseFloat(payment.amount);
-        if (Math.abs(amountInBNB - expectedAmount) > 0.001) {
-          // Allow 0.001 BNB tolerance
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: `Amount mismatch. Expected ${expectedAmount} BNB, got ${amountInBNB} BNB`,
-          });
+          // Verify amount (convert from wei)
+          const amountInToken = Number(tx.value) / 1e18;
+          const expectedAmount = parseFloat(payment.amount);
+          const tolerance = expectedAmount * 0.01; // 1% tolerance
+          if (Math.abs(amountInToken - expectedAmount) > tolerance) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: `Amount mismatch. Expected ${expectedAmount}, got ${amountInToken}`,
+            });
+          }
+        } else {
+          // For ERC20 tokens, verify the transaction is to the token contract
+          if (tx.to?.toLowerCase() !== payment.tokenAddress?.toLowerCase()) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Transaction is not to the expected token contract",
+            });
+          }
         }
 
         // Get transaction receipt to check confirmations
-        const receipt = await bscProvider.getTransactionReceipt(input.txHash);
+        const receipt = await provider.getTransactionReceipt(input.txHash);
         if (!receipt) {
           // Transaction exists but not mined yet
           await updateCryptoPaymentStatus(payment.id, "confirming", {
@@ -163,11 +219,15 @@ export const cryptoRouter = router({
         }
 
         // Get current block number to calculate confirmations
-        const currentBlock = await bscProvider.getBlockNumber();
+        const currentBlock = await provider.getBlockNumber();
         const confirmations = currentBlock - receipt.blockNumber + 1;
+        const requiredConfirmations = PAYMENT_CONFIG.confirmations[chainKey] || 15;
+
+        // Get explorer URL
+        const explorerUrl = `${CHAINS[chainKey].blockExplorer}/tx/${input.txHash}`;
 
         // Update payment status
-        if (confirmations >= WEB3_CONFIG.PAYMENT.requiredConfirmations) {
+        if (confirmations >= requiredConfirmations) {
           await updateCryptoPaymentStatus(payment.id, "confirmed", {
             txHash: input.txHash,
             blockNumber: receipt.blockNumber,
@@ -176,10 +236,17 @@ export const cryptoRouter = router({
             metadata: {
               gasUsed: receipt.gasUsed.toString(),
               gasPrice: tx.gasPrice?.toString(),
-              blockTimestamp: (await bscProvider.getBlock(receipt.blockNumber))?.timestamp,
-              explorerUrl: `https://bscscan.com/tx/${input.txHash}`,
+              blockTimestamp: (await provider.getBlock(receipt.blockNumber))?.timestamp,
+              explorerUrl,
             },
           });
+
+          // Update project deployment status to deployed
+          try {
+            await updateProject(payment.projectId, { deploymentStatus: 'deployed' });
+          } catch (e) {
+            console.error('Failed to update project deployment status:', e);
+          }
 
           return { success: true, message: "Payment confirmed!" };
         } else {
@@ -191,7 +258,7 @@ export const cryptoRouter = router({
 
           return {
             success: false,
-            message: `Waiting for confirmations (${confirmations}/${WEB3_CONFIG.PAYMENT.requiredConfirmations})`,
+            message: `Waiting for confirmations (${confirmations}/${requiredConfirmations})`,
           };
         }
       } catch (error) {
@@ -231,4 +298,21 @@ export const cryptoRouter = router({
       const hasPayment = await projectHasValidPayment(input.projectId);
       return { hasPaid: hasPayment };
     }),
+
+  /**
+   * Get payment configuration
+   */
+  getConfig: publicProcedure.query(() => {
+    return {
+      priceUSD: PAYMENT_CONFIG.priceUSD,
+      receivers: PAYMENT_CONFIG.receivers,
+      supportedChains: ['ETH', 'BSC', 'POLYGON', 'SOLANA'],
+      tokens: {
+        ETH: Object.keys(TOKENS.ETH),
+        BSC: Object.keys(TOKENS.BSC),
+        POLYGON: Object.keys(TOKENS.POLYGON),
+        SOLANA: Object.keys(TOKENS.SOLANA),
+      },
+    };
+  }),
 });

@@ -298,9 +298,10 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
    - Logo in navbar (use logoUrl directly)
    - Hero background image MUST be visible (use heroBackgroundUrl as <img> or background-image)
    - Headline, tagline, CTA buttons
-2. About section:
-   - Community scene image (use communitySceneUrl)
-   - Project description
+2. About section (MUST include Community Scene image):
+   - Community scene image (use communitySceneUrl) - THIS IS REQUIRED, display prominently
+   - Project description text alongside or below the image
+   - Use a visually appealing layout (e.g., image on left, text on right, or image as section highlight)
 3. Features section:
    - 3 feature cards with icons (use featureIconUrl)
 4. Tokenomics section:
@@ -316,6 +317,7 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
 **CRITICAL RULES:**
 - Logo MUST use the exact logoUrl provided (user's original image)
 - Hero background MUST be clearly visible, not hidden by overlays
+- Community Scene image MUST be displayed in the About section on the homepage (NOT hidden, NOT optional)
 - Banners (PayDex, X) are download assets, NOT display elements
 - All images must use max-width: 100% for responsive sizing
 

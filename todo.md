@@ -994,4 +994,8 @@
 - [x] 5. 生成并使用Community Scene (800x600)显示在社区/关于板块
 - [x] 6. Banner自适应屏幕宽度，max-width: 100%
 - [x] 7. 清理HTML输出中的Markdown标记（```html）
+- [x] 保存checkpoint (1da354a9)
+
+## Community Scene显示在首页
+- [x] 更新HTML生成prompt，明确要求Community Scene显示在首页About/Community板块
 - [ ] 保存checkpoint

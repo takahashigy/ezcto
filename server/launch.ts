@@ -272,8 +272,23 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               communityScene: { url: '', key: '' },
             };
             
-            // Save logo asset immediately (using user uploaded image)
+            // Download user logo and save buffer for R2 upload
+            let logoBuffer: Buffer | undefined;
             if (userLogoUrl) {
+              try {
+                console.log(`[Launch] Downloading user logo from: ${userLogoUrl}`);
+                const logoResponse = await fetch(userLogoUrl);
+                if (logoResponse.ok) {
+                  logoBuffer = Buffer.from(await logoResponse.arrayBuffer());
+                  console.log(`[Launch] Downloaded user logo, buffer size: ${logoBuffer.length}`);
+                } else {
+                  console.warn(`[Launch] Failed to download user logo: ${logoResponse.statusText}`);
+                }
+              } catch (error) {
+                console.warn(`[Launch] Error downloading user logo:`, error);
+              }
+              
+              // Save logo asset to database
               await db.createAsset({
                 projectId: input.projectId,
                 assetType: 'logo',
@@ -375,6 +390,11 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
             // Organize results (including buffers)
             for (const { task, assetData } of completedTasks) {
               (results as any)[task.type] = assetData;
+            }
+
+            // Add logo buffer to results (logo uses user uploaded image, not generated)
+            if (logoBuffer) {
+              results.logo.buffer = logoBuffer;
             }
 
             return results;
@@ -539,6 +559,10 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     uploadedImages['logo.png'] = await uploadImageToR2Helper(imageAssets.logo, 'logo.png');
     uploadedImages['hero-background.png'] = await uploadImageToR2Helper(imageAssets.heroBackground, 'hero-background.png');
     uploadedImages['feature-icon.png'] = await uploadImageToR2Helper(imageAssets.featureIcon, 'feature-icon.png');
+    // Upload communityScene if it exists
+    if (imageAssets.communityScene?.url) {
+      uploadedImages['community-scene.png'] = await uploadImageToR2Helper(imageAssets.communityScene, 'community-scene.png');
+    }
 
     console.log(`[Launch] Uploaded ${Object.keys(uploadedImages).length} images to R2`);
 
@@ -549,6 +573,10 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.logo.url), 'g'), uploadedImages['logo.png']);
     finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.heroBackground.url), 'g'), uploadedImages['hero-background.png']);
     finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.featureIcon.url), 'g'), uploadedImages['feature-icon.png']);
+    // Replace communityScene URL if it exists
+    if (imageAssets.communityScene?.url && uploadedImages['community-scene.png']) {
+      finalHTML = finalHTML.replace(new RegExp(escapeRegExp(imageAssets.communityScene.url), 'g'), uploadedImages['community-scene.png']);
+    }
 
     broadcastProgress(input.projectId, { 
       progress: 95, 
@@ -573,10 +601,16 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       'logo': 'logo.png',
       'hero_background': 'hero-background.png',
       'feature_icon': 'feature-icon.png',
+      'community_scene': 'community-scene.png',
     };
 
     // Update each asset's fileUrl to use R2 public URL
     for (const [assetType, filename] of Object.entries(assetR2Mapping)) {
+      // Skip if image was not uploaded (e.g., communityScene might not exist)
+      if (!uploadedImages[filename]) {
+        console.log(`[Launch] Skipping ${assetType} - not uploaded`);
+        continue;
+      }
       const r2PublicUrl = `${assetsBaseUrl}${uploadedImages[filename]}`; // uploadedImages contains /assets/xxx.png
       await db.updateAssetFileUrl(input.projectId, assetType as any, r2PublicUrl);
       console.log(`[Launch] Updated ${assetType} fileUrl to ${r2PublicUrl}`);

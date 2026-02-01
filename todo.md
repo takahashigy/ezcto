@@ -1012,4 +1012,14 @@
 - [x] 添加db.getLatestGenerationHistoryByProjectId函数
 - [x] 添加trpc.generationHistory.getByProjectId API端点
 - [x] 修改LaunchV2Preview读取真实步骤进度（每1.5秒轮询）
+- [x] 保存checkpoint (deecd592)
+
+## 修复图片未上传到R2的问题
+- [x] 检查服务器日志查找错误原因
+- [x] 检查launch.ts中R2上传逻辑
+- [x] 检查imageGeneration.ts返回值是否包含buffer
+- [x] 诊断结果：Logo没有buffer，communityScene漏上传
+- [x] 修复Logo的buffer处理（下载用户上传图片并保存buffer）
+- [x] 添加communityScene到R2上传列表
+- [x] 添加communityScene到assetR2Mapping
 - [ ] 保存checkpoint

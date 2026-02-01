@@ -373,10 +373,12 @@ export default function Dashboard() {
                               {t('dashboard.project.publish')}
                             </Button>
                           )}
-                          <Button variant="outline" className="font-mono">
-                            <Download className="mr-2 h-4 w-4" />
-                            Download Assets
-                          </Button>
+                          <Link href={`/project/${project.id}`}>
+                            <Button variant="outline" className="font-mono">
+                              <Download className="mr-2 h-4 w-4" />
+                              Download Assets
+                            </Button>
+                          </Link>
                         </>
                       )}
                     </div>

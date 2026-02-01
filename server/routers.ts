@@ -95,7 +95,9 @@ export const appRouter = router({
 
     // Check if user has a project currently generating
     getGenerating: protectedProcedure.query(async ({ ctx }) => {
-      return await db.getUserGeneratingProject(ctx.user.id);
+      const project = await db.getUserGeneratingProject(ctx.user.id);
+      // Return null instead of undefined to satisfy tRPC query requirements
+      return project ?? null;
     }),
 
     getById: protectedProcedure

@@ -166,12 +166,14 @@ Your task is to provide a complete brand strategy and image generation prompts. 
 
 **LANGUAGE DETECTION AND CONTENT GENERATION:**
 - Detect the primary language of the project description
-- If description is in Chinese (中文), generate ALL websiteContent fields in Chinese
+- If description contains ANY Chinese characters (中文), even mixed with English, generate ALL websiteContent fields in Chinese
 - If description is in Japanese (日本語), generate ALL websiteContent fields in Japanese
 - If description is in Korean (한국어), generate ALL websiteContent fields in Korean
 - Otherwise, generate content in English
 - Keep project name "${input.projectName}" and ticker "${input.ticker}" as-is (don't translate)
 - The headline, tagline, about, and features MUST match the detected language
+- For Chinese content: PRESERVE English keywords from user's input (e.g., Meme, Token, NFT, DeFi, Web3, AI)
+- Mix Chinese and English naturally when the user's description contains English terms
 
 **CRITICAL RULE - DO NOT FABRICATE DATA:**
 - If tokenomics field is empty or not provided, set websiteContent.tokenomics.totalSupply and websiteContent.tokenomics.distribution to empty strings ""
@@ -198,9 +200,9 @@ Please provide your analysis in the following JSON format:
     "accent": "#hex color for CTAs and highlights"
   },
   "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
-  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. MUST include: 'Large bold text ${input.ticker} centered prominently, social media header style, leave left 200px space for profile picture, high contrast for text visibility, [visual style details]'",
+  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. CRITICAL: Content MUST fill the ENTIRE canvas from edge to edge. Requirements: 1) Large bold text ${input.ticker} centered prominently 2) Design spans FULL WIDTH 1200px with NO empty margins 3) NO blank space on left or right sides 4) Background and design elements cover the entire banner area 5) High contrast for text visibility 6) Social media header style. DO NOT leave empty space for profile picture - fill the entire canvas.",
   "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
-  "featureIconPrompt": "Detailed prompt for 256x256 feature icon with TRANSPARENT BACKGROUND (PNG with alpha channel, simple iconic design, no background color, matches brand style)",
+  "featureIconPrompt": "Detailed prompt for 256x256 feature icon. CRITICAL: MUST have FULLY TRANSPARENT BACKGROUND with alpha channel. Requirements: 1) PNG format with transparency 2) NO solid background color 3) NO circular or rectangular background shape 4) Icon should float on transparent canvas 5) Simple flat or minimalist iconic design 6) Clean edges suitable for any background. Example: 'Minimalist [icon subject] icon, flat design, isolated on transparent background, no background elements, clean vector-style edges'",
   "communityScenePrompt": "Detailed prompt for 800x600 community scene image showing enthusiastic supporters, community gathering, or social atmosphere that matches the brand personality",
   "websiteContent": {
     "headline": "Catchy main headline for hero section",
@@ -303,12 +305,17 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
   // Build CA instruction based on whether contract address exists
   const hasCA = input.contractAddress && input.contractAddress.trim();
   const caInstruction = hasCA
-    ? `**CONTRACT ADDRESS (CA):**
+    ? `**CONTRACT ADDRESS (CA) - CRITICAL:**
 - CA: ${input.contractAddress}
 - Display prominently in Hero section (below CTA buttons) or in a dedicated section
-- Add a "Copy" button next to the CA
-- Use data-ca attribute to store the address for JavaScript copy functionality
-- Example: <div class="ca-container" data-ca="${input.contractAddress}"><span class="ca-text">${input.contractAddress}</span><button class="copy-btn">Copy</button></div>`
+- MUST use this EXACT structure for copy functionality to work:
+  <div class="ca-container">
+    <span class="ca-text">${input.contractAddress}</span>
+    <button id="copy-ca-btn" class="copy-btn" data-ca="${input.contractAddress}">Copy</button>
+  </div>
+- The data-ca attribute MUST be on the BUTTON element (not the container)
+- The button MUST have id="copy-ca-btn" for JavaScript to find it
+- DO NOT modify this structure or the copy function will break`
     : '';
 
   // Build language instruction based on detected language
@@ -320,7 +327,9 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
   - Section titles: 关于我们, 核心特性, 代币经济, 社区
   - Footer text: 版权所有, 下载营销素材
 - Keep project name "${input.projectName}" and ticker "${input.ticker}" as-is (don't translate)
-- Keep technical terms like CA address as-is`
+- Keep technical terms like CA address as-is
+- PRESERVE English keywords from user's description (e.g., Meme, Token, NFT, DeFi, Web3, AI, etc.)
+- Mix Chinese and English naturally when the user's input contains English terms`
     : input.language === 'ja'
     ? `**LANGUAGE: 日本語 (Japanese)**
 - ALL text content MUST be in Japanese, including:
@@ -473,33 +482,41 @@ ${htmlStructure.substring(0, 4000)}...
    - Nav links with .active class should have distinct styling (underline, color change, or background)
    - Smooth transition for active state changes
 
-3. FEATURE ICONS:
+3. FEATURES SECTION LAYOUT (CRITICAL FOR CENTERING):
+   - .features-grid or features container MUST be centered: margin: 0 auto; max-width: 1200px;
+   - Use flexbox with centering: display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;
+   - OR use CSS Grid with centering: display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); justify-items: center;
+   - Each feature card: max-width: 350px; width: 100%;
+   - On mobile (< 768px): single column, cards centered
+   - On desktop: 3 cards in a row, evenly spaced and centered
+
+4. FEATURE ICONS:
    - Feature icons MUST be SMALL: max-width: 64px; max-height: 64px;
-   - Center icons in feature cards
+   - Center icons in feature cards: margin: 0 auto; display: block;
    - DO NOT make feature icons full-width
 
-4. COMMUNITY SCENE IMAGE:
+5. COMMUNITY SCENE IMAGE:
    - In About section: max-width: 500px; width: 100%;
    - Add border-radius and subtle shadow for polish
    - Responsive: scales down on mobile
 
-5. IMAGE RESPONSIVENESS:
+6. IMAGE RESPONSIVENESS:
    - All images: max-width: 100%; height: auto;
    - Banners MUST NOT overflow viewport
    - Use object-fit: cover for background images
 
-6. CONTRACT ADDRESS (CA) STYLING:
+7. CONTRACT ADDRESS (CA) STYLING:
    - .ca-container: prominent display, centered or left-aligned
    - .ca-text: monospace font, truncate on mobile if needed
    - .copy-btn: clear button styling with hover effect
    - .copy-success: visual feedback class (green color, checkmark)
 
-7. TOKENOMICS VISUALIZATION (if present):
+8. TOKENOMICS VISUALIZATION (if present):
    - Pie chart: use CSS conic-gradient or SVG
    - Progress bars: colored bars with percentage labels
    - Make it visually appealing, not just plain text
 
-8. SOCIAL MEDIA LINKS (CRITICAL):
+9. SOCIAL MEDIA LINKS (CRITICAL):
    - Social links MUST be displayed as HORIZONTAL inline buttons/icons
    - Use flexbox: display: flex; flex-direction: row; gap: 1rem; justify-content: center;
    - Each social link: display: inline-flex; align-items: center; justify-content: center;
@@ -509,19 +526,19 @@ ${htmlStructure.substring(0, 4000)}...
    - Example: .social-links { display: flex; flex-direction: row; gap: 1rem; }
    - Example: .social-links a { display: inline-flex; width: 48px; height: 48px; border-radius: 50%; }
 
-9. MARKETING BANNERS SECTION:
+10. MARKETING BANNERS SECTION:
    - .banner-preview: width: 100%; max-width: 800px; height: auto; margin: 0 auto; display: block;
    - Banners should be centered with margin: 2rem auto;
    - Add subtle shadow or border for visual separation
    - Download buttons below each banner, styled as secondary CTAs
    - Responsive: on mobile, banners stack vertically with full width
 
-10. FOOTER:
+11. FOOTER:
    - Clean layout with proper spacing
    - Quick download links (smaller than main CTAs)
    - Copyright text
 
-11. LAZY LOADING TRANSITIONS:
+12. LAZY LOADING TRANSITIONS:
    - img { opacity: 0; transition: opacity 0.3s ease-in-out; }
    - img.loaded { opacity: 1; }
 

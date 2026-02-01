@@ -116,15 +116,29 @@ export default function ProjectDetails() {
       });
 
       // 只打包营销素材（PayDex Banner、X Banner、Logo）
-      const marketingAssets = [
+      const rawAssets = [
         groupedAssets.paydexBanner,
         groupedAssets.xBanner,
         groupedAssets.logo,
-      ].filter(Boolean).map(asset => ({
+      ];
+      
+      console.log('[MarketingKit] Raw assets:', rawAssets);
+      
+      const marketingAssets = rawAssets.filter(Boolean).map(asset => ({
         type: asset!.assetType,
         url: asset!.fileUrl,
         textContent: asset!.textContent,
       }));
+      
+      console.log('[MarketingKit] Processed assets:', marketingAssets);
+      
+      if (marketingAssets.length === 0) {
+        toast.dismiss();
+        toast.error("No marketing assets available", {
+          description: "Please wait for asset generation to complete",
+        });
+        return;
+      }
 
       await downloadProjectAsZip(`${project.name}-marketing-kit`, marketingAssets);
       

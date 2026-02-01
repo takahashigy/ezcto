@@ -1091,4 +1091,18 @@
 - [x] 修复社交媒体按钮显示问题（HTML添加social-links容器，CSS添加水平布局规则）
 - [x] Banner自适应展示（添加Marketing Banners section，CSS添加banner-preview样式）
 - [x] 添加防重复提交逻辑（db.getUserGeneratingProject + trpc.projects.getGenerating API + 前端检查和禁用按钮）
+- [x] 测试并保存checkpoint
+
+## 优化中英文混合输入的语言检测
+- [x] 更新语言检测逻辑：中英文混合时优先中文（languageDetector.ts）
+- [x] 更新AI Prompt指令：保留英文关键词（Meme, Token, NFT, DeFi, Web3, AI等）
+- [ ] 测试混合语言输入的生成效果
+
+## 修复用户反馈的6个问题（第二轮测试）
+- [x] Dashboard下载按钮改为跳转到项目详情页（那里有完整的下载功能）
+- [x] Feature板块居中（CSS Prompt添加完整的flexbox/grid居中规则）
+- [x] Feature图标透明背景（强化Prompt要求PNG with alpha channel, no background）
+- [x] CA复制功能修复（HTML Prompt明确要求data-ca在button上，添加id="copy-ca-btn"）
+- [x] Banner左侧空白修复（移除“leave left space”要求，强调fill entire canvas）
+- [x] Marketing Kit下载修复（添加调试日志、修复URL解析、添加空文件检查）
 - [ ] 测试并保存checkpoint

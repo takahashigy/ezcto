@@ -19,6 +19,11 @@ const LANGUAGE_MAP: Record<SupportedLanguage, LanguageInfo> = {
 
 /**
  * Detect the primary language of input text based on Unicode character ranges
+ * 
+ * Priority rules for mixed-language content:
+ * - If Chinese characters are present (even mixed with English), prioritize Chinese
+ * - Japanese and Korean take precedence over pure English
+ * - English keywords in Chinese/Japanese/Korean text are preserved naturally
  */
 export function detectLanguage(text: string): SupportedLanguage {
   if (!text || text.trim().length === 0) {
@@ -52,22 +57,25 @@ export function detectLanguage(text: string): SupportedLanguage {
     }
   }
 
-  // Determine primary language based on character counts
-  const counts = [
-    { lang: 'zh-CN' as SupportedLanguage, count: chineseCount },
-    { lang: 'ja' as SupportedLanguage, count: japaneseCount },
-    { lang: 'ko' as SupportedLanguage, count: koreanCount },
-    { lang: 'en' as SupportedLanguage, count: englishCount },
-  ];
-
-  counts.sort((a, b) => b.count - a.count);
-
-  // If no significant character count, default to English
-  if (counts[0].count === 0) {
-    return 'en';
+  // Priority: Chinese > Japanese > Korean > English
+  // If ANY Chinese characters exist, treat as Chinese (handles mixed Chinese-English input)
+  // This ensures "这是一个Meme项目" is detected as Chinese, not English
+  if (chineseCount > 0) {
+    return 'zh-CN';
   }
 
-  return counts[0].lang;
+  // Japanese takes priority over English (Kanji may be counted as Chinese above)
+  if (japaneseCount > 0) {
+    return 'ja';
+  }
+
+  // Korean takes priority over English
+  if (koreanCount > 0) {
+    return 'ko';
+  }
+
+  // Default to English
+  return 'en';
 }
 
 /**

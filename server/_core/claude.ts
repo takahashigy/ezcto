@@ -308,14 +308,17 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
     ? `**CONTRACT ADDRESS (CA) - CRITICAL:**
 - CA: ${input.contractAddress}
 - Display prominently in Hero section (below CTA buttons) or in a dedicated section
-- MUST use this EXACT structure for copy functionality to work:
+- MUST use this EXACT structure for copy functionality to work (COPY EXACTLY, DO NOT MODIFY):
   <div class="ca-container">
     <span class="ca-text">${input.contractAddress}</span>
-    <button id="copy-ca-btn" class="copy-btn" data-ca="${input.contractAddress}">Copy</button>
+    <button id="copy-ca-btn" class="copy-btn" data-ca="${input.contractAddress}">${input.language === 'zh-CN' ? '复制' : 'Copy'}</button>
   </div>
+- CRITICAL: The <button> tag MUST be properly closed with </button>
+- CRITICAL: The button MUST contain text content ("Copy" or "复制") between opening and closing tags
 - The data-ca attribute MUST be on the BUTTON element (not the container)
 - The button MUST have id="copy-ca-btn" for JavaScript to find it
-- DO NOT modify this structure or the copy function will break`
+- DO NOT truncate, modify, or split this structure across lines
+- VERIFY: Button format must be <button ...>text</button> with NO line breaks inside the tag`
     : '';
 
   // Build language instruction based on detected language

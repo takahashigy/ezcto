@@ -1141,4 +1141,9 @@
 - [x] 确保failed状态不阻止新提交：只检查generating状态
 - [x] 定时清理超时任务：添加cleanupStaleGeneratingProjects函数
 - [x] 清理当前卡住的项目960002（SQL直接更新）
-- [ ] 测试并保存checkpoint
+- [x] 测试并保存checkpoint
+
+## 修复 HTML 生成复制按钮格式问题
+- [x] 修改 HTML Prompt 中的复制按钮格式要求，强调标签必须完整闭合
+- [x] 添加 validateAndFixHTML 函数，自动修复未闭合的 button 标签
+- [ ] 测试并保存 checkpoint

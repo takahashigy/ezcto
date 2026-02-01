@@ -1,0 +1,184 @@
+{
+  "query": "SELECT SUBSTRING(textContent, LOCATE('</style>', textContent), 3000) as afterStyle FROM assets WHERE assetType = 'website' ORDER BY id DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute SELECT SUBSTRING(textContent, LOCATE('</style>', textContent), 3000) as afterStyle FROM assets WHERE assetType = 'website' ORDER BY id DESC LIMIT 1;",
+  "rows": [
+    {
+      "afterStyle": "</style>"
+    },
+    {
+      "afterStyle": "</head>"
+    },
+    {
+      "afterStyle": "<body>"
+    },
+    {
+      "afterStyle": "<!DOCTYPE html>"
+    },
+    {
+      "afterStyle": "<html lang=\"zh-CN\">"
+    },
+    {
+      "afterStyle": "<head>"
+    },
+    {
+      "afterStyle": "    <meta charset=\"UTF-8\">"
+    },
+    {
+      "afterStyle": "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+    },
+    {
+      "afterStyle": "    <meta name=\"description\" content=\"我叫美元 - 一只猫，一个人，一起走向终点的Meme之旅\">"
+    },
+    {
+      "afterStyle": "    <title>我叫美元 (我叫美元) - 陪你努力活着</title>"
+    },
+    {
+      "afterStyle": "    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css\">"
+    },
+    {
+      "afterStyle": "</head>"
+    },
+    {
+      "afterStyle": "<body>"
+    },
+    {
+      "afterStyle": "    <nav class=\"navbar\" id=\"navbar\">"
+    },
+    {
+      "afterStyle": "        <div class=\"nav-container\">"
+    },
+    {
+      "afterStyle": "            <a href=\"#hero\" class=\"nav-logo\">"
+    },
+    {
+      "afterStyle": "                <img src=\"https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/user-uploads/1/1769974389710-mmimqb.jpg\" alt=\"我叫美元 Logo\" class=\"logo-img\" decoding=\"async\">"
+    },
+    {
+      "afterStyle": "                <span class=\"logo-text\">我叫美元</span>"
+    },
+    {
+      "afterStyle": "            </a>"
+    },
+    {
+      "afterStyle": "            <ul class=\"nav-links\">"
+    },
+    {
+      "afterStyle": "                <li><a href=\"#hero\" class=\"nav-link active\" data-section=\"hero\">首页</a></li>"
+    },
+    {
+      "afterStyle": "                <li><a href=\"#about\" class=\"nav-link\" data-section=\"about\">关于</a></li>"
+    },
+    {
+      "afterStyle": "                <li><a href=\"#features\" class=\"nav-link\" data-section=\"features\">特性</a></li>"
+    },
+    {
+      "afterStyle": "                <li><a href=\"#community\" class=\"nav-link\" data-section=\"community\">社区</a></li>"
+    },
+    {
+      "afterStyle": "            </ul>"
+    },
+    {
+      "afterStyle": "            <button class=\"mobile-menu-btn\" id=\"mobile-menu-btn\" aria-label=\"打开菜单\">"
+    },
+    {
+      "afterStyle": "                <i class=\"fa-solid fa-bars\"></i>"
+    },
+    {
+      "afterStyle": "            </button>"
+    },
+    {
+      "afterStyle": "        </div>"
+    },
+    {
+      "afterStyle": "    </nav>"
+    },
+    {
+      "afterStyle": "    <main>"
+    },
+    {
+      "afterStyle": "        <section id=\"hero\" class=\"hero-section\" style=\"background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769974527761.png');\">"
+    },
+    {
+      "afterStyle": "            <div class=\"hero-overlay\">"
+    },
+    {
+      "afterStyle": "                <div class=\"hero-content\">"
+    },
+    {
+      "afterStyle": "                    <h1 class=\"hero-headline\">我叫美元，陪你努力活着</h1>"
+    },
+    {
+      "afterStyle": "                    <p class=\"hero-tagline\">一只猫，一个人，一起走向终点的Meme之旅</p>"
+    },
+    {
+      "afterStyle": "                    <div class=\"hero-cta\">"
+    },
+    {
+      "afterStyle": "                        <a href=\"https://gmgn.ai/bsc/token/0xf036693f699d36e7fb3df3822918b325e1db7777\" target=\"_blank\" class=\"btn buy-btn\">立即购买</a>"
+    },
+    {
+      "afterStyle": "                        <a href=\"#about\" class=\"btn learn-more-btn\">了解更多</a>"
+    },
+    {
+      "afterStyle": "                    </div>"
+    },
+    {
+      "afterStyle": "                    <div class=\"ca-section\">"
+    },
+    {
+      "afterStyle": "                        <p class=\"ca-label\">合约地址 (CA)</p>"
+    },
+    {
+      "afterStyle": "                        <div class=\"ca-container\">"
+    },
+    {
+      "afterStyle": "                            <span class=\"ca-text\">0xf036693f699d36e7fb3df3822918b325e1db7777</span>"
+    },
+    {
+      "afterStyle": "                            <button"
+    },
+    {
+      "afterStyle": "    <script>"
+    },
+    {
+      "afterStyle": "document.addEventListener('DOMContentLoaded', () => {"
+    },
+    {
+      "afterStyle": "  // =========================================="
+    },
+    {
+      "afterStyle": "  // 1. NAVIGATION SCROLL-SPY"
+    },
+    {
+      "afterStyle": "  // =========================================="
+    },
+    {
+      "afterStyle": "  const sections = document.querySelectorAll('section[id]');"
+    },
+    {
+      "afterStyle": "  const navLinks = document.querySelectorAll('nav a[data-section], nav a[href^=\"#\"]');"
+    },
+    {
+      "afterStyle": "  const scrollSpyObserver = new IntersectionObserver((entries) => {"
+    },
+    {
+      "afterStyle": "    entries.forEach(entry => {"
+    },
+    {
+      "afterStyle": "      if (entry.isIntersecting) {"
+    },
+    {
+      "afterStyle": "        navLinks.forEach(link => link.classList.remove('active'));"
+    },
+    {
+      "afterStyle": "        // Try data-section first, then href"
+    },
+    {
+      "afterStyle": "        co"
+    }
+  ],
+  "messages": [],
+  "stdout": "afterStyle\n</style>\n</head>\n<body>\n<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta name=\"description\" content=\"我叫美元 - 一只猫，一个人，一起走向终点的Meme之旅\">\n    <title>我叫美元 (我叫美元) - 陪你努力活着</title>\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css\">\n</head>\n<body>\n    <nav class=\"navbar\" id=\"navbar\">\n        <div class=\"nav-container\">\n            <a href=\"#hero\" class=\"nav-logo\">\n                <img src=\"https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/user-uploads/1/1769974389710-mmimqb.jpg\" alt=\"我叫美元 Logo\" class=\"logo-img\" decoding=\"async\">\n                <span class=\"logo-text\">我叫美元</span>\n            </a>\n            <ul class=\"nav-links\">\n                <li><a href=\"#hero\" class=\"nav-link active\" data-section=\"hero\">首页</a></li>\n                <li><a href=\"#about\" class=\"nav-link\" data-section=\"about\">关于</a></li>\n                <li><a href=\"#features\" class=\"nav-link\" data-section=\"features\">特性</a></li>\n                <li><a href=\"#community\" class=\"nav-link\" data-section=\"community\">社区</a></li>\n            </ul>\n            <button class=\"mobile-menu-btn\" id=\"mobile-menu-btn\" aria-label=\"打开菜单\">\n                <i class=\"fa-solid fa-bars\"></i>\n            </button>\n        </div>\n    </nav>\n\n    <main>\n        <section id=\"hero\" class=\"hero-section\" style=\"background-image: url('https://d2xsxph8kpxj0f.cloudfront.net/310519663309545756/dbJdJ5EHfrFG7yZAKfVatd/generated/1769974527761.png');\">\n            <div class=\"hero-overlay\">\n                <div class=\"hero-content\">\n                    <h1 class=\"hero-headline\">我叫美元，陪你努力活着</h1>\n                    <p class=\"hero-tagline\">一只猫，一个人，一起走向终点的Meme之旅</p>\n                    <div class=\"hero-cta\">\n                        <a href=\"https://gmgn.ai/bsc/token/0xf036693f699d36e7fb3df3822918b325e1db7777\" target=\"_blank\" class=\"btn buy-btn\">立即购买</a>\n                        <a href=\"#about\" class=\"btn learn-more-btn\">了解更多</a>\n                    </div>\n                    <div class=\"ca-section\">\n                        <p class=\"ca-label\">合约地址 (CA)</p>\n                        <div class=\"ca-container\">\n                            <span class=\"ca-text\">0xf036693f699d36e7fb3df3822918b325e1db7777</span>\n                            <button\n    <script>\ndocument.addEventListener('DOMContentLoaded', () => {\n  // ==========================================\n  // 1. NAVIGATION SCROLL-SPY\n  // ==========================================\n  const sections = document.querySelectorAll('section[id]');\n  const navLinks = document.querySelectorAll('nav a[data-section], nav a[href^=\"#\"]');\n  \n  const scrollSpyObserver = new IntersectionObserver((entries) => {\n    entries.forEach(entry => {\n      if (entry.isIntersecting) {\n        navLinks.forEach(link => link.classList.remove('active'));\n        \n        // Try data-section first, then href\n        co\n",
+  "stderr": "",
+  "execution_time_ms": 1596
+}

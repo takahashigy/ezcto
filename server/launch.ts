@@ -569,6 +569,9 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
           }
         );
         
+        // Validate HTML structure before saving
+        websiteHTML = validateAndFixHTML(websiteHTML);
+        
         // Save website to database
         await db.createAsset({
           projectId: input.projectId,
@@ -794,4 +797,65 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
 // Helper function to escape special regex characters
 function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+
+/**
+ * Validate and fix common HTML structure issues
+ * Specifically handles truncated or malformed button tags that can cause
+ * JavaScript code to be displayed as text content
+ */
+function validateAndFixHTML(html: string): string {
+  let fixedHTML = html;
+  
+  // Fix 1: Find unclosed button tags (button tag without closing >)
+  // Pattern: <button followed by attributes but no > before next tag
+  const unclosedButtonPattern = /<button\s+[^>]*(?=\s*<(?!\/button))/gi;
+  fixedHTML = fixedHTML.replace(unclosedButtonPattern, (match) => {
+    console.log(`[Launch] Fixed unclosed button tag: ${match.substring(0, 50)}...`);
+    // Add closing > and default text
+    return match + '>Copy</button><button';
+  });
+  
+  // Fix 2: Find button tags that open but have no content before </button>
+  // Pattern: <button ...></button> (empty button)
+  const emptyButtonPattern = /<button([^>]*)><\/button>/gi;
+  fixedHTML = fixedHTML.replace(emptyButtonPattern, (match, attrs) => {
+    console.log(`[Launch] Fixed empty button tag`);
+    return `<button${attrs}>Copy</button>`;
+  });
+  
+  // Fix 3: Find button tags where <script> appears before </button>
+  // This is the specific bug we encountered
+  const scriptInButtonPattern = /<button([^>]*)>\s*<script>/gi;
+  fixedHTML = fixedHTML.replace(scriptInButtonPattern, (match, attrs) => {
+    console.log(`[Launch] Fixed button tag with script inside - critical fix applied`);
+    return `<button${attrs}>Copy</button>\n    <script>`;
+  });
+  
+  // Fix 4: Ensure all button tags are properly closed
+  // Count opening and closing button tags
+  const openingButtons = (fixedHTML.match(/<button/gi) || []).length;
+  const closingButtons = (fixedHTML.match(/<\/button>/gi) || []).length;
+  
+  if (openingButtons !== closingButtons) {
+    console.log(`[Launch] Warning: Button tag mismatch - ${openingButtons} opening, ${closingButtons} closing`);
+    // Try to fix by finding button tags without proper closure
+    fixedHTML = fixedHTML.replace(/<button([^>]*)>([^<]*?)(?=<(?!\/button))/gi, (match, attrs, content) => {
+      if (!content.includes('</button>')) {
+        console.log(`[Launch] Auto-closing button tag with content: ${content.substring(0, 20)}...`);
+        return `<button${attrs}>${content || 'Copy'}</button>`;
+      }
+      return match;
+    });
+  }
+  
+  // Log if any fixes were applied
+  if (fixedHTML !== html) {
+    console.log(`[Launch] HTML validation: fixes were applied to ensure proper structure`);
+  } else {
+    console.log(`[Launch] HTML validation: structure looks good`);
+  }
+  
+  return fixedHTML;
 }

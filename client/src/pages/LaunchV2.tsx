@@ -157,7 +157,7 @@ export default function LaunchV2() {
           });
 
           toast.success(language === 'zh' ? '生成已启动！正在跳转...' : 'Generation started! Redirecting...');
-          setLocation(`/launch-preview/${projectData.projectId}`);
+          setLocation(`/launch/preview?projectId=${projectData.projectId}`);
         } catch (genError) {
           console.error("[LaunchV2] Admin generation error:", genError);
           toast.error(`Failed to start generation: ${genError instanceof Error ? genError.message : 'Unknown error'}`);

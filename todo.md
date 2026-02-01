@@ -1022,4 +1022,10 @@
 - [x] 修复Logo的buffer处理（下载用户上传图片并保存buffer）
 - [x] 添加communityScene到R2上传列表
 - [x] 添加communityScene到assetR2Mapping
+- [x] 保存checkpoint (699253bc)
+
+## 修复项目生成后跳转404问题
+- [x] 检查App.tsx中的路由配置（路由是/launch/preview）
+- [x] 检查LaunchV2Form的跳转URL（Admin跳转用了错误的/launch-preview/）
+- [x] 修复路由不匹配问题（改为/launch/preview?projectId=）
 - [ ] 保存checkpoint

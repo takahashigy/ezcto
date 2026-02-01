@@ -31,6 +31,7 @@ export default function ProjectDetails() {
 
   // 所有Hooks必须在条件判断之前调用
   const downloadZipMutation = trpc.assets.downloadProjectZip.useMutation();
+  const proxyDownloadMutation = trpc.assets.proxyDownload.useMutation();
 
   if (authLoading || projectLoading || assetsLoading) {
     return (
@@ -140,7 +141,12 @@ export default function ProjectDetails() {
         return;
       }
 
-      await downloadProjectAsZip(`${project.name}-marketing-kit`, marketingAssets);
+      // 使用代理下载绕过 CORS
+      const proxyDownload = async (assetType: string) => {
+        return await proxyDownloadMutation.mutateAsync({ projectId, assetType });
+      };
+      
+      await downloadProjectAsZip(`${project.name}-marketing-kit`, marketingAssets, proxyDownload);
       
       toast.success("Marketing Kit downloaded!", {
         description: `${project.name}-marketing-kit.zip has been downloaded`,

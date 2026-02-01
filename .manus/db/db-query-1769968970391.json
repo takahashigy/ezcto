@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, assetType, fileUrl FROM assets WHERE projectId = 930002 LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute SELECT id, assetType, fileUrl FROM assets WHERE projectId = 930002 LIMIT 10;",
+  "rows": [
+    {
+      "id": "750020",
+      "assetType": "website",
+      "fileUrl": ""
+    },
+    {
+      "id": "750021",
+      "assetType": "website",
+      "fileUrl": ""
+    },
+    {
+      "id": "750022",
+      "assetType": "logo",
+      "fileUrl": "https://assets.ezcto.fun/site-g6ve/assets/logo-559fcade.png"
+    },
+    {
+      "id": "750023",
+      "assetType": "x_banner",
+      "fileUrl": "https://assets.ezcto.fun/site-g6ve/assets/x-banner-e2cb5dd1.png"
+    },
+    {
+      "id": "750024",
+      "assetType": "paydex_banner",
+      "fileUrl": "https://assets.ezcto.fun/site-g6ve/assets/paydex-banner-d68b4c1f.png"
+    },
+    {
+      "id": "750025",
+      "assetType": "paydex_banner",
+      "fileUrl": "https://assets.ezcto.fun/site-g6ve/assets/paydex-banner-d68b4c1f.png"
+    },
+    {
+      "id": "750026",
+      "assetType": "x_banner",
+      "fileUrl": "https://assets.ezcto.fun/site-g6ve/assets/x-banner-e2cb5dd1.png"
+    },
+    {
+      "id": "750027",
+      "assetType": "feature_icon",
+      "fileUrl": "https://assets.ezcto.fun/site-g6ve/assets/feature-icon-c19b45aa.png"
+    },
+    {
+      "id": "750028",
+      "assetType": "hero_background",
+      "fileUrl": "https://assets.ezcto.fun/site-g6ve/assets/hero-background-adba7be5.png"
+    },
+    {
+      "id": "750029",
+      "assetType": "feature_icon",
+      "fileUrl": "https://assets.ezcto.fun/site-g6ve/assets/feature-icon-c19b45aa.png"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tassetType\tfileUrl\n750020\twebsite\t\n750021\twebsite\t\n750022\tlogo\thttps://assets.ezcto.fun/site-g6ve/assets/logo-559fcade.png\n750023\tx_banner\thttps://assets.ezcto.fun/site-g6ve/assets/x-banner-e2cb5dd1.png\n750024\tpaydex_banner\thttps://assets.ezcto.fun/site-g6ve/assets/paydex-banner-d68b4c1f.png\n750025\tpaydex_banner\thttps://assets.ezcto.fun/site-g6ve/assets/paydex-banner-d68b4c1f.png\n750026\tx_banner\thttps://assets.ezcto.fun/site-g6ve/assets/x-banner-e2cb5dd1.png\n750027\tfeature_icon\thttps://assets.ezcto.fun/site-g6ve/assets/feature-icon-c19b45aa.png\n750028\thero_background\thttps://assets.ezcto.fun/site-g6ve/assets/hero-background-adba7be5.png\n750029\tfeature_icon\thttps://assets.ezcto.fun/site-g6ve/assets/feature-icon-c19b45aa.png\n",
+  "stderr": "",
+  "execution_time_ms": 1539
+}

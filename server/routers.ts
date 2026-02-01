@@ -776,6 +776,53 @@ export const appRouter = router({
         return await db.getAssetsByProjectId(input.projectId);
       }),
 
+    // Proxy download to bypass CORS restrictions on R2
+    proxyDownload: protectedProcedure
+      .input(z.object({ 
+        projectId: z.number(),
+        assetType: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+        
+        // Check payment status
+        if (project.paymentStatus !== "paid") {
+          throw new Error("PAYMENT_REQUIRED: Please unlock this project to download assets.");
+        }
+
+        const assets = await db.getAssetsByProjectId(input.projectId);
+        const asset = assets.find(a => a.assetType === input.assetType);
+        
+        if (!asset || !asset.fileUrl) {
+          throw new Error(`Asset ${input.assetType} not found`);
+        }
+
+        // Fetch the file from R2
+        console.log(`[ProxyDownload] Fetching ${input.assetType} from ${asset.fileUrl}`);
+        const response = await fetch(asset.fileUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch asset: ${response.status}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString('base64');
+        const contentType = response.headers.get('content-type') || 'image/png';
+
+        console.log(`[ProxyDownload] Successfully fetched ${input.assetType}, size: ${arrayBuffer.byteLength} bytes`);
+
+        return {
+          base64,
+          contentType,
+          filename: `${input.assetType}.png`,
+        };
+      }),
+
     create: protectedProcedure
       .input(z.object({
         projectId: z.number(),

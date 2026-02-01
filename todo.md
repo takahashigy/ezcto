@@ -1115,4 +1115,11 @@
 - [x] 创建 server/_core/removeBg.ts 模块
 - [x] 在 launch.ts 中集成：Feature 图标生成后调用 remove.bg 去背景
 - [x] 添加错误处理：API 失败时降级使用原图（removeBackgroundWithFallback）
+- [x] 测试并保存 checkpoint
+
+## 修复 Marketing Kit 下载失败（CORS/fetch 错误）
+- [x] 分析问题：R2 存储没有配置 CORS 头，导致浏览器无法跨域下载
+- [x] 添加后端代理 API（assets.proxyDownload）绕过 CORS
+- [x] 更新 zipDownload.ts 支持代理下载
+- [x] 更新 ProjectDetails.tsx 使用代理下载
 - [ ] 测试并保存 checkpoint

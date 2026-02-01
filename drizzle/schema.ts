@@ -39,6 +39,7 @@ export const projects = mysqlTable("projects", {
   userImages: json("userImages").$type<Array<{ url: string; key: string }>>(),
   subdomain: varchar("subdomain", { length: 100 }),
   deploymentUrl: varchar("deploymentUrl", { length: 1000 }),
+  assetsBaseUrl: varchar("assetsBaseUrl", { length: 500 }), // e.g., https://assets.ezcto.fun/{slug}
   deploymentStatus: mysqlEnum("deploymentStatus", ["not_deployed", "deploying", "deployed", "failed"]).default("not_deployed"),
   paymentStatus: mysqlEnum("paymentStatus", ["unpaid", "pending", "paid"]).default("unpaid").notNull(),
   paymentAmount: varchar("paymentAmount", { length: 100 }),

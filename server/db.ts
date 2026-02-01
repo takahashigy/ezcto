@@ -210,6 +210,22 @@ export async function getAssetById(assetId: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function updateAssetFileUrl(
+  projectId: number, 
+  assetType: 'logo' | 'paydex_banner' | 'x_banner' | 'hero_background' | 'feature_icon' | 'community_scene',
+  newFileUrl: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(assets)
+    .set({ fileUrl: newFileUrl })
+    .where(and(
+      eq(assets.projectId, projectId),
+      eq(assets.assetType, assetType)
+    ));
+}
+
 // ============ Order Management ============
 
 export async function createOrder(order: InsertOrder) {

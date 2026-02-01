@@ -966,4 +966,22 @@
 - [x] 修改imageUpload.ts添加uploadBufferToR2函数（接受Buffer输入）
 - [x] 修改launch.ts使用Buffer直接上传R2，不再调用downloadAndUploadImage
 - [ ] 测试完整生成流程
+- [x] 保存checkpoint
+
+## 修复ezcto.fun网站图片不显示问题
+- [ ] 诊断图片不显示的根本原因（R2存储/Worker路由/HTML引用路径）
+- [ ] 检查Cloudflare Worker是否已部署
+- [ ] 检查R2 bucket中是否有图片文件
+- [ ] 检查HTML中的图片引用路径是否正确
+- [ ] 修复图片存储或引用逻辑
+- [ ] 测试完整流程
+- [ ] 保存checkpoint
+## 修复 Dashboard图片显示：使用R2公开域名
+- [x] 添加R2公开域名环境变量（CLOUDFLARE_R2_PUBLIC_URL = https://assets.ezcto.fun）
+- [x] Cloudflare Worker已修复，放行assets.ezcto.fun子域名
+- [x] 更新数据库schema添加assetsBaseUrl字段
+- [x] 修改launch.ts存储assetsBaseUrl到项目记录
+- [x] 修改launch.ts在部署后更新assets表的fileUrl为R2公开URL
+- [x] 添加db.updateAssetFileUrl函数
+- [ ] 测试图片显示和下载功能
 - [ ] 保存checkpoint

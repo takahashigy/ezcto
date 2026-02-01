@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `assetsBaseUrl` varchar(500);

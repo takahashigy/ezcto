@@ -20,6 +20,9 @@ import { updateGenerationProgress, initializeSteps, updateStep, type StepProgres
  * 支持模块级断点续传和自动重试
  */
 
+// R2公开访问URL，用于Dashboard图片展示
+const R2_PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL || 'https://assets.ezcto.fun';
+
 export interface LaunchInput {
   projectId: number;
   name: string;
@@ -533,18 +536,41 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     // Deploy website with relative image paths
     const deploymentResult = await deployWebsite(input.projectId, subdomain, finalHTML);
 
+    // Construct assetsBaseUrl for Dashboard image display
+    const assetsBaseUrl = `${R2_PUBLIC_URL}/${subdomain}`;
+    console.log(`[Launch] Assets base URL: ${assetsBaseUrl}`);
+
+    // Update assets table with R2 public URLs for Dashboard display
+    // Map asset types to their R2 filenames
+    const assetR2Mapping: Record<string, string> = {
+      'paydex_banner': 'paydex-banner.png',
+      'x_banner': 'x-banner.png',
+      'logo': 'logo.png',
+      'hero_background': 'hero-background.png',
+      'feature_icon': 'feature-icon.png',
+    };
+
+    // Update each asset's fileUrl to use R2 public URL
+    for (const [assetType, filename] of Object.entries(assetR2Mapping)) {
+      const r2PublicUrl = `${assetsBaseUrl}${uploadedImages[filename]}`; // uploadedImages contains /assets/xxx.png
+      await db.updateAssetFileUrl(input.projectId, assetType as any, r2PublicUrl);
+      console.log(`[Launch] Updated ${assetType} fileUrl to ${r2PublicUrl}`);
+    }
+
     if (deploymentResult.success) {
-      // Update project with deployment info
+      // Update project with deployment info and assetsBaseUrl
       await db.updateProject(input.projectId, {
         subdomain: deploymentResult.subdomain,
         deploymentUrl: deploymentResult.deploymentUrl,
+        assetsBaseUrl: assetsBaseUrl, // For Dashboard image display
         deploymentStatus: 'deployed',
       });
       console.log(`[Launch] Website deployed to ${deploymentResult.deploymentUrl}`);
     } else {
-      // Deployment failed, but generation succeeded
+      // Deployment failed, but generation succeeded - still save assetsBaseUrl
       await db.updateProject(input.projectId, {
         subdomain: deploymentResult.subdomain,
+        assetsBaseUrl: assetsBaseUrl, // Assets are still accessible even if deployment failed
         deploymentStatus: 'failed',
       });
       console.error(`[Launch] Deployment failed: ${deploymentResult.error}`);

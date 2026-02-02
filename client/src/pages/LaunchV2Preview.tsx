@@ -43,38 +43,7 @@ export default function LaunchV2Preview() {
     }
   }, [setLocation]);
 
-  // Connect to SSE for real-time logs
-  useEffect(() => {
-    if (!projectId) return;
-
-    const eventSource = new EventSource(`/api/progress/${projectId}`);
-
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        const newLog = {
-          timestamp: new Date().toLocaleTimeString(),
-          category: data.category || "system",
-          message: data.message,
-          level: data.level || "info",
-        };
-        setLogs((prev) => [...prev, newLog]);
-      } catch (error) {
-        console.error("Failed to parse SSE data:", error);
-      }
-    };
-
-    eventSource.onerror = (error) => {
-      console.error("SSE connection error:", error);
-      eventSource.close();
-    };
-
-    return () => {
-      eventSource.close();
-    };
-  }, [projectId]);
-
-  // Poll project status
+  // Poll project status (must be declared before SSE useEffect)
   const { data: project, refetch } = trpc.projects.getById.useQuery(
     { id: projectId! },
     {
@@ -82,6 +51,68 @@ export default function LaunchV2Preview() {
       refetchInterval: 3000, // Poll every 3 seconds
     }
   );
+
+  // Connect to SSE for real-time logs (only when project is generating)
+  useEffect(() => {
+    if (!projectId) return;
+    
+    // Only connect SSE when project is actively generating
+    // Skip SSE for completed, failed, or unknown status projects
+    if (project?.status !== "generating") {
+      return;
+    }
+
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 3;
+    let eventSource: EventSource | null = null;
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const connect = () => {
+      eventSource = new EventSource(`/api/progress/${projectId}`);
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          const newLog = {
+            timestamp: new Date().toLocaleTimeString(),
+            category: data.category || "system",
+            message: data.message,
+            level: data.level || "info",
+          };
+          setLogs((prev) => [...prev, newLog]);
+          // Reset reconnect attempts on successful message
+          reconnectAttempts = 0;
+        } catch (error) {
+          // Silently ignore parse errors for non-JSON messages (like heartbeats)
+        }
+      };
+
+      eventSource.onerror = () => {
+        // Close the current connection
+        eventSource?.close();
+        
+        // Only attempt reconnect if we haven't exceeded max attempts
+        // and the project is still generating
+        if (reconnectAttempts < maxReconnectAttempts && project?.status === "generating") {
+          reconnectAttempts++;
+          // Exponential backoff: 1s, 2s, 4s
+          const delay = Math.pow(2, reconnectAttempts - 1) * 1000;
+          reconnectTimeout = setTimeout(connect, delay);
+        }
+        // If max attempts reached or project not generating, silently stop
+        // The polling mechanism will continue to update project status
+      };
+    };
+
+    connect();
+
+    return () => {
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+      eventSource?.close();
+    };
+  }, [projectId, project?.status]);
 
   // Poll generation history for real-time step progress
   const { data: generationHistory } = trpc.generationHistory.getByProjectId.useQuery(

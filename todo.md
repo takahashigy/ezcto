@@ -1265,3 +1265,8 @@
 - [x] 更新进度跟踪和广播消息
 - [x] 添加错误处理和重试逻辑
 - [x] 测试编译并保存 checkpoint
+
+## SSE 连接错误修复
+- [x] 分析 LaunchV2Preview 页面的 SSE 连接错误原因
+- [x] 修复 SSE 连接问题
+- [x] 测试并保存 checkpoint

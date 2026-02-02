@@ -25,6 +25,7 @@ export type ClaudeResponse = {
 };
 
 import { retryWithBackoff } from "./retry";
+import { generateSectionOrderInstruction, type LayoutTemplate } from "../layoutTemplates";
 
 /**
  * Call Claude API with messages
@@ -437,11 +438,10 @@ Return ONLY semantic HTML5 with proper tags, IDs, classes, and data attributes. 
  */
 function generateDynamicPageStructure(
   input: any,
-  template: import('../layoutTemplates').LayoutTemplate,
+  template: LayoutTemplate,
   hasTokenomics: boolean,
   hasCA: boolean
 ): string {
-  const { generateSectionOrderInstruction } = require('../layoutTemplates');
   const layoutInstruction = generateSectionOrderInstruction(template, hasTokenomics);
   
   // Build social links instruction

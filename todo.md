@@ -1211,3 +1211,10 @@
 - [x] 更新 LaunchV2 页面使用 CryptoPaymentModalV2 替代旧的 CryptoPaymentModal
 - [x] 测试支付流程验证 EZCTO 选项显示
 - [x] 保存 checkpoint
+
+## EZCTO 代币支付选项 UI 优化
+- [x] 添加推荐标签突出 EZCTO 选项
+- [x] 突出显示折扣后的价格（$200 vs $299）
+- [x] 添加 PancakeSwap 购买 EZCTO 代币的链接
+- [x] 测试优化后的支付弹窗效果
+- [x] 保存 checkpoint

@@ -8,7 +8,7 @@ import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana
 import { CHAINS, TOKENS, PAYMENT_CONFIG, PAYMENT_METHODS, ERC20_ABI } from '@shared/web3Config';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { AlertCircle, CheckCircle2, Loader2, ExternalLink, ChevronDown } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, ExternalLink, ChevronDown, Sparkles, ShoppingCart, Star } from 'lucide-react';
 import { trpc } from '../lib/trpc';
 import { useToast } from '../hooks/use-toast';
 import {
@@ -25,6 +25,9 @@ interface CryptoPaymentProps {
 }
 
 type ChainType = 'ETH' | 'BSC' | 'POLYGON' | 'SOLANA';
+
+// PancakeSwap URL for buying EZCTO
+const PANCAKESWAP_EZCTO_URL = `https://pancakeswap.finance/swap?outputCurrency=${TOKENS.BSC.EZCTO.address}&chain=bsc`;
 
 export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProps) {
   const { toast } = useToast();
@@ -230,22 +233,78 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
 
   const isConnected = selectedChain === 'SOLANA' ? solanaConnected : evmConnected;
 
+  // Calculate savings
+  const savings = PAYMENT_CONFIG.priceUSD - PAYMENT_CONFIG.ezctoPaymentUSD;
+  const discountPercent = Math.round((savings / PAYMENT_CONFIG.priceUSD) * 100);
+
   return (
     <Card className="p-6">
       <div className="space-y-4">
+        {/* Header with Price */}
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Pay with Crypto</h3>
           <div className="text-right">
             {selectedToken === 'EZCTO' ? (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col items-end">
                 <span className="text-sm line-through text-muted-foreground">${PAYMENT_CONFIG.priceUSD}</span>
-                <span className="text-sm font-bold text-green-500">${PAYMENT_CONFIG.ezctoPaymentUSD} USD</span>
+                <span className="text-xl font-bold text-green-600">${PAYMENT_CONFIG.ezctoPaymentUSD}</span>
               </div>
             ) : (
-              <span className="text-sm text-muted-foreground">${PAYMENT_CONFIG.priceUSD} USD</span>
+              <span className="text-xl font-bold">${PAYMENT_CONFIG.priceUSD}</span>
             )}
           </div>
         </div>
+
+        {/* EZCTO Recommended Banner */}
+        {selectedChain === 'BSC' && (
+          <div className="relative overflow-hidden bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 border-2 border-green-500/30 rounded-xl p-4">
+            {/* Recommended Badge */}
+            <div className="absolute -top-1 -right-1">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg flex items-center gap-1 shadow-lg">
+                <Star className="h-3 w-3 fill-current" />
+                RECOMMENDED
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Sparkles className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-bold text-green-700 dark:text-green-400">Pay with EZCTO Token</span>
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                    -{discountPercent}% OFF
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Save <span className="font-bold text-green-600">${savings}</span> when you pay with EZCTO!
+                </p>
+                
+                {/* Price Comparison */}
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground line-through">${PAYMENT_CONFIG.priceUSD}</span>
+                    <span className="text-muted-foreground">→</span>
+                    <span className="text-2xl font-black text-green-600">${PAYMENT_CONFIG.ezctoPaymentUSD}</span>
+                  </div>
+                </div>
+                
+                {/* Buy EZCTO Link */}
+                <a
+                  href={PANCAKESWAP_EZCTO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  Buy EZCTO on PancakeSwap
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Chain Selection */}
         <div className="space-y-2">
@@ -263,7 +322,8 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               <SelectItem value="BSC">
                 <div className="flex items-center gap-2">
                   <img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" alt="BSC" className="h-5 w-5" />
-                  BNB Smart Chain (Recommended)
+                  <span>BNB Smart Chain</span>
+                  <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-1.5 py-0.5 rounded font-medium">Best Rate</span>
                 </div>
               </SelectItem>
               <SelectItem value="ETH">
@@ -292,17 +352,20 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         <div className="space-y-2">
           <label className="text-sm font-medium">Select Token</label>
           <Select value={selectedToken} onValueChange={setSelectedToken}>
-            <SelectTrigger>
+            <SelectTrigger className={selectedToken === 'EZCTO' ? 'border-green-500 ring-1 ring-green-500/20' : ''}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {availableTokens.map((token) => (
                 <SelectItem key={token.key} value={token.key}>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono">{token.symbol}</span>
+                    <span className="font-mono font-medium">{token.symbol}</span>
                     <span className="text-muted-foreground text-xs">({token.name})</span>
                     {token.key === 'EZCTO' && (
-                      <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Preferred</span>
+                      <span className="text-xs bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-current" />
+                        -{discountPercent}%
+                      </span>
                     )}
                   </div>
                 </SelectItem>
@@ -314,13 +377,18 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         {/* Price Display */}
         <div className="bg-muted/50 rounded-lg p-4 space-y-2">
           {selectedToken === 'EZCTO' && (
-            <div className="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-lg p-3 mb-3">
-              <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                <span className="text-lg">🎉</span>
-                <span className="font-semibold">Save $99!</span>
+            <div className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border border-green-300 dark:border-green-700 rounded-lg p-3 mb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                  <span className="text-xl">🎉</span>
+                  <span className="font-bold">You Save ${savings}!</span>
+                </div>
+                <span className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">
+                  {discountPercent}% OFF
+                </span>
               </div>
               <p className="text-xs text-green-600 dark:text-green-500 mt-1">
-                Pay with EZCTO token and get 33% off!
+                Pay with EZCTO token and enjoy the best rate!
               </p>
             </div>
           )}
@@ -336,7 +404,14 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">USD Value:</span>
-            <span className="font-mono">${getCurrentPrice()}</span>
+            <div className="flex items-center gap-2">
+              {selectedToken === 'EZCTO' && (
+                <span className="font-mono text-muted-foreground line-through text-xs">${PAYMENT_CONFIG.priceUSD}</span>
+              )}
+              <span className={`font-mono font-bold ${selectedToken === 'EZCTO' ? 'text-green-600' : ''}`}>
+                ${getCurrentPrice()}
+              </span>
+            </div>
           </div>
           {selectedToken === 'EZCTO' && ezctoPrice?.priceUsd && (
             <div className="flex justify-between text-xs text-muted-foreground pt-2 border-t">
@@ -345,6 +420,24 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
             </div>
           )}
         </div>
+
+        {/* Buy EZCTO CTA for non-EZCTO selection */}
+        {selectedChain === 'BSC' && selectedToken !== 'EZCTO' && (
+          <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
+              <Sparkles className="h-4 w-4" />
+              <span>Switch to EZCTO and save ${savings}!</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-amber-400 text-amber-700 hover:bg-amber-100 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-900/30"
+              onClick={() => setSelectedToken('EZCTO')}
+            >
+              Use EZCTO
+            </Button>
+          </div>
+        )}
 
         {/* Wallet Connection */}
         {!isConnected ? (
@@ -413,7 +506,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               <Button 
                 onClick={handlePayment} 
                 disabled={isProcessing}
-                className="w-full"
+                className={`w-full ${selectedToken === 'EZCTO' ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600' : ''}`}
                 size="lg"
               >
                 {isProcessing ? (
@@ -424,6 +517,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
                 ) : (
                   <>
                     Pay {getTokenAmount()} {selectedToken}
+                    {selectedToken === 'EZCTO' && <span className="ml-2 text-xs opacity-80">(Save ${savings})</span>}
                   </>
                 )}
               </Button>
@@ -431,13 +525,27 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
           </div>
         )}
 
-        {/* Info */}
-        <p className="text-xs text-muted-foreground text-center">
-          {selectedChain === 'BSC' && selectedToken === 'EZCTO' 
-            ? '🔥 Pay with EZCTO token on BSC - Only $200 (Save $99!)'
-            : 'ETH, USDT, and USDC are also accepted at $299'
-          }
-        </p>
+        {/* Footer Info with PancakeSwap Link */}
+        <div className="text-center space-y-2">
+          <p className="text-xs text-muted-foreground">
+            {selectedChain === 'BSC' && selectedToken === 'EZCTO' 
+              ? '🔥 Best deal! Pay with EZCTO token on BSC'
+              : 'ETH, USDT, and USDC are also accepted at $299'
+            }
+          </p>
+          {selectedChain === 'BSC' && (
+            <a
+              href={PANCAKESWAP_EZCTO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              <ShoppingCart className="h-3 w-3" />
+              Need EZCTO? Buy on PancakeSwap
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
       </div>
     </Card>
   );

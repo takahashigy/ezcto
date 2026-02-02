@@ -704,9 +704,14 @@ ${htmlStructure.substring(0, 4000)}...
    - Quick download links (smaller than main CTAs)
    - Copyright text
 
-12. LAZY LOADING TRANSITIONS:
-   - img { opacity: 0; transition: opacity 0.3s ease-in-out; }
-   - img.loaded { opacity: 1; }
+12. IMAGE VISIBILITY (CRITICAL - DO NOT HIDE IMAGES):
+   - ALL images MUST be visible by default: img { opacity: 1; }
+   - DO NOT set img { opacity: 0; } as initial state
+   - For fade-in animations, use CSS that ensures images are ALWAYS visible:
+     img { opacity: 1; transition: opacity 0.3s ease-in-out; }
+   - If using lazy loading, the loaded class should NOT be required for visibility
+   - NEVER use animation that starts with opacity: 0 and requires JavaScript to become visible
+   - Images must be visible even if JavaScript fails or animations don't trigger
 
 ${template?.name === 'dark-cyberpunk' ? `
 **DARK CYBERPUNK SPECIAL EFFECTS (REQUIRED):**
@@ -880,10 +885,20 @@ async function generateJavaScript(opusApiKey: string): Promise<string> {
    - Add .visible class when element enters viewport
    - CSS handles the actual animation
 
-5. IMAGE LAZY LOADING:
-   - Add 'loaded' class to images when they finish loading
-   - Use img.onload or img.complete check
-   - Smooth fade-in transition via CSS
+5. IMAGE VISIBILITY (CRITICAL - IMAGES MUST ALWAYS BE VISIBLE):
+   - DO NOT set opacity: 0 on images via JavaScript
+   - Images should be visible immediately, even before JavaScript loads
+   - If adding 'loaded' class for animations, ensure images are ALREADY visible without it
+   - The 'loaded' class should only enhance (e.g., remove blur), NOT make images visible
+   - Example safe pattern:
+     document.querySelectorAll('img').forEach(img => {
+       if (img.complete) {
+         img.classList.add('loaded');
+       } else {
+         img.addEventListener('load', () => img.classList.add('loaded'));
+       }
+     });
+   - CSS should be: img { opacity: 1; } img.loaded { filter: none; } (NOT opacity-based)
 
 6. DOWNLOAD BUTTONS:
    - For download links, ensure proper download attribute

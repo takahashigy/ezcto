@@ -1307,3 +1307,9 @@
 - [x] 添加 LAYOUT SYMMETRY AND GRID SYSTEM 规则
 
 - [x] 测试并保存 checkpoint
+
+## 图片不可见问题修复
+- [x] 分析问题根源 - 图片 opacity: 0 的 CSS 来源
+- [x] 修复 CSS 生成 Prompt 中的动画/透明度问题
+- [x] 确保图片默认 opacity: 1，动画只用于过渡效果
+- [x] 测试并保存 checkpoint

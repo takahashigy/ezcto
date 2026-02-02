@@ -89,6 +89,7 @@ export function Web3Provider({ children }: Web3ProviderProps) {
             borderRadius: 'small',
           })}
           locale="en-US"
+          initialChain={bsc}
         >
           <ConnectionProvider endpoint={solanaEndpoint}>
             <WalletProvider wallets={solanaWallets} autoConnect>

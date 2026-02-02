@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
-import { CryptoPaymentModal } from "@/components/CryptoPaymentModal";
+import { CryptoPaymentModalV2 } from "@/components/CryptoPaymentModalV2";
 import { useAccount } from "wagmi";
 import { Wallet } from "lucide-react";
 
@@ -797,61 +797,40 @@ export default function LaunchV2() {
         </div>
       </div>
 
-      {/* Crypto Payment Modal */}
+      {/* Crypto Payment Modal V2 - Supports EZCTO Token */}
       {currentProjectId && (
-        <CryptoPaymentModal
+        <CryptoPaymentModalV2
           open={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
-          onPaymentSuccess={async (txHash, chain) => {
-            try {
-              toast.info(language === 'zh' ? '验证支付中...' : 'Verifying payment...');
+          projectId={currentProjectId}
+          projectName={formData.projectName}
+          onPaymentSuccess={() => {
+            toast.success(language === 'zh' ? '支付成功！' : 'Payment successful!');
+            setShowPaymentModal(false);
 
-              // Get wallet address from useWeb3 hook
-              const walletAddress = (window as any).ethereum?.selectedAddress || '';
+            // Navigate to preview page
+            setLocation(`/launch/preview?projectId=${currentProjectId}`);
 
-              // Verify payment on blockchain
-              const result = await verifyPaymentMutation.mutateAsync({
-                projectId: currentProjectId,
-                txHash,
-                chain,
-                walletAddress,
-                hasDiscount,
-              });
+            // Save to localStorage for recovery
+            localStorage.setItem('currentGeneratingProject', JSON.stringify({
+              projectId: currentProjectId,
+              projectName: formData.projectName,
+              timestamp: Date.now(),
+            }));
 
-              toast.success(language === 'zh' ? '支付验证成功！' : 'Payment verified successfully!');
-              setShowPaymentModal(false);
+            // Retrieve stored image URL and base64 data
+            const storedImageUrl = localStorage.getItem(`project_${currentProjectId}_imageUrl`);
+            const storedImageBase64 = localStorage.getItem(`project_${currentProjectId}_imageBase64`);
 
-              // Navigate to preview page
-              setLocation(`/launch/preview?projectId=${currentProjectId}`);
+            // Trigger generation with both URL and base64 data
+            launchTriggerMutation.mutate({
+              projectId: currentProjectId,
+              characterImageUrl: storedImageUrl || undefined,
+              // Pass base64 data directly to avoid 403 on CloudFront URLs
+              characterImageBase64: storedImageBase64 || undefined,
+            });
 
-              // Save to localStorage for recovery
-              localStorage.setItem('currentGeneratingProject', JSON.stringify({
-                projectId: currentProjectId,
-                projectName: formData.projectName,
-                timestamp: Date.now(),
-              }));
-
-              // Retrieve stored image URL and base64 data
-              const storedImageUrl = localStorage.getItem(`project_${currentProjectId}_imageUrl`);
-              const storedImageBase64 = localStorage.getItem(`project_${currentProjectId}_imageBase64`);
-
-              // Trigger generation with both URL and base64 data
-              launchTriggerMutation.mutate({
-                projectId: currentProjectId,
-                characterImageUrl: storedImageUrl || undefined,
-                // Pass base64 data directly to avoid 403 on CloudFront URLs
-                characterImageBase64: storedImageBase64 || undefined,
-              });
-
-              toast.success(language === 'zh' ? '开始生成...' : 'Starting generation...');
-            } catch (error) {
-              console.error('[Payment] Verification failed:', error);
-              toast.error(
-                language === 'zh'
-                  ? `支付验证失败: ${error instanceof Error ? error.message : '未知错误'}`
-                  : `Payment verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-              );
-            }
+            toast.success(language === 'zh' ? '开始生成...' : 'Starting generation...');
           }}
         />
       )}

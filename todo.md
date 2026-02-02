@@ -1205,3 +1205,9 @@
 - [x] 在支付选项中添加 EZCTO 代币（等值 200 USD，省 $99）
 - [x] 更新 CryptoPayment 组件支持 EZCTO 支付
 - [x] 显示优惠信息和实时价格
+
+## EZCTO 代币支付选项修复
+- [x] 创建 CryptoPaymentModalV2 组件（使用新的 CryptoPayment 组件）
+- [x] 更新 LaunchV2 页面使用 CryptoPaymentModalV2 替代旧的 CryptoPaymentModal
+- [x] 测试支付流程验证 EZCTO 选项显示
+- [x] 保存 checkpoint

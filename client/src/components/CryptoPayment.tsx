@@ -11,6 +11,7 @@ import { Card } from './ui/card';
 import { AlertCircle, CheckCircle2, Loader2, ExternalLink, ChevronDown, Sparkles, ShoppingCart, Star, Wallet, AlertTriangle } from 'lucide-react';
 import { trpc } from '../lib/trpc';
 import { useToast } from '../hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Select,
   SelectContent,
@@ -42,6 +43,7 @@ const BALANCE_OF_ABI = [
 
 export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [selectedChain, setSelectedChain] = useState<ChainType>('BSC');
   const [selectedToken, setSelectedToken] = useState<string>('EZCTO');
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -67,7 +69,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     chainId: CHAINS.BSC.chainId,
     query: {
       enabled: !!evmAddress && selectedChain === 'BSC' && selectedToken === 'EZCTO',
-      refetchInterval: 15000, // Refresh every 15 seconds
+      refetchInterval: 15000,
     }
   });
 
@@ -89,7 +91,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
   const { data: ezctoPrice, isLoading: ezctoPriceLoading } = trpc.crypto.getEzctoPrice.useQuery(
     undefined,
     {
-      refetchInterval: 30000, // Refresh every 30 seconds
+      refetchInterval: 30000,
       enabled: selectedToken === 'EZCTO',
     }
   );
@@ -118,9 +120,9 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
   // Get current price for display
   const getCurrentPrice = () => {
     if (selectedToken === 'EZCTO') {
-      return PAYMENT_CONFIG.ezctoPaymentUSD; // $200 for EZCTO
+      return PAYMENT_CONFIG.ezctoPaymentUSD;
     }
-    return PAYMENT_CONFIG.priceUSD; // $299 for other tokens
+    return PAYMENT_CONFIG.priceUSD;
   };
 
   // Get token amount for payment
@@ -128,18 +130,14 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     const token = availableTokens.find(t => t.key === selectedToken);
     if (!token) return '0';
     
-    // For EZCTO, use real-time price from DEX
     if (selectedToken === 'EZCTO' && ezctoPrice?.ezctoNeeded) {
       return ezctoPrice.ezctoNeeded.toFixed(2);
     }
     
-    // For stablecoins, use USD price directly
     if (['USDT', 'USDC'].includes(selectedToken)) {
       return PAYMENT_CONFIG.priceUSD.toString();
     }
     
-    // For native tokens and others, calculate based on approximate rates
-    // This is a placeholder - in production, use a price oracle
     if (selectedToken === 'ETH') return '0.12';
     if (selectedToken === 'BNB') return '0.55';
     if (selectedToken === 'MATIC') return '500';
@@ -163,8 +161,8 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     } catch (err) {
       console.error('Failed to switch chain:', err);
       toast({
-        title: 'Network Switch Failed',
-        description: 'Please switch network manually in your wallet',
+        title: t('cryptoPayment.networkSwitchFailed'),
+        description: t('cryptoPayment.switchManually'),
         variant: 'destructive',
       });
     }
@@ -181,7 +179,6 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         throw new Error('Invalid token selected');
       }
 
-      // Create payment record
       const payment = await createPaymentMutation.mutateAsync({
         projectId,
         chain: selectedChain as 'ETH' | 'BSC' | 'POLYGON' | 'SOLANA',
@@ -196,7 +193,6 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
       let hash: string;
 
       if (selectedChain === 'SOLANA') {
-        // Solana payment
         if (!solanaPublicKey) throw new Error('Wallet not connected');
         
         const receiver = new PublicKey(PAYMENT_CONFIG.receivers.SOLANA);
@@ -213,20 +209,16 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         const signature = await sendTransaction(transaction, connection);
         hash = signature;
       } else {
-        // EVM payment
         if (!evmAddress) throw new Error('Wallet not connected');
 
         if (token.address === 'native') {
-          // Native token transfer
           const result = await sendTransactionAsync({
             to: PAYMENT_CONFIG.receivers.EVM as `0x${string}`,
             value: parseEther(amount),
           });
           hash = result;
         } else {
-          // ERC20 token transfer
           const tokenAmount = parseUnits(amount, token.decimals);
-          // For ERC20, we need to use writeContract - simplified here
           const result = await sendTransactionAsync({
             to: token.address as `0x${string}`,
             data: `0xa9059cbb000000000000000000000000${PAYMENT_CONFIG.receivers.EVM.slice(2)}${tokenAmount.toString(16).padStart(64, '0')}` as `0x${string}`,
@@ -238,11 +230,10 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
       setTxHash(hash);
 
       toast({
-        title: 'Transaction Sent',
-        description: 'Waiting for confirmation...',
+        title: t('cryptoPayment.transactionSent'),
+        description: t('cryptoPayment.waitingConfirmation'),
       });
 
-      // Verify payment
       const verified = await verifyPaymentMutation.mutateAsync({
         paymentId: payment.id,
         txHash: hash,
@@ -250,15 +241,15 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
 
       if (verified.success) {
         toast({
-          title: 'Payment Confirmed!',
-          description: 'Your website deployment is now unlocked.',
+          title: t('cryptoPayment.paymentConfirmed'),
+          description: t('cryptoPayment.deploymentUnlocked'),
         });
         onPaymentSuccess();
       }
     } catch (err: unknown) {
       console.error('Payment error:', err);
       toast({
-        title: 'Payment Failed',
+        title: t('cryptoPayment.paymentFailed'),
         description: err instanceof Error ? err.message : 'An error occurred',
         variant: 'destructive',
       });
@@ -278,7 +269,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
       <div className="space-y-4">
         {/* Header with Price */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Pay with Crypto</h3>
+          <h3 className="text-lg font-semibold">{t('cryptoPayment.title')}</h3>
           <div className="text-right">
             {selectedToken === 'EZCTO' ? (
               <div className="flex flex-col items-end">
@@ -298,7 +289,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
             <div className="absolute -top-1 -right-1">
               <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg flex items-center gap-1 shadow-lg">
                 <Star className="h-3 w-3 fill-current" />
-                RECOMMENDED
+                {t('cryptoPayment.recommended')}
               </div>
             </div>
             
@@ -308,13 +299,13 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-green-700 dark:text-green-400">Pay with EZCTO Token</span>
+                  <span className="font-bold text-green-700 dark:text-green-400">{t('cryptoPayment.payWithEzcto')}</span>
                   <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
                     -{discountPercent}% OFF
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Save <span className="font-bold text-green-600">${savings}</span> when you pay with EZCTO!
+                  {t('cryptoPayment.saveAmount')} <span className="font-bold text-green-600">${savings}</span> {t('cryptoPayment.whenPayWithEzcto')}
                 </p>
                 
                 {/* Price Comparison */}
@@ -334,7 +325,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
                   className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors"
                 >
                   <ShoppingCart className="h-4 w-4" />
-                  Buy EZCTO on PancakeSwap
+                  {t('cryptoPayment.buyEzctoOnPancake')}
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
@@ -344,10 +335,9 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
 
         {/* Chain Selection */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Select Network</label>
+          <label className="text-sm font-medium">{t('cryptoPayment.selectNetwork')}</label>
           <Select value={selectedChain} onValueChange={(v) => {
             setSelectedChain(v as ChainType);
-            // Reset token to first available
             const tokens = Object.keys(TOKENS[v as ChainType]);
             setSelectedToken(v === 'BSC' ? 'EZCTO' : tokens[0]);
           }}>
@@ -359,7 +349,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
                 <div className="flex items-center gap-2">
                   <img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" alt="BSC" className="h-5 w-5" />
                   <span>BNB Smart Chain</span>
-                  <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-1.5 py-0.5 rounded font-medium">Best Rate</span>
+                  <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-1.5 py-0.5 rounded font-medium">{t('cryptoPayment.bestRate')}</span>
                 </div>
               </SelectItem>
               <SelectItem value="ETH">
@@ -386,7 +376,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
 
         {/* Token Selection */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Select Token</label>
+          <label className="text-sm font-medium">{t('cryptoPayment.selectToken')}</label>
           <Select value={selectedToken} onValueChange={setSelectedToken}>
             <SelectTrigger className={selectedToken === 'EZCTO' ? 'border-green-500 ring-1 ring-green-500/20' : ''}>
               <SelectValue />
@@ -416,7 +406,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Wallet className={`h-5 w-5 ${hasEnoughBalance ? 'text-green-600' : 'text-amber-600'}`} />
-                <span className="font-medium text-sm">Your EZCTO Balance</span>
+                <span className="font-medium text-sm">{t('cryptoPayment.yourEzctoBalance')}</span>
               </div>
               {ezctoBalanceLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -430,11 +420,11 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
             {/* Balance comparison */}
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Required:</span>
+                <span className="text-muted-foreground">{t('cryptoPayment.required')}:</span>
                 <span className="font-mono">{requiredAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} EZCTO</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Your Balance:</span>
+                <span className="text-muted-foreground">{t('cryptoPayment.yourBalance')}:</span>
                 <span className={`font-mono ${hasEnoughBalance ? 'text-green-600' : 'text-amber-600'}`}>
                   {parseFloat(ezctoBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })} EZCTO
                 </span>
@@ -442,14 +432,14 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               {hasEnoughBalance ? (
                 <div className="flex items-center gap-1 text-green-600 mt-2 pt-2 border-t border-green-200 dark:border-green-800">
                   <CheckCircle2 className="h-4 w-4" />
-                  <span className="font-medium">Sufficient balance for payment</span>
+                  <span className="font-medium">{t('cryptoPayment.sufficientBalance')}</span>
                 </div>
               ) : (
                 <div className="mt-2 pt-2 border-t border-amber-200 dark:border-amber-800">
                   <div className="flex items-center gap-1 text-amber-600 mb-2">
                     <AlertTriangle className="h-4 w-4" />
                     <span className="font-medium">
-                      Need {shortfall.toLocaleString(undefined, { maximumFractionDigits: 2 })} more EZCTO
+                      {t('cryptoPayment.needMore')} {shortfall.toLocaleString(undefined, { maximumFractionDigits: 2 })} {t('cryptoPayment.moreEzcto')}
                     </span>
                   </div>
                   <a
@@ -459,7 +449,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
                     className="inline-flex items-center gap-1.5 text-sm font-medium bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg transition-colors"
                   >
                     <ShoppingCart className="h-4 w-4" />
-                    Buy EZCTO on PancakeSwap
+                    {t('cryptoPayment.buyEzctoOnPancake')}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
@@ -475,21 +465,21 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
                   <span className="text-xl">🎉</span>
-                  <span className="font-bold">You Save ${savings}!</span>
+                  <span className="font-bold">{t('cryptoPayment.youSave')} ${savings}!</span>
                 </div>
                 <span className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">
                   {discountPercent}% OFF
                 </span>
               </div>
               <p className="text-xs text-green-600 dark:text-green-500 mt-1">
-                Pay with EZCTO token and enjoy the best rate!
+                {t('cryptoPayment.payWithEzctoEnjoy')}
               </p>
             </div>
           )}
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Amount:</span>
+            <span className="text-muted-foreground">{t('cryptoPayment.amount')}:</span>
             {ezctoPriceLoading && selectedToken === 'EZCTO' ? (
-              <span className="font-mono text-muted-foreground">Loading...</span>
+              <span className="font-mono text-muted-foreground">{t('cryptoPayment.loading')}</span>
             ) : (
               <span className="font-mono font-semibold">
                 {getTokenAmount()} {selectedToken}
@@ -497,7 +487,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
             )}
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">USD Value:</span>
+            <span className="text-muted-foreground">{t('cryptoPayment.usdValue')}:</span>
             <div className="flex items-center gap-2">
               {selectedToken === 'EZCTO' && (
                 <span className="font-mono text-muted-foreground line-through text-xs">${PAYMENT_CONFIG.priceUSD}</span>
@@ -509,7 +499,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
           </div>
           {selectedToken === 'EZCTO' && ezctoPrice?.priceUsd && (
             <div className="flex justify-between text-xs text-muted-foreground pt-2 border-t">
-              <span>EZCTO Price:</span>
+              <span>{t('cryptoPayment.ezctoPrice')}:</span>
               <span className="font-mono">${ezctoPrice.priceUsd.toFixed(6)}</span>
             </div>
           )}
@@ -520,7 +510,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
           <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
               <Sparkles className="h-4 w-4" />
-              <span>Switch to EZCTO and save ${savings}!</span>
+              <span>{t('cryptoPayment.switchToEzcto')} ${savings}!</span>
             </div>
             <Button
               variant="outline"
@@ -528,7 +518,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               className="border-amber-400 text-amber-700 hover:bg-amber-100 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-900/30"
               onClick={() => setSelectedToken('EZCTO')}
             >
-              Use EZCTO
+              {t('cryptoPayment.useEzcto')}
             </Button>
           </div>
         )}
@@ -550,17 +540,17 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
           <div className="space-y-3">
             <div className="flex items-start gap-2 text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg">
               <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-              <span>Please switch to {CHAINS[selectedChain].name} to continue</span>
+              <span>{t('cryptoPayment.switchToNetwork')} {CHAINS[selectedChain].name} {t('cryptoPayment.toContinue')}</span>
             </div>
             <Button onClick={handleChainSwitch} className="w-full" size="lg">
-              Switch to {CHAINS[selectedChain].name}
+              {t('cryptoPayment.switchTo')} {CHAINS[selectedChain].name}
             </Button>
           </div>
         ) : (
           <div className="space-y-3">
             <div className="bg-muted/30 rounded-lg p-3 space-y-2 text-sm">
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Connected:</span>
+                <span className="text-muted-foreground">{t('cryptoPayment.connected')}:</span>
                 <span className="font-mono text-xs">
                   {selectedChain === 'SOLANA' 
                     ? `${solanaPublicKey?.toString().slice(0, 6)}...${solanaPublicKey?.toString().slice(-4)}`
@@ -570,7 +560,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               </div>
               {evmBalance && selectedChain !== 'SOLANA' && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Native Balance:</span>
+                  <span className="text-muted-foreground">{t('cryptoPayment.nativeBalance')}:</span>
                   <span className="font-mono">
                     {parseFloat(formatUnits(evmBalance.value, evmBalance.decimals)).toFixed(4)} {evmBalance.symbol}
                   </span>
@@ -583,14 +573,14 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
                 <div className="flex items-start gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-950/20 p-3 rounded-lg">
                   <CheckCircle2 className="h-4 w-4 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium mb-1">Transaction Submitted</p>
+                    <p className="font-medium mb-1">{t('cryptoPayment.transactionSubmitted')}</p>
                     <a
                       href={`${CHAINS[selectedChain].blockExplorer}/tx/${txHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs underline flex items-center gap-1"
                     >
-                      View on Explorer
+                      {t('cryptoPayment.viewOnExplorer')}
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
@@ -606,17 +596,17 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Processing...
+                    {t('cryptoPayment.processing')}
                   </>
                 ) : selectedToken === 'EZCTO' && !hasEnoughBalance ? (
                   <>
                     <AlertTriangle className="mr-2 h-5 w-5" />
-                    Insufficient EZCTO Balance
+                    {t('cryptoPayment.insufficientBalance')}
                   </>
                 ) : (
                   <>
-                    Pay {getTokenAmount()} {selectedToken}
-                    {selectedToken === 'EZCTO' && <span className="ml-2 text-xs opacity-80">(Save ${savings})</span>}
+                    {t('cryptoPayment.pay')} {getTokenAmount()} {selectedToken}
+                    {selectedToken === 'EZCTO' && <span className="ml-2 text-xs opacity-80">({t('cryptoPayment.save')} ${savings})</span>}
                   </>
                 )}
               </Button>
@@ -628,8 +618,8 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         <div className="text-center space-y-2">
           <p className="text-xs text-muted-foreground">
             {selectedChain === 'BSC' && selectedToken === 'EZCTO' 
-              ? '🔥 Best deal! Pay with EZCTO token on BSC'
-              : 'ETH, USDT, and USDC are also accepted at $299'
+              ? `🔥 ${t('cryptoPayment.bestDeal')}`
+              : `${t('cryptoPayment.otherAccepted')} $299`
             }
           </p>
           {selectedChain === 'BSC' && (
@@ -640,7 +630,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
             >
               <ShoppingCart className="h-3 w-3" />
-              Need EZCTO? Buy on PancakeSwap
+              {t('cryptoPayment.needEzcto')}
               <ExternalLink className="h-3 w-3" />
             </a>
           )}

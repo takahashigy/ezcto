@@ -20,7 +20,7 @@ export type LayoutTemplateName =
 
 export interface LayoutSection {
   id: string;
-  type: 'hero' | 'about' | 'features' | 'tokenomics' | 'community' | 'gallery' | 'banner-divider' | 'story' | 'cta' | 'footer';
+  type: 'hero' | 'showcase' | 'about' | 'features' | 'tokenomics' | 'community' | 'gallery' | 'banner-divider' | 'story' | 'cta' | 'footer';
   // How to use banner in this section
   bannerUsage?: 'none' | 'background' | 'divider-above' | 'divider-below' | 'inline-decoration' | 'footer-decoration';
   // Section-specific styling hints
@@ -61,6 +61,7 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     },
     sections: [
       { id: 'hero', type: 'hero', bannerUsage: 'none' },
+      { id: 'showcase', type: 'showcase', bannerUsage: 'none', style: { fullWidth: true, centered: true } },
       { id: 'about', type: 'about', bannerUsage: 'none' },
       { id: 'features', type: 'features', bannerUsage: 'none' },
       { id: 'tokenomics', type: 'tokenomics', bannerUsage: 'none' },
@@ -81,6 +82,7 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     },
     sections: [
       { id: 'hero', type: 'hero', bannerUsage: 'none' },
+      { id: 'showcase', type: 'showcase', bannerUsage: 'none', style: { fullWidth: true, centered: true } },
       { id: 'divider-1', type: 'banner-divider', bannerUsage: 'divider-below', style: { fullWidth: true } },
       { id: 'about', type: 'about', bannerUsage: 'none' },
       { id: 'features', type: 'features', bannerUsage: 'none' },
@@ -102,6 +104,7 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     },
     sections: [
       { id: 'hero', type: 'hero', bannerUsage: 'background', style: { darkOverlay: true, parallax: true } },
+      { id: 'showcase', type: 'showcase', bannerUsage: 'none', style: { fullWidth: true, centered: true } },
       { id: 'story', type: 'story', bannerUsage: 'none' },
       { id: 'gallery', type: 'gallery', bannerUsage: 'inline-decoration' },
       { id: 'features', type: 'features', bannerUsage: 'none' },
@@ -121,6 +124,7 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     },
     sections: [
       { id: 'hero', type: 'hero', bannerUsage: 'none', style: { centered: true } },
+      { id: 'showcase', type: 'showcase', bannerUsage: 'none', style: { fullWidth: true, centered: true } },
       { id: 'cta', type: 'cta', bannerUsage: 'none' },
       { id: 'community', type: 'community', bannerUsage: 'none' },
       { id: 'footer', type: 'footer', bannerUsage: 'footer-decoration' },
@@ -138,6 +142,7 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     },
     sections: [
       { id: 'hero', type: 'hero', bannerUsage: 'none' },
+      { id: 'showcase', type: 'showcase', bannerUsage: 'none', style: { fullWidth: true, centered: true } },
       { id: 'features', type: 'features', bannerUsage: 'none', style: { fullWidth: true } },
       { id: 'divider', type: 'banner-divider', bannerUsage: 'divider-below' },
       { id: 'about', type: 'about', bannerUsage: 'none' },
@@ -158,6 +163,7 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     },
     sections: [
       { id: 'hero', type: 'hero', bannerUsage: 'none' },
+      { id: 'showcase', type: 'showcase', bannerUsage: 'none', style: { fullWidth: true, centered: true } },
       { id: 'gallery', type: 'gallery', bannerUsage: 'inline-decoration', style: { fullWidth: true } },
       { id: 'about', type: 'about', bannerUsage: 'none' },
       { id: 'features', type: 'features', bannerUsage: 'none' },
@@ -177,6 +183,7 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     },
     sections: [
       { id: 'hero', type: 'hero', bannerUsage: 'background', style: { darkOverlay: true, fullWidth: true } },
+      { id: 'showcase', type: 'showcase', bannerUsage: 'none', style: { fullWidth: true, centered: true } },
       { id: 'glitch-divider-1', type: 'banner-divider', bannerUsage: 'divider-below', style: { fullWidth: true } },
       { id: 'features', type: 'features', bannerUsage: 'none', style: { fullWidth: true } },
       { id: 'about', type: 'about', bannerUsage: 'none' },
@@ -198,6 +205,7 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     },
     sections: [
       { id: 'hero', type: 'hero', bannerUsage: 'none', style: { centered: true } },
+      { id: 'showcase', type: 'showcase', bannerUsage: 'none', style: { fullWidth: true, centered: true } },
       { id: 'story', type: 'story', bannerUsage: 'none' },
       { id: 'features', type: 'features', bannerUsage: 'none' },
       { id: 'pixel-gallery', type: 'gallery', bannerUsage: 'inline-decoration' },
@@ -316,6 +324,10 @@ export function generateSectionOrderInstruction(template: LayoutTemplate, hasTok
       switch (section.type) {
         case 'hero':
           instruction += `Hero section (id="hero") - Style: ${template.heroStyle}`;
+          break;
+        case 'showcase':
+          instruction += `Showcase section (id="showcase") - LARGE VISUAL DISPLAY of the project's core concept. This is a full-width section with a prominent image (1600x900) that visualizes the narrative core. Should be visually striking and immediately communicate what the project is about.`;
+          if (section.style?.centered) instruction += ' - Centered layout';
           break;
         case 'about':
           instruction += `About section (id="about")`;

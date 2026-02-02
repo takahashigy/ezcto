@@ -281,18 +281,10 @@ export function useWeb3() {
 }
 
 // Extend Window interface for TypeScript
+// Note: ethereum type is already declared by wagmi/viem, so we only add wallet-specific properties
 declare global {
   interface Window {
-    ethereum?: {
-      isMetaMask?: boolean;
-      isBinance?: boolean;
-      isOkxWallet?: boolean;
-      isTokenPocket?: boolean;
-      isTrust?: boolean;
-      request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-      on: (event: string, handler: (...args: unknown[]) => void) => void;
-      removeListener?: (event: string, handler: (...args: unknown[]) => void) => void;
-    };
+    ethereum?: any; // Use any to avoid conflicts with wagmi's type definitions
     BinanceChain?: any;
     okxwallet?: any;
     tokenpocket?: any;

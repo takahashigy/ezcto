@@ -1283,3 +1283,27 @@
 - [x] 创建后端反馈 API 接口（使用 notifyOwner 发送通知）
 - [x] 在 LaunchV2Preview 页面添加反馈按钮和弹窗
 - [x] 测试并保存 checkpoint
+
+## 生成质量改进
+### 1. 叙事核心提取
+- [x] 在 analyzeProjectInput 中添加 narrativeCore 字段
+- [x] 要求 AI 识别项目的核心差异化概念
+- [x] 在图片 Prompt 中强调叙事核心元素
+- [x] 添加 narrativeCoreValidation 验证叙事核心是否体现在图片 Prompt 中
+
+### 2. Banner 字体一致性
+- [x] 统一所有 Banner 的字体风格指令
+- [x] 添加品牌一致性约束到 Prompt
+- [x] 添加 TYPOGRAPHY_CONSISTENCY_RULES 统一字体风格
+
+### 3. 首页 Showcase 大图区块
+- [x] 在布局模板中添加 Showcase 区块
+- [x] 生成专门的 Showcase 大图
+- [x] 更新所有 8 个模板的 sectionOrder 包含 showcase
+
+### 4. 排版对称性优化
+- [x] 在 CSS 生成 Prompt 中强化对称性要求
+- [x] 添加 12 列网格系统约束
+- [x] 添加 LAYOUT SYMMETRY AND GRID SYSTEM 规则
+
+- [x] 测试并保存 checkpoint

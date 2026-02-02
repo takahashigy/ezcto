@@ -123,6 +123,12 @@ export async function analyzeProjectInput(input: {
 }): Promise<{
   // Detected language
   language: string;
+  // Narrative core - the unique differentiating concept
+  narrativeCore: {
+    concept: string; // The core story/concept (e.g., "fish swimming against the current")
+    visualElements: string[]; // Key visual elements that MUST appear in images
+    emotionalTone: string; // The emotional feeling to convey
+  };
   // Brand strategy
   brandStrategy: {
     personality: string;
@@ -142,6 +148,7 @@ export async function analyzeProjectInput(input: {
   logoPrompt: string;
   heroBackgroundPrompt: string;
   featureIconPrompt: string;
+  showcaseImagePrompt: string; // New: Large showcase image for homepage
   // Website content
   websiteContent: {
     headline: string;
@@ -165,6 +172,14 @@ ${input.tokenomics ? `- Tokenomics: ${input.tokenomics}` : ""}
 
 Your task is to provide a complete brand strategy and image generation prompts. Focus on creating a cohesive visual identity that will drive conversions.
 
+**CRITICAL: NARRATIVE CORE EXTRACTION**
+First, identify the NARRATIVE CORE of this project - the unique, differentiating story or concept that makes it special.
+- Example: If description mentions "a fish swimming against the current", the narrative core is "rebellion, going against the flow, individuality"
+- Example: If description mentions "a cat that loves pizza", the narrative core is "quirky food obsession, relatable humor"
+- The narrative core MUST be reflected in EVERY image prompt
+- Identify 2-4 key visual elements that represent this narrative core
+- These visual elements MUST appear prominently in all generated images
+
 **LANGUAGE DETECTION AND CONTENT GENERATION:**
 - Detect the primary language of the project description
 - If description contains ANY Chinese characters (中文), even mixed with English, generate ALL websiteContent fields in Chinese
@@ -186,6 +201,18 @@ Your task is to provide a complete brand strategy and image generation prompts. 
 - Text must be bold, highly readable, with strong contrast against background
 - Use simple backgrounds that don't compete with text visibility
 - Specify exact text placement: "Large bold text '${input.ticker}' centered in the composition"
+
+**TYPOGRAPHY CONSISTENCY RULES (CRITICAL FOR ALL BANNERS):**
+ALL banners (PayDex, X/Twitter) MUST use IDENTICAL typography specifications:
+- Font style: Bold, sans-serif, modern display font (e.g., Impact, Bebas Neue, or similar)
+- Text weight: Extra bold / Black weight
+- Text case: ALL UPPERCASE for ticker
+- Letter spacing: Slightly expanded for readability
+- Text effects: Consistent across all banners (if using glow, use same glow; if using shadow, use same shadow)
+- Text size ratio: Ticker should occupy 40-60% of banner height
+- Text position: Horizontally centered, vertically centered or slightly above center
+- DO NOT use different fonts or text styles between PayDex and X banners
+- The typography must be so consistent that banners look like they belong to the same brand family
 
 **VISUAL STYLE DETECTION AND IMAGE GENERATION:**
 Based on the project description and meme image, detect the visual style and apply the appropriate image generation style:
@@ -222,6 +249,11 @@ Detect the most appropriate style from the project description and meme image, t
 
 Please provide your analysis in the following JSON format:
 {
+  "narrativeCore": {
+    "concept": "The core story/concept in one sentence (e.g., 'A rebellious fish swimming against the current, representing individuality and defiance')",
+    "visualElements": ["Element 1 that MUST appear in images", "Element 2", "Element 3"],
+    "emotionalTone": "The emotional feeling (e.g., 'rebellious and empowering' or 'playful and humorous')"
+  },
   "detectedStyle": "cyberpunk | retro | playful | minimal (the visual style detected from the project)",
   "brandStrategy": {
     "personality": "Brief description of brand personality (playful/professional/rebellious/etc)",
@@ -239,6 +271,7 @@ Please provide your analysis in the following JSON format:
   "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background. MUST apply the detectedStyle: cyberpunk=dark cityscape with neon lights/digital grid, retro=pixel art landscape/terminal screen, playful=colorful illustrated scene, minimal=subtle gradient/clean. Atmospheric, leaves space for text overlay.",
   "featureIconPrompt": "Detailed prompt for 256x256 feature icon. MUST have FULLY TRANSPARENT BACKGROUND. MUST apply the detectedStyle: cyberpunk=glowing neon icon with tech elements, retro=8-bit pixel art sprite, playful=cute cartoon icon, minimal=simple geometric icon. Clean edges suitable for any background.",
   "communityScenePrompt": "Detailed prompt for 800x600 community scene. MUST apply the detectedStyle: cyberpunk=futuristic gathering with holographic displays, retro=pixel art characters in arcade setting, playful=cartoon characters celebrating, minimal=clean modern gathering scene.",
+  "showcaseImagePrompt": "Detailed prompt for 1600x900 large showcase image. This is the HERO IMAGE that visualizes the NARRATIVE CORE. MUST prominently feature ALL visualElements from narrativeCore. MUST capture the emotionalTone. This image will be displayed prominently after the hero section to communicate the project's unique story. High quality, cinematic composition, visually striking.",
   "websiteContent": {
     "headline": "Catchy main headline for hero section",
     "tagline": "Brief memorable tagline",
@@ -255,7 +288,11 @@ Please provide your analysis in the following JSON format:
   }
 }
 
-Remember: The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts. This is non-negotiable for marketing effectiveness.`;
+Remember: 
+1. The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts. This is non-negotiable for marketing effectiveness.
+2. The narrativeCore.visualElements MUST appear in ALL image prompts (banners, hero, showcase, community scene).
+3. The showcaseImagePrompt is the most important image - it should be a stunning visualization of the narrative core.
+4. Validate that each image prompt contains at least 2 of the visualElements from narrativeCore.`;
 
   const opusApiKey = process.env.CLAUDE_OPUS_API_KEY;
   
@@ -583,6 +620,18 @@ ${htmlStructure.substring(0, 4000)}...
 - Modern typography matching visual style
 - High-conversion CTAs with hover effects
 - Text colors MUST have good contrast against backgrounds
+
+**LAYOUT SYMMETRY AND GRID SYSTEM (CRITICAL):**
+- Use a 12-column grid system for consistent alignment
+- All sections MUST be horizontally centered with max-width: 1200px; margin: 0 auto;
+- Content within sections MUST be symmetrically aligned
+- Use consistent padding: sections should have py-16 to py-24 (4rem to 6rem vertical padding)
+- Feature cards, team members, and other grid items MUST be evenly distributed
+- On desktop: use justify-content: space-evenly or space-between for balanced spacing
+- Avoid orphan elements (single item on last row) - use grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
+- All text blocks should have consistent max-width (e.g., max-width: 800px for paragraphs)
+- Headings and subheadings MUST be centered within their containers
+- Use gap instead of margin for consistent spacing between grid/flex items
 
 **CRITICAL CSS RULES:**
 

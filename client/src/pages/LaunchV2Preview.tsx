@@ -4,8 +4,10 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, CheckCircle2, XCircle, ArrowLeft, ExternalLink, Sparkles } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, ArrowLeft, ExternalLink, Sparkles, MessageSquare } from "lucide-react";
 import { LiveLogSidebar } from "@/components/LiveLogSidebar";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -30,6 +32,8 @@ export default function LaunchV2Preview() {
     message: string;
     level: "info" | "success" | "error" | "warning";
   }>>([]);
+  const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
+  const [feedbackComment, setFeedbackComment] = useState("");
 
   // Parse projectId from URL
   useEffect(() => {
@@ -133,6 +137,44 @@ export default function LaunchV2Preview() {
       toast.error(`Retry failed: ${error.message}`);
     },
   });
+
+  // Feedback mutation
+  const feedbackMutation = trpc.feedback.submitError.useMutation({
+    onSuccess: () => {
+      toast.success(language === 'zh' ? '反馈已发送，感谢您的报告！' : 'Feedback sent, thank you for your report!');
+      setIsFeedbackDialogOpen(false);
+      setFeedbackComment("");
+    },
+    onError: (error) => {
+      toast.error(language === 'zh' ? `反馈发送失败: ${error.message}` : `Failed to send feedback: ${error.message}`);
+    },
+  });
+
+  // Handle feedback submission
+  const handleFeedbackSubmit = async () => {
+    if (!projectId || !project) return;
+
+    // Get error message from generation history or project metadata
+    const errorMessage = (project.metadata as { errorMessage?: string })?.errorMessage || 
+      (generationHistory?.metadata as { errorMessage?: string })?.errorMessage ||
+      'Unknown error during generation';
+
+    // Get browser info
+    const browserInfo = `${navigator.userAgent} | ${window.innerWidth}x${window.innerHeight}`;
+
+    await feedbackMutation.mutateAsync({
+      projectId,
+      errorMessage,
+      logs: logs.map(log => ({
+        timestamp: log.timestamp,
+        category: log.category,
+        message: log.message,
+        level: log.level,
+      })),
+      userComment: feedbackComment || undefined,
+      browserInfo,
+    });
+  };
 
   // Handle retry
   const handleRetry = async () => {
@@ -455,7 +497,7 @@ export default function LaunchV2Preview() {
                   <p className="text-sm font-mono text-[#2d3e2d]/70">
                     {language === 'zh' ? '你可以直接重试，无需重新创建项目或支付。' : 'You can retry directly without recreating the project or paying again.'}
                   </p>
-                  <div className="flex gap-4 justify-center">
+                  <div className="flex gap-4 justify-center flex-wrap">
                     <Button
                       size="lg"
                       onClick={handleRetry}
@@ -482,10 +524,89 @@ export default function LaunchV2Preview() {
                       {language === 'zh' ? '创建新项目' : 'Create New Project'}
                     </Button>
                   </div>
+                  {/* Feedback Button */}
+                  <div className="pt-4 border-t border-[#2d3e2d]/20">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsFeedbackDialogOpen(true)}
+                      className="text-[#2d3e2d]/70 hover:text-[#2d3e2d] font-mono"
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      {language === 'zh' ? '一键反馈问题' : 'Report Issue'}
+                    </Button>
+                    <p className="text-xs font-mono text-[#2d3e2d]/50 mt-1">
+                      {language === 'zh' ? '帮助我们改进产品' : 'Help us improve'}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           )}
+
+          {/* Feedback Dialog */}
+          <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
+            <DialogContent className="sm:max-w-md bg-[#f5f0e8] border-4 border-[#2d3e2d]">
+              <DialogHeader>
+                <DialogTitle className="font-mono font-bold text-[#2d3e2d]">
+                  {language === 'zh' ? '反馈问题' : 'Report Issue'}
+                </DialogTitle>
+                <DialogDescription className="font-mono text-[#2d3e2d]/70">
+                  {language === 'zh' 
+                    ? '您的反馈将帮助我们改进产品。错误信息和日志将自动附带。' 
+                    : 'Your feedback helps us improve. Error info and logs will be automatically attached.'}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-mono font-semibold text-[#2d3e2d]">
+                    {language === 'zh' ? '补充说明（可选）' : 'Additional Comments (Optional)'}
+                  </label>
+                  <Textarea
+                    placeholder={language === 'zh' 
+                      ? '请描述您遇到的问题或提供更多上下文...' 
+                      : 'Describe the issue or provide more context...'}
+                    value={feedbackComment}
+                    onChange={(e) => setFeedbackComment(e.target.value)}
+                    className="min-h-[100px] font-mono border-2 border-[#2d3e2d]/30 focus:border-[#2d3e2d]"
+                  />
+                </div>
+                <div className="bg-[#2d3e2d]/5 p-3 rounded-lg">
+                  <p className="text-xs font-mono text-[#2d3e2d]/70">
+                    {language === 'zh' 
+                      ? 'ℹ️ 将自动附带：项目信息、错误消息、生成日志、浏览器信息' 
+                      : 'ℹ️ Will auto-attach: Project info, error message, generation logs, browser info'}
+                  </p>
+                </div>
+              </div>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsFeedbackDialogOpen(false)}
+                  className="font-mono border-2 border-[#2d3e2d]"
+                >
+                  {language === 'zh' ? '取消' : 'Cancel'}
+                </Button>
+                <Button
+                  onClick={handleFeedbackSubmit}
+                  disabled={feedbackMutation.isPending}
+                  className="bg-[#2d3e2d] hover:bg-[#2d3e2d]/90 text-[#e8dcc4] font-mono"
+                >
+                  {feedbackMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {language === 'zh' ? '发送中...' : 'Sending...'}
+                    </>
+                  ) : (
+                    <>
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      {language === 'zh' ? '发送反馈' : 'Send Feedback'}
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 

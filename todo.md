@@ -1270,3 +1270,16 @@
 - [x] 分析 LaunchV2Preview 页面的 SSE 连接错误原因
 - [x] 修复 SSE 连接问题
 - [x] 测试并保存 checkpoint
+
+## 一键反馈功能
+- [ ] 设计反馈数据结构（错误信息、日志、项目信息）
+- [ ] 创建后端反馈 API 接口
+- [ ] 在 LaunchV2Preview 页面添加反馈按钮和弹窗
+- [ ] 使用 notifyOwner 发送反馈通知
+- [ ] 测试并保存 checkpoint
+
+## 一键反馈功能
+- [x] 设计反馈数据结构（错误信息、日志、项目信息）
+- [x] 创建后端反馈 API 接口（使用 notifyOwner 发送通知）
+- [x] 在 LaunchV2Preview 页面添加反馈按钮和弹窗
+- [x] 测试并保存 checkpoint

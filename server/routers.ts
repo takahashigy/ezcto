@@ -1299,6 +1299,79 @@ export const appRouter = router({
       }),
   }),
 
+  // Feedback System
+  feedback: router({
+    submitError: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        errorMessage: z.string(),
+        logs: z.array(z.object({
+          timestamp: z.string(),
+          category: z.string(),
+          message: z.string(),
+          level: z.string(),
+        })).optional(),
+        userComment: z.string().optional(),
+        browserInfo: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Get project info
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+
+        // Format logs for notification
+        const logsText = input.logs && input.logs.length > 0
+          ? input.logs.map(log => `[${log.timestamp}] [${log.level.toUpperCase()}] ${log.message}`).join('\n')
+          : 'No logs available';
+
+        // Build notification content
+        const content = `
+## 项目生成失败反馈
+
+### 项目信息
+- **项目 ID**: ${project.id}
+- **项目名称**: ${project.name}
+- **Ticker**: ${project.ticker || 'N/A'}
+- **用户**: ${ctx.user.name} (${ctx.user.email || ctx.user.openId})
+- **时间**: ${new Date().toISOString()}
+
+### 错误信息
+${input.errorMessage}
+
+### 用户补充说明
+${input.userComment || '无'}
+
+### 浏览器信息
+${input.browserInfo || '未提供'}
+
+### 生成日志
+\`\`\`
+${logsText}
+\`\`\`
+        `.trim();
+
+        // Send notification to owner
+        const notified = await notifyOwner({
+          title: `[生成失败] ${project.name} - 用户反馈`,
+          content,
+        });
+
+        if (!notified) {
+          console.warn('[Feedback] Failed to send notification to owner');
+        }
+
+        return { 
+          success: true, 
+          message: notified ? 'Feedback submitted successfully' : 'Feedback recorded but notification failed'
+        };
+      }),
+  }),
+
   // Generation History (for real-time progress tracking)
   generationHistory: router({
     getByProjectId: protectedProcedure

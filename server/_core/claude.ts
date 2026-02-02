@@ -291,7 +291,7 @@ Remember: The ticker text "${input.ticker}" (without $) MUST be clearly visible 
 /**
  * Generate HTML structure (Step 1 of 3)
  */
-async function generateHTMLStructure(input: any, opusApiKey: string): Promise<string> {
+async function generateHTMLStructure(input: any, opusApiKey: string, template?: import('../layoutTemplates').LayoutTemplate): Promise<string> {
   // Build tokenomics section instruction based on whether data exists
   const hasTokenomics = input.websiteContent.tokenomics.totalSupply && input.websiteContent.tokenomics.distribution;
   const tokenomicsInstruction = hasTokenomics 
@@ -374,7 +374,104 @@ ${caInstruction}
 - PayDex Banner: ${input.paydexBannerUrl} (can be used for decoration, MUST be responsive)
 - X Banner: ${input.xBannerUrl} (can be used for decoration, MUST be responsive)
 
-**PAGE STRUCTURE:**
+${template ? generateDynamicPageStructure(input, template, hasTokenomics, hasCA) : generateDefaultPageStructure(input, hasTokenomics, hasCA)}
+
+**CRITICAL RULES:**
+1. Hero background (heroBackgroundUrl) MUST be visible as full-section background, NOT as a small image
+2. Community scene (communitySceneUrl) MUST be displayed prominently in About section
+3. Feature icon (featureIconUrl) MUST be SMALL (max 64-80px), used as decorative element in cards
+4. All images MUST have: loading="lazy" (except hero bg), decoding="async", alt text
+5. All images MUST be responsive: max-width: 100%; height: auto;
+6. ${hasTokenomics ? 'Tokenomics MUST have visual representation (pie chart or progress bars)' : 'DO NOT include Tokenomics section'}
+7. Navigation links MUST have data-section attributes for scroll-spy functionality
+8. ${hasCA ? 'Contract Address MUST be copyable with visual feedback' : 'No contract address to display'}
+9. Use Font Awesome for social icons (CDN will be added in head)
+10. Text style MUST match the brand personality: ${input.brandStrategy.personality}
+
+Return ONLY semantic HTML5 with proper tags, IDs, classes, and data attributes. No inline styles.`;
+
+  return await callClaude([{ role: "user", content: prompt }], {
+    model: "claude-opus-4-5-20251101",
+    temperature: 0.5,
+    maxTokens: 8192,
+    apiKey: opusApiKey,
+  });
+}
+
+/**
+ * Generate dynamic page structure based on selected template
+ */
+function generateDynamicPageStructure(
+  input: any,
+  template: import('../layoutTemplates').LayoutTemplate,
+  hasTokenomics: boolean,
+  hasCA: boolean
+): string {
+  const { generateSectionOrderInstruction } = require('../layoutTemplates');
+  const layoutInstruction = generateSectionOrderInstruction(template, hasTokenomics);
+  
+  // Build social links instruction
+  const socialLinksInstruction = `
+**SOCIAL LINKS (ONLY include links that are provided):**
+${input.twitterUrl ? `- Twitter/X: <a href="${input.twitterUrl}" target="_blank" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>` : '- NO Twitter link'}
+${input.telegramUrl ? `- Telegram: <a href="${input.telegramUrl}" target="_blank" class="social-link"><i class="fa-brands fa-telegram"></i></a>` : '- NO Telegram link'}
+${input.discordUrl ? `- Discord: <a href="${input.discordUrl}" target="_blank" class="social-link"><i class="fa-brands fa-discord"></i></a>` : '- NO Discord link'}
+- Social links MUST be in HORIZONTAL ROW layout`;
+
+  // Build CA instruction for hero
+  const caHeroInstruction = hasCA 
+    ? `- Contract Address: Show "${input.contractAddress}" with Copy button (id="copy-ca-btn", data-ca="${input.contractAddress}")
+  - "Buy Now" button: <a href="https://gmgn.ai/bsc/token/${input.contractAddress}" target="_blank" class="buy-btn">Buy Now</a>`
+    : '- NO Contract Address or Buy Now button (not provided)';
+
+  // Build tokenomics instruction
+  const tokenomicsInfo = hasTokenomics
+    ? `**TOKENOMICS DATA:**
+- Supply: ${input.websiteContent.tokenomics.totalSupply}
+- Distribution: ${input.websiteContent.tokenomics.distribution}
+- Use visual representation (pie chart or progress bars)`
+    : '';
+
+  return `${layoutInstruction}
+
+**NAVIGATION:**
+- Fixed at top, logo on left
+- Nav links with data-section attributes for scroll-spy
+- Links: ${template.sections.filter(s => ['about', 'features', 'tokenomics', 'community', 'gallery'].includes(s.type) && (s.type !== 'tokenomics' || hasTokenomics)).map(s => s.type.charAt(0).toUpperCase() + s.type.slice(1)).join(', ')}
+
+**HERO SECTION DETAILS:**
+- Style: ${template.heroStyle}
+- Background: Use heroBackgroundUrl as full section background
+- Content: Headline, Tagline, CTA buttons
+${caHeroInstruction}
+
+${socialLinksInstruction}
+
+${tokenomicsInfo}
+
+**BANNER USAGE:**
+- PayDex Banner: ${input.paydexBannerUrl}
+- X Banner: ${input.xBannerUrl}
+- Strategy: ${template.bannerStrategy}
+${template.bannerStrategy === 'divider' ? '- Use banners as full-width visual dividers between sections' : ''}
+${template.bannerStrategy === 'gallery-item' ? '- Display banners in a dedicated gallery/assets section with download buttons' : ''}
+${template.bannerStrategy === 'background-accent' ? '- Use banner as subtle background element with overlay for text readability' : ''}
+
+**FOOTER:**
+- Logo (small)
+- Quick download links for marketing assets
+- Copyright text`;
+}
+
+/**
+ * Generate default page structure (fallback when no template)
+ */
+function generateDefaultPageStructure(
+  input: any,
+  hasTokenomics: boolean,
+  hasCA: boolean
+): string {
+  return `**PAGE STRUCTURE:**
 1. Navigation bar (fixed at top):
    - Logo on left (use logoUrl, reasonable size ~40-50px height)
    - Nav links: About, Features, ${hasTokenomics ? 'Tokenomics, ' : ''}Community
@@ -400,7 +497,11 @@ ${caInstruction}
    - Each card has: small icon (featureIconUrl, MAX 64px), title, description
    - The feature icon should be SMALL and decorative, NOT full-width
 
-${tokenomicsInstruction}
+${hasTokenomics ? `5. Tokenomics section (id="tokenomics"):
+   - Supply: ${input.websiteContent.tokenomics.totalSupply}
+   - Distribution: ${input.websiteContent.tokenomics.distribution}
+   - Use visual representation: pie chart (CSS-based) OR progress bars for distribution percentages
+   - Make it visually appealing, not just plain text` : '5. Tokenomics section: DO NOT INCLUDE THIS SECTION - user did not provide tokenomics data'}
 
 6. Community section (id="community"):
    - Social links container with class "social-links" (MUST be HORIZONTAL row layout)
@@ -424,28 +525,7 @@ ${tokenomicsInstruction}
 8. Footer:
    - Logo (small)
    - Quick download links for marketing assets (smaller buttons)
-   - Copyright text
-
-**CRITICAL RULES:**
-1. Hero background (heroBackgroundUrl) MUST be visible as full-section background, NOT as a small image
-2. Community scene (communitySceneUrl) MUST be displayed prominently in About section
-3. Feature icon (featureIconUrl) MUST be SMALL (max 64-80px), used as decorative element in cards
-4. All images MUST have: loading="lazy" (except hero bg), decoding="async", alt text
-5. All images MUST be responsive: max-width: 100%; height: auto;
-6. ${hasTokenomics ? 'Tokenomics MUST have visual representation (pie chart or progress bars)' : 'DO NOT include Tokenomics section'}
-7. Navigation links MUST have data-section attributes for scroll-spy functionality
-8. ${hasCA ? 'Contract Address MUST be copyable with visual feedback' : 'No contract address to display'}
-9. Use Font Awesome for social icons (CDN will be added in head)
-10. Text style MUST match the brand personality: ${input.brandStrategy.personality}
-
-Return ONLY semantic HTML5 with proper tags, IDs, classes, and data attributes. No inline styles.`;
-
-  return await callClaude([{ role: "user", content: prompt }], {
-    model: "claude-opus-4-5-20251101",
-    temperature: 0.5,
-    maxTokens: 8192,
-    apiKey: opusApiKey,
-  });
+   - Copyright text`;
 }
 
 /**
@@ -687,6 +767,12 @@ export async function generateWebsiteCode(input: {
   heroBackgroundUrl: string;
   featureIconUrl: string;
   communitySceneUrl?: string; // New: community scene image
+  // Project analysis for template selection
+  projectAnalysis?: {
+    vibe: 'friendly' | 'edgy' | 'mysterious' | 'energetic';
+    narrativeType: 'community' | 'tech' | 'culture' | 'gaming';
+    layoutStyle: 'minimal' | 'playful' | 'cyberpunk' | 'retro';
+  };
 }): Promise<string> {
   console.log("[generateWebsiteCode] Step 1: Generating HTML structure...");
   
@@ -695,8 +781,16 @@ export async function generateWebsiteCode(input: {
     throw new Error("CLAUDE_OPUS_API_KEY is not configured");
   }
 
-  // Step 1: Generate HTML structure
-  let htmlStructure = await generateHTMLStructure(input, opusApiKey);
+  // Select layout template based on project analysis
+  const { selectLayoutTemplate, generateSectionOrderInstruction } = await import('../layoutTemplates');
+  const vibe = input.projectAnalysis?.vibe || 'friendly';
+  const narrativeType = input.projectAnalysis?.narrativeType || 'community';
+  const layoutStyle = input.projectAnalysis?.layoutStyle || 'playful';
+  const selectedTemplate = selectLayoutTemplate(vibe, narrativeType, layoutStyle);
+  console.log(`[generateWebsiteCode] Selected layout template: ${selectedTemplate.name}`);
+
+  // Step 1: Generate HTML structure with template
+  let htmlStructure = await generateHTMLStructure(input, opusApiKey, selectedTemplate);
   htmlStructure = extractCode(htmlStructure, 'html');
   console.log("[generateWebsiteCode] HTML structure generated:", htmlStructure.length, "chars");
 

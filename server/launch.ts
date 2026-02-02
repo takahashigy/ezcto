@@ -1,6 +1,7 @@
 import * as db from "./db";
 import { broadcastProgress } from "./_core/progressStream";
 import { analyzeProjectInput, generateWebsiteCode } from "./_core/claude";
+import { analyzeProject, type ProjectAnalysis } from "./aiAnalyzer";
 import { generateImage } from "./_core/imageGeneration";
 import { retryWithBackoff } from "./_core/retry";
 import { generateSubdomain, deployWebsite } from "./_core/deployment";
@@ -533,6 +534,22 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       
       // Retry module up to 3 times
       try {
+        // Analyze project for layout template selection
+        let projectAnalysisResult: ProjectAnalysis | undefined;
+        try {
+          if (input.userImageUrl) {
+            projectAnalysisResult = await analyzeProject(
+              input.userImageUrl,
+              input.name,
+              input.ticker || '',
+              input.description || ''
+            );
+            console.log(`[Launch] Project analysis: vibe=${projectAnalysisResult.vibe}, narrative=${projectAnalysisResult.narrativeType}, layout=${projectAnalysisResult.layoutStyle}`);
+          }
+        } catch (analysisError) {
+          console.log(`[Launch] Project analysis failed, using default template: ${(analysisError as Error).message}`);
+        }
+
         websiteHTML = await retryWithBackoff(
           async () => {
             return await generateWebsiteCode({
@@ -554,6 +571,12 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               heroBackgroundUrl: imageAssets.heroBackground.url,
               featureIconUrl: imageAssets.featureIcon.url,
               communitySceneUrl: imageAssets.communityScene?.url || '',
+              // Pass project analysis for template selection
+              projectAnalysis: projectAnalysisResult ? {
+                vibe: projectAnalysisResult.vibe,
+                narrativeType: projectAnalysisResult.narrativeType,
+                layoutStyle: projectAnalysisResult.layoutStyle,
+              } : undefined,
             });
           },
           {

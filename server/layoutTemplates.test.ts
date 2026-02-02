@@ -38,10 +38,22 @@ describe('layoutTemplates', () => {
       expect(template.name).toBe('feature-first');
     });
 
-    it('should prefer banner-split template for cyberpunk layout', () => {
+    it('should prefer dark-cyberpunk template for cyberpunk layout', () => {
       const template = selectLayoutTemplate('edgy', 'gaming', 'cyberpunk');
-      // banner-split gets +2 bonus for cyberpunk layout
-      expect(template.name).toBe('banner-split');
+      // dark-cyberpunk gets +4 bonus for cyberpunk layout (highest priority)
+      expect(template.name).toBe('dark-cyberpunk');
+    });
+
+    it('should prefer retro-pixel template for retro layout with gaming narrative', () => {
+      const template = selectLayoutTemplate('energetic', 'gaming', 'retro');
+      // retro-pixel gets +4 bonus for retro layout + gaming narrative bonus
+      expect(template.name).toBe('retro-pixel');
+    });
+
+    it('should prefer dark-cyberpunk for mysterious vibe with tech narrative', () => {
+      const template = selectLayoutTemplate('mysterious', 'tech', 'cyberpunk');
+      // dark-cyberpunk gets bonuses for mysterious vibe + cyberpunk layout
+      expect(template.name).toBe('dark-cyberpunk');
     });
   });
 
@@ -53,7 +65,9 @@ describe('layoutTemplates', () => {
         'story-driven',
         'minimal-focus',
         'feature-first',
-        'gallery-showcase'
+        'gallery-showcase',
+        'dark-cyberpunk',
+        'retro-pixel'
       ];
 
       for (const name of requiredTemplates) {

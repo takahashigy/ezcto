@@ -14,7 +14,9 @@ export type LayoutTemplateName =
   | 'story-driven'      // Narrative flow: Hero → Story → Gallery → Community
   | 'minimal-focus'     // Ultra minimal: Hero → CA → Social
   | 'feature-first'     // Features prominent: Hero → Features → About → Community
-  | 'gallery-showcase'; // Visual heavy: Hero → Gallery → About → Community
+  | 'gallery-showcase'  // Visual heavy: Hero → Gallery → About → Community
+  | 'dark-cyberpunk'    // 暗黑赛博朋克: Neon accents, dark bg, glitch effects
+  | 'retro-pixel';      // 复古像素风: Pixel art style, terminal aesthetic
 
 export interface LayoutSection {
   id: string;
@@ -165,6 +167,47 @@ export const LAYOUT_TEMPLATES: Record<LayoutTemplateName, LayoutTemplate> = {
     heroStyle: 'centered',
     bannerStrategy: 'gallery-item',
   },
+
+  'dark-cyberpunk': {
+    name: 'dark-cyberpunk',
+    description: '暗黑赛博朋克风格 - 霓虹灯光、深色背景、科技感十足',
+    bestFor: {
+      vibes: ['edgy', 'mysterious'],
+      narratives: ['tech', 'gaming'],
+    },
+    sections: [
+      { id: 'hero', type: 'hero', bannerUsage: 'background', style: { darkOverlay: true, fullWidth: true } },
+      { id: 'glitch-divider-1', type: 'banner-divider', bannerUsage: 'divider-below', style: { fullWidth: true } },
+      { id: 'features', type: 'features', bannerUsage: 'none', style: { fullWidth: true } },
+      { id: 'about', type: 'about', bannerUsage: 'none' },
+      { id: 'glitch-divider-2', type: 'banner-divider', bannerUsage: 'divider-below', style: { fullWidth: true } },
+      { id: 'tokenomics', type: 'tokenomics', bannerUsage: 'none' },
+      { id: 'community', type: 'community', bannerUsage: 'none' },
+      { id: 'footer', type: 'footer', bannerUsage: 'footer-decoration' },
+    ],
+    heroStyle: 'fullscreen-bg',
+    bannerStrategy: 'divider',
+  },
+
+  'retro-pixel': {
+    name: 'retro-pixel',
+    description: '复古像素风格 - 8-bit美学、终端界面、怀旧游戏感',
+    bestFor: {
+      vibes: ['friendly', 'energetic'],
+      narratives: ['gaming', 'culture'],
+    },
+    sections: [
+      { id: 'hero', type: 'hero', bannerUsage: 'none', style: { centered: true } },
+      { id: 'story', type: 'story', bannerUsage: 'none' },
+      { id: 'features', type: 'features', bannerUsage: 'none' },
+      { id: 'pixel-gallery', type: 'gallery', bannerUsage: 'inline-decoration' },
+      { id: 'tokenomics', type: 'tokenomics', bannerUsage: 'none' },
+      { id: 'community', type: 'community', bannerUsage: 'none' },
+      { id: 'footer', type: 'footer', bannerUsage: 'none' },
+    ],
+    heroStyle: 'minimal-top',
+    bannerStrategy: 'gallery-item',
+  },
 };
 
 /**
@@ -205,9 +248,36 @@ export function selectLayoutTemplate(
       score += 2;
     }
 
-    // Tech projects prefer feature-first
+    // 暗黑赛博朋克模板特殊加分
+    if (layoutStyle === 'cyberpunk' && template.name === 'dark-cyberpunk') {
+      score += 4; // 最高优先级
+    }
+    if (vibe === 'edgy' && template.name === 'dark-cyberpunk') {
+      score += 2;
+    }
+    if (vibe === 'mysterious' && template.name === 'dark-cyberpunk') {
+      score += 2;
+    }
+
+    // 复古像素风模板特殊加分
+    if (layoutStyle === 'retro' && template.name === 'retro-pixel') {
+      score += 4; // 最高优先级
+    }
+    if (narrativeType === 'gaming' && template.name === 'retro-pixel') {
+      score += 2;
+    }
+
+    // Tech projects prefer feature-first or dark-cyberpunk
     if (narrativeType === 'tech' && template.name === 'feature-first') {
       score += 2;
+    }
+    if (narrativeType === 'tech' && template.name === 'dark-cyberpunk') {
+      score += 1;
+    }
+
+    // Gaming projects prefer retro-pixel
+    if (narrativeType === 'gaming' && template.name === 'retro-pixel') {
+      score += 1;
     }
 
     // Culture memes prefer story-driven or gallery

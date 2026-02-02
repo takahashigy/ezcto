@@ -186,24 +186,58 @@ Your task is to provide a complete brand strategy and image generation prompts. 
 - Use simple backgrounds that don't compete with text visibility
 - Specify exact text placement: "Large bold text '${input.ticker}' centered in the composition"
 
+**VISUAL STYLE DETECTION AND IMAGE GENERATION:**
+Based on the project description and meme image, detect the visual style and apply the appropriate image generation style:
+
+1. **CYBERPUNK STYLE** (for tech/AI/futuristic/dark themes):
+   - Use dark backgrounds with neon accents (cyan #00ffff, magenta #ff00ff, lime #00ff00)
+   - Add glowing effects, holographic elements, digital grid patterns
+   - Include circuit board patterns, data streams, or matrix-style effects
+   - Hero background: Dark cityscape with neon lights, digital rain, or tech grid
+   - Community scene: Futuristic gathering, holographic displays, cyber aesthetics
+   - Feature icon: Glowing neon icon with tech/circuit elements
+   - Banners: Dark background with neon text glow, cyber grid patterns
+
+2. **RETRO/PIXEL STYLE** (for gaming/nostalgic/8-bit themes):
+   - Use pixel art style with limited color palette (NES/SNES era colors)
+   - Include scanlines, CRT screen effects, retro game UI elements
+   - Sharp pixelated edges, no anti-aliasing, blocky shapes
+   - Hero background: Pixel art landscape, retro game scene, or terminal screen
+   - Community scene: Pixel art characters, arcade-style gathering
+   - Feature icon: 8-bit style icon, pixel art, retro game sprite
+   - Banners: Pixel art style, retro game banner, arcade aesthetic
+
+3. **PLAYFUL STYLE** (for meme/fun/community themes - DEFAULT):
+   - Use bright, saturated colors with cartoon/illustration style
+   - Include fun elements, mascot characters, dynamic poses
+   - Soft edges, friendly shapes, approachable design
+
+4. **MINIMAL STYLE** (for clean/professional/simple themes):
+   - Use clean lines, lots of whitespace, subtle gradients
+   - Simple geometric shapes, modern typography
+   - Elegant and sophisticated visual language
+
+Detect the most appropriate style from the project description and meme image, then apply that style consistently across ALL image prompts.
+
 Please provide your analysis in the following JSON format:
 {
+  "detectedStyle": "cyberpunk | retro | playful | minimal (the visual style detected from the project)",
   "brandStrategy": {
     "personality": "Brief description of brand personality (playful/professional/rebellious/etc)",
     "targetAudience": "Target demographic and psychographic profile",
     "coreMessage": "The single most important message this project conveys",
-    "visualStyle": "Overall visual aesthetic (cartoon/realistic/pixel-art/cyberpunk/etc)"
+    "visualStyle": "Overall visual aesthetic - MUST match detectedStyle (cyberpunk/pixel-art/cartoon/minimal)"
   },
   "colorScheme": {
     "primary": "#hex color for main brand color",
     "secondary": "#hex color for secondary elements",
     "accent": "#hex color for CTAs and highlights"
   },
-  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
-  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. CRITICAL: Content MUST fill the ENTIRE canvas from edge to edge. Requirements: 1) Large bold text ${input.ticker} centered prominently 2) Design spans FULL WIDTH 1200px with NO empty margins 3) NO blank space on left or right sides 4) Background and design elements cover the entire banner area 5) High contrast for text visibility 6) Social media header style. DO NOT leave empty space for profile picture - fill the entire canvas.",
-  "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
-  "featureIconPrompt": "Detailed prompt for 256x256 feature icon. CRITICAL: MUST have FULLY TRANSPARENT BACKGROUND with alpha channel. Requirements: 1) PNG format with transparency 2) NO solid background color 3) NO circular or rectangular background shape 4) Icon should float on transparent canvas 5) Simple flat or minimalist iconic design 6) Clean edges suitable for any background. Example: 'Minimalist [icon subject] icon, flat design, isolated on transparent background, no background elements, clean vector-style edges'",
-  "communityScenePrompt": "Detailed prompt for 800x600 community scene image showing enthusiastic supporters, community gathering, or social atmosphere that matches the brand personality",
+  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently'. MUST apply the detectedStyle: cyberpunk=dark bg with neon glow, retro=pixel art style, playful=cartoon style, minimal=clean design. High contrast for text readability.",
+  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. CRITICAL: Content MUST fill the ENTIRE canvas. MUST apply the detectedStyle consistently. Requirements: 1) Large bold text ${input.ticker} centered 2) Full width design 3) Style-appropriate background (cyberpunk=neon/dark, retro=pixel art, playful=colorful cartoon, minimal=clean)",
+  "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background. MUST apply the detectedStyle: cyberpunk=dark cityscape with neon lights/digital grid, retro=pixel art landscape/terminal screen, playful=colorful illustrated scene, minimal=subtle gradient/clean. Atmospheric, leaves space for text overlay.",
+  "featureIconPrompt": "Detailed prompt for 256x256 feature icon. MUST have FULLY TRANSPARENT BACKGROUND. MUST apply the detectedStyle: cyberpunk=glowing neon icon with tech elements, retro=8-bit pixel art sprite, playful=cute cartoon icon, minimal=simple geometric icon. Clean edges suitable for any background.",
+  "communityScenePrompt": "Detailed prompt for 800x600 community scene. MUST apply the detectedStyle: cyberpunk=futuristic gathering with holographic displays, retro=pixel art characters in arcade setting, playful=cartoon characters celebrating, minimal=clean modern gathering scene.",
   "websiteContent": {
     "headline": "Catchy main headline for hero section",
     "tagline": "Brief memorable tagline",

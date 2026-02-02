@@ -1252,3 +1252,9 @@
 - [x] 为 dark-cyberpunk 添加霓虹发光效果和 glitch 动画
 - [x] 为 retro-pixel 添加像素字体和扫描线效果
 - [x] 测试编译并保存 checkpoint（15 个单元测试通过）
+
+## 新模板专属图片生成指令
+- [x] 分析现有图片生成 Prompt 结构
+- [x] 为 dark-cyberpunk 设计赛博朋克风格图片指令
+- [x] 为 retro-pixel 设计像素艺术风格图片指令
+- [x] 测试编译并保存 checkpoint（15 个单元测试通过）

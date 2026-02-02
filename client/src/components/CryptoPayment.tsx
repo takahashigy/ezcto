@@ -51,6 +51,15 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
   // tRPC mutations
   const createPaymentMutation = trpc.crypto.createPayment.useMutation();
   const verifyPaymentMutation = trpc.crypto.verifyPayment.useMutation();
+  
+  // Get EZCTO price from DEX
+  const { data: ezctoPrice, isLoading: ezctoPriceLoading } = trpc.crypto.getEzctoPrice.useQuery(
+    undefined,
+    {
+      refetchInterval: 30000, // Refresh every 30 seconds
+      enabled: selectedToken === 'EZCTO',
+    }
+  );
 
   // Check if on correct chain
   const isCorrectChain = useMemo(() => {
@@ -73,10 +82,23 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     }));
   }, [selectedChain]);
 
+  // Get current price for display
+  const getCurrentPrice = () => {
+    if (selectedToken === 'EZCTO') {
+      return PAYMENT_CONFIG.ezctoPaymentUSD; // $200 for EZCTO
+    }
+    return PAYMENT_CONFIG.priceUSD; // $299 for other tokens
+  };
+
   // Get token amount for payment
   const getTokenAmount = () => {
     const token = availableTokens.find(t => t.key === selectedToken);
     if (!token) return '0';
+    
+    // For EZCTO, use real-time price from DEX
+    if (selectedToken === 'EZCTO' && ezctoPrice?.ezctoNeeded) {
+      return ezctoPrice.ezctoNeeded.toFixed(2);
+    }
     
     // For stablecoins, use USD price directly
     if (['USDT', 'USDC'].includes(selectedToken)) {
@@ -89,7 +111,6 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     if (selectedToken === 'BNB') return '0.55';
     if (selectedToken === 'MATIC') return '500';
     if (selectedToken === 'SOL') return '1.5';
-    if (selectedToken === 'EZCTO') return '299000'; // Example rate
     
     return PAYMENT_CONFIG.priceUSD.toString();
   };
@@ -214,9 +235,16 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Pay with Crypto</h3>
-          <span className="text-sm text-muted-foreground">
-            ${PAYMENT_CONFIG.priceUSD} USD
-          </span>
+          <div className="text-right">
+            {selectedToken === 'EZCTO' ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm line-through text-muted-foreground">${PAYMENT_CONFIG.priceUSD}</span>
+                <span className="text-sm font-bold text-green-500">${PAYMENT_CONFIG.ezctoPaymentUSD} USD</span>
+              </div>
+            ) : (
+              <span className="text-sm text-muted-foreground">${PAYMENT_CONFIG.priceUSD} USD</span>
+            )}
+          </div>
         </div>
 
         {/* Chain Selection */}
@@ -285,16 +313,37 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
 
         {/* Price Display */}
         <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+          {selectedToken === 'EZCTO' && (
+            <div className="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-lg p-3 mb-3">
+              <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                <span className="text-lg">🎉</span>
+                <span className="font-semibold">Save $99!</span>
+              </div>
+              <p className="text-xs text-green-600 dark:text-green-500 mt-1">
+                Pay with EZCTO token and get 33% off!
+              </p>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Amount:</span>
-            <span className="font-mono font-semibold">
-              {getTokenAmount()} {selectedToken}
-            </span>
+            {ezctoPriceLoading && selectedToken === 'EZCTO' ? (
+              <span className="font-mono text-muted-foreground">Loading...</span>
+            ) : (
+              <span className="font-mono font-semibold">
+                {getTokenAmount()} {selectedToken}
+              </span>
+            )}
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">USD Value:</span>
-            <span className="font-mono">${PAYMENT_CONFIG.priceUSD}</span>
+            <span className="font-mono">${getCurrentPrice()}</span>
           </div>
+          {selectedToken === 'EZCTO' && ezctoPrice?.priceUsd && (
+            <div className="flex justify-between text-xs text-muted-foreground pt-2 border-t">
+              <span>EZCTO Price:</span>
+              <span className="font-mono">${ezctoPrice.priceUsd.toFixed(6)}</span>
+            </div>
+          )}
         </div>
 
         {/* Wallet Connection */}
@@ -385,8 +434,8 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         {/* Info */}
         <p className="text-xs text-muted-foreground text-center">
           {selectedChain === 'BSC' && selectedToken === 'EZCTO' 
-            ? 'Pay with EZCTO token on BSC for the best experience'
-            : 'ETH, USDT, and USDC are also accepted as payment'
+            ? '🔥 Pay with EZCTO token on BSC - Only $200 (Save $99!)'
+            : 'ETH, USDT, and USDC are also accepted at $299'
           }
         </p>
       </div>

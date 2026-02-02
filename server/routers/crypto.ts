@@ -300,11 +300,69 @@ export const cryptoRouter = router({
     }),
 
   /**
+   * Get EZCTO token price from DEX
+   */
+  getEzctoPrice: publicProcedure.query(async () => {
+    try {
+      // Try to get price from DexScreener API
+      const response = await fetch(
+        `https://api.dexscreener.com/latest/dex/tokens/${TOKENS.BSC.EZCTO.address}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch price');
+      }
+      
+      const data = await response.json();
+      
+      // Get the first pair with USD price
+      const pair = data.pairs?.find((p: any) => p.priceUsd && parseFloat(p.priceUsd) > 0);
+      
+      if (pair) {
+        const priceUsd = parseFloat(pair.priceUsd);
+        const ezctoNeeded = PAYMENT_CONFIG.ezctoPaymentUSD / priceUsd;
+        
+        return {
+          priceUsd,
+          ezctoPaymentUSD: PAYMENT_CONFIG.ezctoPaymentUSD,
+          ezctoNeeded: Math.ceil(ezctoNeeded * 100) / 100, // Round up to 2 decimals
+          pairAddress: pair.pairAddress,
+          liquidity: pair.liquidity?.usd,
+          lastUpdated: new Date().toISOString(),
+        };
+      }
+      
+      // Fallback: return a default price if no DEX data
+      return {
+        priceUsd: 0,
+        ezctoPaymentUSD: PAYMENT_CONFIG.ezctoPaymentUSD,
+        ezctoNeeded: 0,
+        pairAddress: null,
+        liquidity: null,
+        lastUpdated: new Date().toISOString(),
+        error: 'No DEX pair found',
+      };
+    } catch (error) {
+      console.error('Failed to fetch EZCTO price:', error);
+      return {
+        priceUsd: 0,
+        ezctoPaymentUSD: PAYMENT_CONFIG.ezctoPaymentUSD,
+        ezctoNeeded: 0,
+        pairAddress: null,
+        liquidity: null,
+        lastUpdated: new Date().toISOString(),
+        error: 'Failed to fetch price',
+      };
+    }
+  }),
+
+  /**
    * Get payment configuration
    */
   getConfig: publicProcedure.query(() => {
     return {
       priceUSD: PAYMENT_CONFIG.priceUSD,
+      ezctoPaymentUSD: PAYMENT_CONFIG.ezctoPaymentUSD,
       receivers: PAYMENT_CONFIG.receivers,
       supportedChains: ['ETH', 'BSC', 'POLYGON', 'SOLANA'],
       tokens: {
@@ -312,6 +370,12 @@ export const cryptoRouter = router({
         BSC: Object.keys(TOKENS.BSC),
         POLYGON: Object.keys(TOKENS.POLYGON),
         SOLANA: Object.keys(TOKENS.SOLANA),
+      },
+      ezctoToken: {
+        address: TOKENS.BSC.EZCTO.address,
+        symbol: TOKENS.BSC.EZCTO.symbol,
+        decimals: TOKENS.BSC.EZCTO.decimals,
+        chain: 'BSC',
       },
     };
   }),

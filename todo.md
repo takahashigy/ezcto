@@ -1197,3 +1197,11 @@
 - [x] 检查 use-toast.ts 的无限递归问题
 - [x] 重写 use-toast.ts 使用全局状态管理避免循环引用
 - [x] 测试修复结果（添加地址成功）
+
+
+## 添加 EZCTO 代币支付方式
+- [x] 添加 EZCTO 代币配置（BSC 链，合约：0xf036693f699d36e7fb3df3822918b325e1db7777）
+- [x] 集成 DexScreener API 获取 EZCTO/USD 实时价格
+- [x] 在支付选项中添加 EZCTO 代币（等值 200 USD，省 $99）
+- [x] 更新 CryptoPayment 组件支持 EZCTO 支付
+- [x] 显示优惠信息和实时价格

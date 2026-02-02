@@ -1218,3 +1218,10 @@
 - [x] 添加 PancakeSwap 购买 EZCTO 代币的链接
 - [x] 测试优化后的支付弹窗效果
 - [x] 保存 checkpoint
+
+## EZCTO 代币余额显示功能
+- [x] 在 CryptoPayment 组件中添加 EZCTO 余额查询功能
+- [x] 显示用户当前 EZCTO 余额和所需数量对比
+- [x] 余额不足时显示提示并引导购买
+- [x] 测试余额显示功能
+- [x] 保存 checkpoint

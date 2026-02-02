@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useAccount, useBalance, useSendTransaction, useChainId, useSwitchChain } from 'wagmi';
+import { useAccount, useBalance, useSendTransaction, useChainId, useSwitchChain, useReadContract } from 'wagmi';
 import { parseEther, parseUnits, formatUnits } from 'viem';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
@@ -8,7 +8,7 @@ import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana
 import { CHAINS, TOKENS, PAYMENT_CONFIG, PAYMENT_METHODS, ERC20_ABI } from '@shared/web3Config';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { AlertCircle, CheckCircle2, Loader2, ExternalLink, ChevronDown, Sparkles, ShoppingCart, Star } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, ExternalLink, ChevronDown, Sparkles, ShoppingCart, Star, Wallet, AlertTriangle } from 'lucide-react';
 import { trpc } from '../lib/trpc';
 import { useToast } from '../hooks/use-toast';
 import {
@@ -29,6 +29,17 @@ type ChainType = 'ETH' | 'BSC' | 'POLYGON' | 'SOLANA';
 // PancakeSwap URL for buying EZCTO
 const PANCAKESWAP_EZCTO_URL = `https://pancakeswap.finance/swap?outputCurrency=${TOKENS.BSC.EZCTO.address}&chain=bsc`;
 
+// ERC20 balanceOf ABI
+const BALANCE_OF_ABI = [
+  {
+    name: 'balanceOf',
+    type: 'function',
+    inputs: [{ name: 'account', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view'
+  }
+] as const;
+
 export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProps) {
   const { toast } = useToast();
   const [selectedChain, setSelectedChain] = useState<ChainType>('BSC');
@@ -46,6 +57,25 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
   const { data: evmBalance } = useBalance({
     address: evmAddress,
   });
+
+  // Get EZCTO token balance
+  const { data: ezctoBalanceRaw, isLoading: ezctoBalanceLoading } = useReadContract({
+    address: TOKENS.BSC.EZCTO.address as `0x${string}`,
+    abi: BALANCE_OF_ABI,
+    functionName: 'balanceOf',
+    args: evmAddress ? [evmAddress] : undefined,
+    chainId: CHAINS.BSC.chainId,
+    query: {
+      enabled: !!evmAddress && selectedChain === 'BSC' && selectedToken === 'EZCTO',
+      refetchInterval: 15000, // Refresh every 15 seconds
+    }
+  });
+
+  // Format EZCTO balance
+  const ezctoBalance = useMemo(() => {
+    if (!ezctoBalanceRaw) return '0';
+    return formatUnits(ezctoBalanceRaw as bigint, TOKENS.BSC.EZCTO.decimals);
+  }, [ezctoBalanceRaw]);
 
   // Solana hooks
   const { publicKey: solanaPublicKey, connected: solanaConnected, sendTransaction } = useWallet();
@@ -117,6 +147,12 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     
     return PAYMENT_CONFIG.priceUSD.toString();
   };
+
+  // Check if user has enough EZCTO balance
+  const requiredAmount = parseFloat(getTokenAmount());
+  const currentBalance = parseFloat(ezctoBalance);
+  const hasEnoughBalance = currentBalance >= requiredAmount;
+  const shortfall = requiredAmount - currentBalance;
 
   const handleChainSwitch = async () => {
     if (selectedChain === 'SOLANA') return;
@@ -374,6 +410,64 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
           </Select>
         </div>
 
+        {/* EZCTO Balance Display */}
+        {selectedChain === 'BSC' && selectedToken === 'EZCTO' && evmConnected && isCorrectChain && (
+          <div className={`rounded-lg p-4 border-2 ${hasEnoughBalance ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' : 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Wallet className={`h-5 w-5 ${hasEnoughBalance ? 'text-green-600' : 'text-amber-600'}`} />
+                <span className="font-medium text-sm">Your EZCTO Balance</span>
+              </div>
+              {ezctoBalanceLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              ) : (
+                <span className={`font-mono font-bold text-lg ${hasEnoughBalance ? 'text-green-600' : 'text-amber-600'}`}>
+                  {parseFloat(ezctoBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })} EZCTO
+                </span>
+              )}
+            </div>
+            
+            {/* Balance comparison */}
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Required:</span>
+                <span className="font-mono">{requiredAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} EZCTO</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Your Balance:</span>
+                <span className={`font-mono ${hasEnoughBalance ? 'text-green-600' : 'text-amber-600'}`}>
+                  {parseFloat(ezctoBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })} EZCTO
+                </span>
+              </div>
+              {hasEnoughBalance ? (
+                <div className="flex items-center gap-1 text-green-600 mt-2 pt-2 border-t border-green-200 dark:border-green-800">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span className="font-medium">Sufficient balance for payment</span>
+                </div>
+              ) : (
+                <div className="mt-2 pt-2 border-t border-amber-200 dark:border-amber-800">
+                  <div className="flex items-center gap-1 text-amber-600 mb-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="font-medium">
+                      Need {shortfall.toLocaleString(undefined, { maximumFractionDigits: 2 })} more EZCTO
+                    </span>
+                  </div>
+                  <a
+                    href={PANCAKESWAP_EZCTO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                    Buy EZCTO on PancakeSwap
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Price Display */}
         <div className="bg-muted/50 rounded-lg p-4 space-y-2">
           {selectedToken === 'EZCTO' && (
@@ -476,7 +570,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
               </div>
               {evmBalance && selectedChain !== 'SOLANA' && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Balance:</span>
+                  <span className="text-muted-foreground">Native Balance:</span>
                   <span className="font-mono">
                     {parseFloat(formatUnits(evmBalance.value, evmBalance.decimals)).toFixed(4)} {evmBalance.symbol}
                   </span>
@@ -505,7 +599,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
             ) : (
               <Button 
                 onClick={handlePayment} 
-                disabled={isProcessing}
+                disabled={isProcessing || (selectedToken === 'EZCTO' && !hasEnoughBalance)}
                 className={`w-full ${selectedToken === 'EZCTO' ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600' : ''}`}
                 size="lg"
               >
@@ -513,6 +607,11 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Processing...
+                  </>
+                ) : selectedToken === 'EZCTO' && !hasEnoughBalance ? (
+                  <>
+                    <AlertTriangle className="mr-2 h-5 w-5" />
+                    Insufficient EZCTO Balance
                   </>
                 ) : (
                   <>

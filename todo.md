@@ -1191,3 +1191,9 @@
 - [x] Launch 页面付费/白名单验证逻辑
 - [x] vitest 测试通过（7/7）
 - [x] 保存 checkpoint
+
+
+## 修复 Admin Whitelist 页面栈溢出错误
+- [x] 检查 use-toast.ts 的无限递归问题
+- [x] 重写 use-toast.ts 使用全局状态管理避免循环引用
+- [x] 测试修复结果（添加地址成功）

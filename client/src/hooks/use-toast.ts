@@ -1,5 +1,5 @@
 // Simple toast hook implementation
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 export interface ToastOptions {
   title: string;
@@ -7,30 +7,38 @@ export interface ToastOptions {
   variant?: 'default' | 'destructive';
 }
 
-let toastCallback: ((options: ToastOptions) => void) | null = null;
+// Global toast state to avoid circular references
+let globalToasts: (ToastOptions & { id: number })[] = [];
+let globalListeners: Set<(toasts: (ToastOptions & { id: number })[]) => void> = new Set();
+
+function notifyListeners() {
+  globalListeners.forEach(listener => listener([...globalToasts]));
+}
+
+export function toast(options: ToastOptions) {
+  const id = Date.now() + Math.random();
+  globalToasts = [...globalToasts, { ...options, id }];
+  notifyListeners();
+  
+  // Auto dismiss after 5 seconds
+  setTimeout(() => {
+    globalToasts = globalToasts.filter((t) => t.id !== id);
+    notifyListeners();
+  }, 5000);
+}
 
 export function useToast() {
-  const [toasts, setToasts] = useState<(ToastOptions & { id: number })[]>([]);
+  const [toasts, setToasts] = useState<(ToastOptions & { id: number })[]>(globalToasts);
 
-  const toast = useCallback((options: ToastOptions) => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { ...options, id }]);
-    
-    // Auto dismiss after 5 seconds
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 5000);
-    
-    // Also trigger global toast if available
-    if (toastCallback) {
-      toastCallback(options);
-    }
+  useEffect(() => {
+    const listener = (newToasts: (ToastOptions & { id: number })[]) => {
+      setToasts(newToasts);
+    };
+    globalListeners.add(listener);
+    return () => {
+      globalListeners.delete(listener);
+    };
   }, []);
-
-  // Register global toast callback
-  if (!toastCallback) {
-    toastCallback = toast;
-  }
 
   return { toast, toasts };
 }

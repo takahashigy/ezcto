@@ -1258,3 +1258,10 @@
 - [x] 为 dark-cyberpunk 设计赛博朋克风格图片指令
 - [x] 为 retro-pixel 设计像素艺术风格图片指令
 - [x] 测试编译并保存 checkpoint（15 个单元测试通过）
+
+## Haiku 预扩展自动化集成
+- [x] 在 launch.ts 中导入 enhanceDescription 函数
+- [x] 在 ANALYSIS 模块前添加 ENHANCE_DESCRIPTION 模块
+- [x] 更新进度跟踪和广播消息
+- [x] 添加错误处理和重试逻辑
+- [x] 测试编译并保存 checkpoint

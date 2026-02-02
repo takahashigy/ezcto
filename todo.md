@@ -1246,3 +1246,9 @@
 - [x] 更新模板选择逻辑以支持新模板
 - [x] 更新单元测试验证新模板（15 个测试全部通过）
 - [x] 保存 checkpoint
+
+## 新模板专属 CSS 样式指令
+- [x] 分析现有 generateCSS 函数结构
+- [x] 为 dark-cyberpunk 添加霓虹发光效果和 glitch 动画
+- [x] 为 retro-pixel 添加像素字体和扫描线效果
+- [x] 测试编译并保存 checkpoint（15 个单元测试通过）

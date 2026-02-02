@@ -531,7 +531,7 @@ ${hasTokenomics ? `5. Tokenomics section (id="tokenomics"):
 /**
  * Generate CSS styles (Step 2 of 3)
  */
-async function generateCSS(input: any, htmlStructure: string, opusApiKey: string): Promise<string> {
+async function generateCSS(input: any, htmlStructure: string, opusApiKey: string, template?: import('../layoutTemplates').LayoutTemplate): Promise<string> {
   const prompt = `Generate ONLY the CSS for this HTML structure:
 
 ${htmlStructure.substring(0, 4000)}...
@@ -625,6 +625,98 @@ ${htmlStructure.substring(0, 4000)}...
    - img { opacity: 0; transition: opacity 0.3s ease-in-out; }
    - img.loaded { opacity: 1; }
 
+${template?.name === 'dark-cyberpunk' ? `
+**DARK CYBERPUNK SPECIAL EFFECTS (REQUIRED):**
+
+13. NEON GLOW EFFECTS:
+   - Headlines/titles: text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
+   - Buttons: box-shadow: 0 0 15px var(--primary), inset 0 0 15px rgba(255,255,255,0.1);
+   - On hover: increase glow intensity (0 0 25px, 0 0 50px)
+   - Use cyan (#00ffff), magenta (#ff00ff), or lime (#00ff00) as accent colors
+
+14. GLITCH ANIMATION:
+   - Add glitch effect to hero headline:
+     @keyframes glitch {
+       0%, 100% { transform: translate(0); }
+       20% { transform: translate(-2px, 2px); }
+       40% { transform: translate(-2px, -2px); }
+       60% { transform: translate(2px, 2px); }
+       80% { transform: translate(2px, -2px); }
+     }
+   - Apply: animation: glitch 0.3s infinite;
+   - Add chromatic aberration effect with ::before and ::after pseudo-elements
+   - Use clip-path for glitch slices effect
+
+15. CYBERPUNK COLOR SCHEME:
+   - Background: #0a0a0f or #0d0d1a (very dark blue-black)
+   - Primary text: #e0e0e0 or #f0f0f0
+   - Accent: neon cyan, magenta, or lime
+   - Grid lines: rgba(0, 255, 255, 0.1) for subtle tech grid background
+
+16. SCANLINE OVERLAY:
+   - Add subtle horizontal scanlines over hero section:
+     background: repeating-linear-gradient(
+       0deg,
+       transparent,
+       transparent 2px,
+       rgba(0, 0, 0, 0.1) 2px,
+       rgba(0, 0, 0, 0.1) 4px
+     );
+   - Use pointer-events: none; so it doesn't block clicks
+
+17. BORDER EFFECTS:
+   - Cards/containers: border: 1px solid rgba(0, 255, 255, 0.3);
+   - On hover: border-color transitions to full neon color
+   - Add corner accents with ::before/::after pseudo-elements
+` : ''}${template?.name === 'retro-pixel' ? `
+**RETRO PIXEL SPECIAL EFFECTS (REQUIRED):**
+
+13. PIXEL FONT:
+   - Import Google Font: @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+   - Headlines: font-family: 'Press Start 2P', cursive;
+   - Body text can use: 'VT323', 'Courier New', monospace;
+   - Adjust line-height for pixel fonts: line-height: 1.8;
+
+14. 8-BIT COLOR PALETTE:
+   - Use limited, saturated colors reminiscent of NES/SNES era
+   - Primary: #ff0000, #00ff00, #0000ff, #ffff00, #ff00ff, #00ffff
+   - Background: #1a1a2e or #16213e (dark retro blue)
+   - Avoid gradients - use solid colors or dithering patterns
+
+15. PIXEL BORDERS:
+   - Use box-shadow for pixelated border effect:
+     box-shadow: 
+       4px 0 0 0 currentColor,
+       -4px 0 0 0 currentColor,
+       0 4px 0 0 currentColor,
+       0 -4px 0 0 currentColor;
+   - Or use border-image with a pixel pattern
+
+16. CRT SCANLINE EFFECT:
+   - Add scanlines overlay to entire page or hero:
+     background: repeating-linear-gradient(
+       0deg,
+       rgba(0, 0, 0, 0.15),
+       rgba(0, 0, 0, 0.15) 1px,
+       transparent 1px,
+       transparent 2px
+     );
+   - Add slight screen curvature effect with border-radius on container
+
+17. BLINKING CURSOR ANIMATION:
+   - Add blinking cursor effect to headlines or CTA:
+     @keyframes blink {
+       0%, 50% { opacity: 1; }
+       51%, 100% { opacity: 0; }
+     }
+   - Use ::after with content: '_'; animation: blink 1s infinite;
+
+18. PIXEL ART BUTTONS:
+   - Buttons should look like game UI buttons
+   - No border-radius (sharp corners)
+   - Use transform: scale(1.1) on hover (no smooth transitions)
+   - Add "press" effect: transform: translateY(4px) on :active
+` : ''}
 Return ONLY the CSS code inside <style> tags.`;
 
   return await callClaude([{ role: "user", content: prompt }], {
@@ -796,7 +888,7 @@ export async function generateWebsiteCode(input: {
 
   // Step 2: Generate CSS
   console.log("[generateWebsiteCode] Step 2: Generating CSS...");
-  let cssCode = await generateCSS(input, htmlStructure, opusApiKey);
+  let cssCode = await generateCSS(input, htmlStructure, opusApiKey, selectedTemplate);
   cssCode = extractCode(cssCode, 'css');
   console.log("[generateWebsiteCode] CSS generated:", cssCode.length, "chars");
 

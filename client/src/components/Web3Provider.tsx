@@ -2,20 +2,58 @@ import { ReactNode, useMemo } from 'react';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { mainnet, bsc, polygon } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RainbowKitProvider, getDefaultConfig, darkTheme } from '@rainbow-me/rainbowkit';
+import { 
+  RainbowKitProvider, 
+  connectorsForWallets,
+  darkTheme 
+} from '@rainbow-me/rainbowkit';
+import {
+  binanceWallet,
+  okxWallet,
+  trustWallet,
+  tokenPocketWallet,
+  metaMaskWallet,
+  walletConnectWallet,
+  injectedWallet,
+} from '@rainbow-me/rainbowkit/wallets';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
 import { PAYMENT_CONFIG, CHAINS } from '@shared/web3Config';
 
 import '@rainbow-me/rainbowkit/styles.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-// Create wagmi config with RainbowKit
-const config = getDefaultConfig({
-  appName: 'EZCTO',
-  projectId: PAYMENT_CONFIG.walletConnectProjectId,
+// Configure wallet connectors with specific wallets
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [
+        binanceWallet,
+        okxWallet,
+        trustWallet,
+        tokenPocketWallet,
+      ],
+    },
+    {
+      groupName: 'Other',
+      wallets: [
+        metaMaskWallet,
+        walletConnectWallet,
+        injectedWallet,
+      ],
+    },
+  ],
+  {
+    appName: 'EZCTO',
+    projectId: PAYMENT_CONFIG.walletConnectProjectId,
+  }
+);
+
+// Create wagmi config with custom connectors
+const config = createConfig({
+  connectors,
   chains: [mainnet, bsc, polygon],
   transports: {
     [mainnet.id]: http(CHAINS.ETH.rpcUrl),
@@ -50,6 +88,7 @@ export function Web3Provider({ children }: Web3ProviderProps) {
             accentColorForeground: 'white',
             borderRadius: 'small',
           })}
+          locale="en-US"
         >
           <ConnectionProvider endpoint={solanaEndpoint}>
             <WalletProvider wallets={solanaWallets} autoConnect>

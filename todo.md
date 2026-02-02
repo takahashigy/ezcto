@@ -1162,3 +1162,11 @@
 - [x] 更新后端 crypto 路由支持多链验证
 - [x] 更新价格显示为 $299 USD
 - [x] 编写 vitest 测试（23 tests passed）
+
+
+## EVM 钱包扩展支持
+- [x] 添加币安钱包 (Binance Wallet) 支持
+- [x] 添加 OKX Wallet 支持
+- [x] 添加 Trust Wallet 支持
+- [x] 添加 TokenPocket 支持
+- [x] 测试所有钱包连接功能

@@ -14,6 +14,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import { CryptoPaymentModal } from "@/components/CryptoPaymentModal";
+import { useAccount } from "wagmi";
+import { Wallet } from "lucide-react";
 
 export default function LaunchV2() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -49,7 +51,21 @@ export default function LaunchV2() {
   const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
   const [hasDiscount, setHasDiscount] = useState(false);
 
+  // Wallet connection state
+  const { address: evmAddress, isConnected: isEvmConnected } = useAccount();
+  const walletAddress = evmAddress || '';
+  const isWalletConnected = isEvmConnected;
+
+  // Whitelist check
+  const { data: whitelistStatus, isLoading: checkingWhitelist } = trpc.admin.checkWhitelistStatus.useQuery(
+    { walletAddress },
+    { enabled: isWalletConnected && !!walletAddress }
+  );
+
+  const hasWhitelistAccess = whitelistStatus?.isWhitelisted && (whitelistStatus?.remainingGenerations || 0) > 0;
+
   const createProjectMutation = trpc.projects.create.useMutation();
+  const useWhitelistMutation = trpc.launch.useWhitelistGeneration.useMutation();
   const launchTriggerMutation = trpc.launch.trigger.useMutation();
   const uploadImageMutation = trpc.upload.characterImage.useMutation();
   const verifyPaymentMutation = trpc.launch.verifyPayment.useMutation();
@@ -141,6 +157,16 @@ export default function LaunchV2() {
       return;
     }
 
+    // Check wallet connection (required for non-admin users)
+    if (user?.role !== 'admin' && !isWalletConnected) {
+      toast.error(
+        language === 'zh'
+          ? '请先连接钱包'
+          : 'Please connect your wallet first'
+      );
+      return;
+    }
+
     setIsGenerating(true);
     toast.info(language === 'zh' ? '🚀 开始AI生成... 预计需要3-5分钟' : '🚀 Starting AI generation... This will take 3-5 minutes');
 
@@ -184,10 +210,15 @@ export default function LaunchV2() {
       toast.success("Project created!");
       setCurrentProjectId(projectData.projectId);
 
-      // Step 3: Check if user is admin
-      if (user?.role === 'admin') {
-        // Admin users skip payment and start generation immediately
-        toast.info(language === 'zh' ? '🔑 Admin权限：跳过支付，直接开始生成...' : '🔑 Admin privilege: Skipping payment, starting generation...');
+      // Step 3: Check if user is admin or has whitelist access
+      const canSkipPayment = user?.role === 'admin' || hasWhitelistAccess;
+      
+      if (canSkipPayment) {
+        // Admin or whitelisted users skip payment and start generation immediately
+        const skipReason = user?.role === 'admin' 
+          ? (language === 'zh' ? '🔑 Admin权限：跳过支付，直接开始生成...' : '🔑 Admin privilege: Skipping payment, starting generation...')
+          : (language === 'zh' ? `🎁 白名单用户：使用免费生成次数 (剩余 ${whitelistStatus?.remainingGenerations} 次)` : `🎁 Whitelist: Using free generation (${whitelistStatus?.remainingGenerations} remaining)`);
+        toast.info(skipReason);
         
         // Store image data for retry (in case generation fails)
         if (characterImageUrl) {
@@ -203,6 +234,14 @@ export default function LaunchV2() {
         console.log('[LaunchV2] Admin trigger - characterImageUrl:', characterImageUrl);
         
         try {
+          // If using whitelist (not admin), deduct the free generation first
+          if (hasWhitelistAccess && user?.role !== 'admin') {
+            await useWhitelistMutation.mutateAsync({
+              projectId: projectData.projectId,
+              walletAddress: walletAddress,
+            });
+          }
+
           await launchTriggerMutation.mutateAsync({
             projectId: projectData.projectId,
             characterImageUrl: characterImageUrl || undefined,
@@ -213,7 +252,7 @@ export default function LaunchV2() {
           toast.success(language === 'zh' ? '生成已启动！正在跳转...' : 'Generation started! Redirecting...');
           setLocation(`/launch/preview?projectId=${projectData.projectId}`);
         } catch (genError) {
-          console.error("[LaunchV2] Admin generation error:", genError);
+          console.error("[LaunchV2] Generation error:", genError);
           toast.error(`Failed to start generation: ${genError instanceof Error ? genError.message : 'Unknown error'}`);
           setIsGenerating(false);
         }
@@ -635,11 +674,83 @@ export default function LaunchV2() {
                   </div>
                 )}
 
+                {/* Wallet Connection & Payment Status */}
+                {user?.role !== 'admin' && (
+                  <div className="bg-[#2d3e2d]/5 border-2 border-border rounded-lg p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Wallet className="w-5 h-5 text-foreground" />
+                        <span className="font-semibold text-foreground">
+                          {language === 'zh' ? '钱包状态' : 'Wallet Status'}
+                        </span>
+                      </div>
+                      {!isWalletConnected && (
+                        <WalletConnectButton />
+                      )}
+                    </div>
+                    
+                    {isWalletConnected ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-green-600">
+                          <Check className="w-4 h-4" />
+                          <span className="text-sm">
+                            {language === 'zh' ? '已连接: ' : 'Connected: '}
+                            {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                          </span>
+                        </div>
+                        
+                        {checkingWhitelist ? (
+                          <div className="flex items-center gap-2 text-foreground/60">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-sm">
+                              {language === 'zh' ? '检查白名单...' : 'Checking whitelist...'}
+                            </span>
+                          </div>
+                        ) : hasWhitelistAccess ? (
+                          <div className="bg-green-500/10 border border-green-500/30 rounded p-2">
+                            <div className="flex items-center gap-2 text-green-600">
+                              <Sparkles className="w-4 h-4" />
+                              <span className="text-sm font-semibold">
+                                {language === 'zh' 
+                                  ? `🎁 白名单用户 - 免费生成次数: ${whitelistStatus?.remainingGenerations}`
+                                  : `🎁 Whitelisted - Free generations: ${whitelistStatus?.remainingGenerations}`
+                                }
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2">
+                            <div className="flex items-center gap-2 text-yellow-600">
+                              <AlertCircle className="w-4 h-4" />
+                              <span className="text-sm">
+                                {language === 'zh' 
+                                  ? '需要支付 $299 才能生成'
+                                  : 'Payment of $299 required to generate'
+                                }
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-yellow-600">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="text-sm">
+                          {language === 'zh' 
+                            ? '请先连接钱包以检查白名单状态'
+                            : 'Please connect wallet to check whitelist status'
+                          }
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={isGenerating || checkingGenerating || !!generatingProject}
+                  disabled={isGenerating || checkingGenerating || !!generatingProject || (user?.role !== 'admin' && !isWalletConnected)}
                   className="w-full font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] text-lg px-8 py-6 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isGenerating ? (

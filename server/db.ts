@@ -1,6 +1,6 @@
 import { eq, desc, and, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, customOrders, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory, InsertCustomOrder } from "../drizzle/schema";
+import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, customOrders, whitelist, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory, InsertCustomOrder, InsertWhitelist } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -513,4 +513,143 @@ export async function updateCustomOrderStatus(id: number, status: "pending" | "r
   if (!db) throw new Error("Database not available");
 
   await db.update(customOrders).set({ status }).where(eq(customOrders.id, id));
+}
+
+
+// ============ Whitelist Management ============
+
+export async function getWhitelistByAddress(walletAddress: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const normalizedAddress = walletAddress.toLowerCase();
+  const result = await db.select().from(whitelist)
+    .where(eq(whitelist.walletAddress, normalizedAddress));
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function checkWhitelistStatus(walletAddress: string) {
+  const entry = await getWhitelistByAddress(walletAddress);
+  if (!entry || !entry.isActive) {
+    return { isWhitelisted: false, remainingGenerations: 0 };
+  }
+  const remaining = entry.freeGenerations - entry.usedGenerations;
+  return {
+    isWhitelisted: true,
+    remainingGenerations: Math.max(0, remaining),
+    freeGenerations: entry.freeGenerations,
+    usedGenerations: entry.usedGenerations,
+  };
+}
+
+export async function useWhitelistGeneration(walletAddress: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const normalizedAddress = walletAddress.toLowerCase();
+  const entry = await getWhitelistByAddress(normalizedAddress);
+  
+  if (!entry || !entry.isActive) {
+    return { success: false, error: "Not whitelisted" };
+  }
+  
+  if (entry.usedGenerations >= entry.freeGenerations) {
+    return { success: false, error: "No remaining free generations" };
+  }
+
+  await db.update(whitelist)
+    .set({ usedGenerations: entry.usedGenerations + 1 })
+    .where(eq(whitelist.walletAddress, normalizedAddress));
+
+  return { 
+    success: true, 
+    remainingGenerations: entry.freeGenerations - entry.usedGenerations - 1 
+  };
+}
+
+export async function addToWhitelist(entry: InsertWhitelist) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const normalizedAddress = entry.walletAddress.toLowerCase();
+  
+  // Check if already exists
+  const existing = await getWhitelistByAddress(normalizedAddress);
+  if (existing) {
+    // Update existing entry
+    await db.update(whitelist)
+      .set({
+        freeGenerations: entry.freeGenerations ?? existing.freeGenerations,
+        note: entry.note ?? existing.note,
+        isActive: entry.isActive ?? existing.isActive,
+      })
+      .where(eq(whitelist.walletAddress, normalizedAddress));
+    return { success: true, updated: true };
+  }
+
+  await db.insert(whitelist).values({
+    ...entry,
+    walletAddress: normalizedAddress,
+  });
+  return { success: true, updated: false };
+}
+
+export async function bulkAddToWhitelist(entries: Array<{ walletAddress: string; freeGenerations?: number; note?: string }>, addedBy?: number) {
+  const results = { added: 0, updated: 0, failed: 0 };
+  
+  for (const entry of entries) {
+    try {
+      const result = await addToWhitelist({
+        walletAddress: entry.walletAddress,
+        freeGenerations: entry.freeGenerations ?? 1,
+        note: entry.note,
+        addedBy,
+      });
+      if (result.updated) {
+        results.updated++;
+      } else {
+        results.added++;
+      }
+    } catch (error) {
+      results.failed++;
+    }
+  }
+  
+  return results;
+}
+
+export async function getAllWhitelist(limit: number = 100, offset: number = 0) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(whitelist)
+    .orderBy(desc(whitelist.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function updateWhitelistEntry(id: number, updates: Partial<InsertWhitelist>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  if (updates.walletAddress) {
+    updates.walletAddress = updates.walletAddress.toLowerCase();
+  }
+
+  await db.update(whitelist).set(updates).where(eq(whitelist.id, id));
+}
+
+export async function deleteWhitelistEntry(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(whitelist).where(eq(whitelist.id, id));
+}
+
+export async function getWhitelistCount() {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db.select().from(whitelist);
+  return result.length;
 }

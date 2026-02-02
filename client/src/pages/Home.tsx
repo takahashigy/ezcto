@@ -2,10 +2,27 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
-import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2, Receipt } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2, Receipt, Shield } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
+import { trpc } from "@/lib/trpc";
+
+// Admin navigation link - only visible to admins
+function AdminNavLink() {
+  const { data: adminCheck } = trpc.admin.isAdmin.useQuery();
+  
+  if (!adminCheck?.isAdmin) return null;
+  
+  return (
+    <Link href="/admin/whitelist">
+      <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
+        <Shield className="mr-2 h-4 w-4" />
+        Admin
+      </Button>
+    </Link>
+  );
+}
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -37,6 +54,7 @@ export default function Home() {
                     Payments
                   </Button>
                 </Link>
+                <AdminNavLink />
                 <Link href="/launch">
                   <Button className="font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
                     <Sparkles className="mr-2 h-4 w-4" />

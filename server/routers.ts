@@ -16,6 +16,7 @@ import { removeBackground } from "./_core/backgroundRemoval";
 import { notifyOwner } from "./_core/notification";
 import { uploadToR2, uploadPreviewToR2 } from "./cloudflareR2";
 import { cryptoRouter } from "./routers/crypto";
+import { adminRouter } from "./routers/admin";
 import { enhanceDescription } from "./_core/claude";
 import { checkSlugAvailability } from "./_core/deployment";
 import { verifyBSCPayment, verifySolanaPayment, pollPaymentConfirmation } from "./_core/paymentVerification";
@@ -24,6 +25,7 @@ import { calculatePrice } from "../shared/paymentConfig";
 export const appRouter = router({
   system: systemRouter,
   crypto: cryptoRouter,
+  admin: adminRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -975,6 +977,49 @@ export const appRouter = router({
           success: true, 
           message: "Payment verified successfully",
           amount: result.amount,
+        };
+      }),
+
+    // Use whitelist free generation
+    useWhitelistGeneration: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        walletAddress: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+        if (project.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+          throw new Error("Unauthorized");
+        }
+
+        // Check whitelist status
+        const whitelistStatus = await db.checkWhitelistStatus(input.walletAddress);
+        if (!whitelistStatus.isWhitelisted || whitelistStatus.remainingGenerations <= 0) {
+          throw new Error("No free generations available");
+        }
+
+        // Use whitelist generation
+        const result = await db.useWhitelistGeneration(input.walletAddress);
+        if (!result) {
+          throw new Error("Failed to use whitelist generation");
+        }
+
+        // Update project payment status
+        await db.updateProject(input.projectId, {
+          paymentStatus: 'paid',
+          paymentAmount: '0',
+          paymentCurrency: 'WHITELIST',
+          paymentWalletAddress: input.walletAddress,
+          paidAt: new Date(),
+        });
+
+        return { 
+          success: true, 
+          message: "Free generation used",
+          remainingGenerations: result.remainingGenerations,
         };
       }),
 

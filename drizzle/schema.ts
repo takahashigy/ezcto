@@ -268,3 +268,22 @@ export const cryptoPayments = mysqlTable("cryptoPayments", {
 
 export type CryptoPayment = typeof cryptoPayments.$inferSelect;
 export type InsertCryptoPayment = typeof cryptoPayments.$inferInsert;
+
+/**
+ * Whitelist for free generations
+ * Allows admin to grant specific wallet addresses free generation credits
+ */
+export const whitelist = mysqlTable("whitelist", {
+  id: int("id").autoincrement().primaryKey(),
+  walletAddress: varchar("walletAddress", { length: 100 }).notNull().unique(),
+  freeGenerations: int("freeGenerations").default(1).notNull(),
+  usedGenerations: int("usedGenerations").default(0).notNull(),
+  note: text("note"), // Admin note for this whitelist entry
+  isActive: boolean("isActive").default(true).notNull(),
+  addedBy: int("addedBy"), // Admin user ID who added this entry
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Whitelist = typeof whitelist.$inferSelect;
+export type InsertWhitelist = typeof whitelist.$inferInsert;

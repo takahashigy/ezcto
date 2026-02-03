@@ -25,7 +25,6 @@ export type ClaudeResponse = {
 };
 
 import { retryWithBackoff } from "./retry";
-import { generateSectionOrderInstruction, type LayoutTemplate } from "../layoutTemplates";
 
 /**
  * Call Claude API with messages
@@ -123,12 +122,6 @@ export async function analyzeProjectInput(input: {
 }): Promise<{
   // Detected language
   language: string;
-  // Narrative core - the unique differentiating concept
-  narrativeCore: {
-    concept: string; // The core story/concept (e.g., "fish swimming against the current")
-    visualElements: string[]; // Key visual elements that MUST appear in images
-    emotionalTone: string; // The emotional feeling to convey
-  };
   // Brand strategy
   brandStrategy: {
     personality: string;
@@ -148,7 +141,6 @@ export async function analyzeProjectInput(input: {
   logoPrompt: string;
   heroBackgroundPrompt: string;
   featureIconPrompt: string;
-  showcaseImagePrompt: string; // New: Large showcase image for homepage
   // Website content
   websiteContent: {
     headline: string;
@@ -172,14 +164,6 @@ ${input.tokenomics ? `- Tokenomics: ${input.tokenomics}` : ""}
 
 Your task is to provide a complete brand strategy and image generation prompts. Focus on creating a cohesive visual identity that will drive conversions.
 
-**CRITICAL: NARRATIVE CORE EXTRACTION**
-First, identify the NARRATIVE CORE of this project - the unique, differentiating story or concept that makes it special.
-- Example: If description mentions "a fish swimming against the current", the narrative core is "rebellion, going against the flow, individuality"
-- Example: If description mentions "a cat that loves pizza", the narrative core is "quirky food obsession, relatable humor"
-- The narrative core MUST be reflected in EVERY image prompt
-- Identify 2-4 key visual elements that represent this narrative core
-- These visual elements MUST appear prominently in all generated images
-
 **LANGUAGE DETECTION AND CONTENT GENERATION:**
 - Detect the primary language of the project description
 - If description contains ANY Chinese characters (中文), even mixed with English, generate ALL websiteContent fields in Chinese
@@ -202,76 +186,24 @@ First, identify the NARRATIVE CORE of this project - the unique, differentiating
 - Use simple backgrounds that don't compete with text visibility
 - Specify exact text placement: "Large bold text '${input.ticker}' centered in the composition"
 
-**TYPOGRAPHY CONSISTENCY RULES (CRITICAL FOR ALL BANNERS):**
-ALL banners (PayDex, X/Twitter) MUST use IDENTICAL typography specifications:
-- Font style: Bold, sans-serif, modern display font (e.g., Impact, Bebas Neue, or similar)
-- Text weight: Extra bold / Black weight
-- Text case: ALL UPPERCASE for ticker
-- Letter spacing: Slightly expanded for readability
-- Text effects: Consistent across all banners (if using glow, use same glow; if using shadow, use same shadow)
-- Text size ratio: Ticker should occupy 40-60% of banner height
-- Text position: Horizontally centered, vertically centered or slightly above center
-- DO NOT use different fonts or text styles between PayDex and X banners
-- The typography must be so consistent that banners look like they belong to the same brand family
-
-**VISUAL STYLE DETECTION AND IMAGE GENERATION:**
-Based on the project description and meme image, detect the visual style and apply the appropriate image generation style:
-
-1. **CYBERPUNK STYLE** (for tech/AI/futuristic/dark themes):
-   - Use dark backgrounds with neon accents (cyan #00ffff, magenta #ff00ff, lime #00ff00)
-   - Add glowing effects, holographic elements, digital grid patterns
-   - Include circuit board patterns, data streams, or matrix-style effects
-   - Hero background: Dark cityscape with neon lights, digital rain, or tech grid
-   - Community scene: Futuristic gathering, holographic displays, cyber aesthetics
-   - Feature icon: Glowing neon icon with tech/circuit elements
-   - Banners: Dark background with neon text glow, cyber grid patterns
-
-2. **RETRO/PIXEL STYLE** (for gaming/nostalgic/8-bit themes):
-   - Use pixel art style with limited color palette (NES/SNES era colors)
-   - Include scanlines, CRT screen effects, retro game UI elements
-   - Sharp pixelated edges, no anti-aliasing, blocky shapes
-   - Hero background: Pixel art landscape, retro game scene, or terminal screen
-   - Community scene: Pixel art characters, arcade-style gathering
-   - Feature icon: 8-bit style icon, pixel art, retro game sprite
-   - Banners: Pixel art style, retro game banner, arcade aesthetic
-
-3. **PLAYFUL STYLE** (for meme/fun/community themes - DEFAULT):
-   - Use bright, saturated colors with cartoon/illustration style
-   - Include fun elements, mascot characters, dynamic poses
-   - Soft edges, friendly shapes, approachable design
-
-4. **MINIMAL STYLE** (for clean/professional/simple themes):
-   - Use clean lines, lots of whitespace, subtle gradients
-   - Simple geometric shapes, modern typography
-   - Elegant and sophisticated visual language
-
-Detect the most appropriate style from the project description and meme image, then apply that style consistently across ALL image prompts.
-
 Please provide your analysis in the following JSON format:
 {
-  "narrativeCore": {
-    "concept": "The core story/concept in one sentence (e.g., 'A rebellious fish swimming against the current, representing individuality and defiance')",
-    "visualElements": ["Element 1 that MUST appear in images", "Element 2", "Element 3"],
-    "emotionalTone": "The emotional feeling (e.g., 'rebellious and empowering' or 'playful and humorous')"
-  },
-  "detectedStyle": "cyberpunk | retro | playful | minimal (the visual style detected from the project)",
   "brandStrategy": {
     "personality": "Brief description of brand personality (playful/professional/rebellious/etc)",
     "targetAudience": "Target demographic and psychographic profile",
     "coreMessage": "The single most important message this project conveys",
-    "visualStyle": "Overall visual aesthetic - MUST match detectedStyle (cyberpunk/pixel-art/cartoon/minimal)"
+    "visualStyle": "Overall visual aesthetic (cartoon/realistic/pixel-art/cyberpunk/etc)"
   },
   "colorScheme": {
     "primary": "#hex color for main brand color",
     "secondary": "#hex color for secondary elements",
     "accent": "#hex color for CTAs and highlights"
   },
-  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently'. MUST apply the detectedStyle: cyberpunk=dark bg with neon glow, retro=pixel art style, playful=cartoon style, minimal=clean design. High contrast for text readability.",
-  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. CRITICAL: Content MUST fill the ENTIRE canvas. MUST apply the detectedStyle consistently. Requirements: 1) Large bold text ${input.ticker} centered 2) Full width design 3) Style-appropriate background (cyberpunk=neon/dark, retro=pixel art, playful=colorful cartoon, minimal=clean)",
-  "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background. MUST apply the detectedStyle: cyberpunk=dark cityscape with neon lights/digital grid, retro=pixel art landscape/terminal screen, playful=colorful illustrated scene, minimal=subtle gradient/clean. Atmospheric, leaves space for text overlay.",
-  "featureIconPrompt": "Detailed prompt for 256x256 feature icon. MUST have FULLY TRANSPARENT BACKGROUND. MUST apply the detectedStyle: cyberpunk=glowing neon icon with tech elements, retro=8-bit pixel art sprite, playful=cute cartoon icon, minimal=simple geometric icon. Clean edges suitable for any background.",
-  "communityScenePrompt": "Detailed prompt for 800x600 community scene. MUST apply the detectedStyle: cyberpunk=futuristic gathering with holographic displays, retro=pixel art characters in arcade setting, playful=cartoon characters celebrating, minimal=clean modern gathering scene.",
-  "showcaseImagePrompt": "Detailed prompt for 1600x900 large showcase image. This is the HERO IMAGE that visualizes the NARRATIVE CORE. MUST prominently feature ALL visualElements from narrativeCore. MUST capture the emotionalTone. This image will be displayed prominently after the hero section to communicate the project's unique story. High quality, cinematic composition, visually striking.",
+  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
+  "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. CRITICAL: Content MUST fill the ENTIRE canvas from edge to edge. Requirements: 1) Large bold text ${input.ticker} centered prominently 2) Design spans FULL WIDTH 1200px with NO empty margins 3) NO blank space on left or right sides 4) Background and design elements cover the entire banner area 5) High contrast for text visibility 6) Social media header style. DO NOT leave empty space for profile picture - fill the entire canvas.",
+  "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
+  "featureIconPrompt": "Detailed prompt for 256x256 feature icon. CRITICAL: MUST have FULLY TRANSPARENT BACKGROUND with alpha channel. Requirements: 1) PNG format with transparency 2) NO solid background color 3) NO circular or rectangular background shape 4) Icon should float on transparent canvas 5) Simple flat or minimalist iconic design 6) Clean edges suitable for any background. Example: 'Minimalist [icon subject] icon, flat design, isolated on transparent background, no background elements, clean vector-style edges'",
+  "communityScenePrompt": "Detailed prompt for 800x600 community scene image showing enthusiastic supporters, community gathering, or social atmosphere that matches the brand personality",
   "websiteContent": {
     "headline": "Catchy main headline for hero section",
     "tagline": "Brief memorable tagline",
@@ -288,11 +220,7 @@ Please provide your analysis in the following JSON format:
   }
 }
 
-Remember: 
-1. The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts. This is non-negotiable for marketing effectiveness.
-2. The narrativeCore.visualElements MUST appear in ALL image prompts (banners, hero, showcase, community scene).
-3. The showcaseImagePrompt is the most important image - it should be a stunning visualization of the narrative core.
-4. Validate that each image prompt contains at least 2 of the visualElements from narrativeCore.`;
+Remember: The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts. This is non-negotiable for marketing effectiveness.`;
 
   const opusApiKey = process.env.CLAUDE_OPUS_API_KEY;
   
@@ -363,7 +291,7 @@ Remember:
 /**
  * Generate HTML structure (Step 1 of 3)
  */
-async function generateHTMLStructure(input: any, opusApiKey: string, template?: import('../layoutTemplates').LayoutTemplate): Promise<string> {
+async function generateHTMLStructure(input: any, opusApiKey: string): Promise<string> {
   // Build tokenomics section instruction based on whether data exists
   const hasTokenomics = input.websiteContent.tokenomics.totalSupply && input.websiteContent.tokenomics.distribution;
   const tokenomicsInstruction = hasTokenomics 
@@ -446,103 +374,7 @@ ${caInstruction}
 - PayDex Banner: ${input.paydexBannerUrl} (can be used for decoration, MUST be responsive)
 - X Banner: ${input.xBannerUrl} (can be used for decoration, MUST be responsive)
 
-${template ? generateDynamicPageStructure(input, template, hasTokenomics, hasCA) : generateDefaultPageStructure(input, hasTokenomics, hasCA)}
-
-**CRITICAL RULES:**
-1. Hero background (heroBackgroundUrl) MUST be visible as full-section background, NOT as a small image
-2. Community scene (communitySceneUrl) MUST be displayed prominently in About section
-3. Feature icon (featureIconUrl) MUST be SMALL (max 64-80px), used as decorative element in cards
-4. All images MUST have: loading="lazy" (except hero bg), decoding="async", alt text
-5. All images MUST be responsive: max-width: 100%; height: auto;
-6. ${hasTokenomics ? 'Tokenomics MUST have visual representation (pie chart or progress bars)' : 'DO NOT include Tokenomics section'}
-7. Navigation links MUST have data-section attributes for scroll-spy functionality
-8. ${hasCA ? 'Contract Address MUST be copyable with visual feedback' : 'No contract address to display'}
-9. Use Font Awesome for social icons (CDN will be added in head)
-10. Text style MUST match the brand personality: ${input.brandStrategy.personality}
-
-Return ONLY semantic HTML5 with proper tags, IDs, classes, and data attributes. No inline styles.`;
-
-  return await callClaude([{ role: "user", content: prompt }], {
-    model: "claude-opus-4-5-20251101",
-    temperature: 0.5,
-    maxTokens: 8192,
-    apiKey: opusApiKey,
-  });
-}
-
-/**
- * Generate dynamic page structure based on selected template
- */
-function generateDynamicPageStructure(
-  input: any,
-  template: LayoutTemplate,
-  hasTokenomics: boolean,
-  hasCA: boolean
-): string {
-  const layoutInstruction = generateSectionOrderInstruction(template, hasTokenomics);
-  
-  // Build social links instruction
-  const socialLinksInstruction = `
-**SOCIAL LINKS (ONLY include links that are provided):**
-${input.twitterUrl ? `- Twitter/X: <a href="${input.twitterUrl}" target="_blank" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>` : '- NO Twitter link'}
-${input.telegramUrl ? `- Telegram: <a href="${input.telegramUrl}" target="_blank" class="social-link"><i class="fa-brands fa-telegram"></i></a>` : '- NO Telegram link'}
-${input.discordUrl ? `- Discord: <a href="${input.discordUrl}" target="_blank" class="social-link"><i class="fa-brands fa-discord"></i></a>` : '- NO Discord link'}
-- Social links MUST be in HORIZONTAL ROW layout`;
-
-  // Build CA instruction for hero
-  const caHeroInstruction = hasCA 
-    ? `- Contract Address: Show "${input.contractAddress}" with Copy button (id="copy-ca-btn", data-ca="${input.contractAddress}")
-  - "Buy Now" button: <a href="https://gmgn.ai/bsc/token/${input.contractAddress}" target="_blank" class="buy-btn">Buy Now</a>`
-    : '- NO Contract Address or Buy Now button (not provided)';
-
-  // Build tokenomics instruction
-  const tokenomicsInfo = hasTokenomics
-    ? `**TOKENOMICS DATA:**
-- Supply: ${input.websiteContent.tokenomics.totalSupply}
-- Distribution: ${input.websiteContent.tokenomics.distribution}
-- Use visual representation (pie chart or progress bars)`
-    : '';
-
-  return `${layoutInstruction}
-
-**NAVIGATION:**
-- Fixed at top, logo on left
-- Nav links with data-section attributes for scroll-spy
-- Links: ${template.sections.filter(s => ['about', 'features', 'tokenomics', 'community', 'gallery'].includes(s.type) && (s.type !== 'tokenomics' || hasTokenomics)).map(s => s.type.charAt(0).toUpperCase() + s.type.slice(1)).join(', ')}
-
-**HERO SECTION DETAILS:**
-- Style: ${template.heroStyle}
-- Background: Use heroBackgroundUrl as full section background
-- Content: Headline, Tagline, CTA buttons
-${caHeroInstruction}
-
-${socialLinksInstruction}
-
-${tokenomicsInfo}
-
-**BANNER USAGE:**
-- PayDex Banner: ${input.paydexBannerUrl}
-- X Banner: ${input.xBannerUrl}
-- Strategy: ${template.bannerStrategy}
-${template.bannerStrategy === 'divider' ? '- Use banners as full-width visual dividers between sections' : ''}
-${template.bannerStrategy === 'gallery-item' ? '- Display banners in a dedicated gallery/assets section with download buttons' : ''}
-${template.bannerStrategy === 'background-accent' ? '- Use banner as subtle background element with overlay for text readability' : ''}
-
-**FOOTER:**
-- Logo (small)
-- Quick download links for marketing assets
-- Copyright text`;
-}
-
-/**
- * Generate default page structure (fallback when no template)
- */
-function generateDefaultPageStructure(
-  input: any,
-  hasTokenomics: boolean,
-  hasCA: boolean
-): string {
-  return `**PAGE STRUCTURE:**
+**PAGE STRUCTURE:**
 1. Navigation bar (fixed at top):
    - Logo on left (use logoUrl, reasonable size ~40-50px height)
    - Nav links: About, Features, ${hasTokenomics ? 'Tokenomics, ' : ''}Community
@@ -568,11 +400,7 @@ function generateDefaultPageStructure(
    - Each card has: small icon (featureIconUrl, MAX 64px), title, description
    - The feature icon should be SMALL and decorative, NOT full-width
 
-${hasTokenomics ? `5. Tokenomics section (id="tokenomics"):
-   - Supply: ${input.websiteContent.tokenomics.totalSupply}
-   - Distribution: ${input.websiteContent.tokenomics.distribution}
-   - Use visual representation: pie chart (CSS-based) OR progress bars for distribution percentages
-   - Make it visually appealing, not just plain text` : '5. Tokenomics section: DO NOT INCLUDE THIS SECTION - user did not provide tokenomics data'}
+${tokenomicsInstruction}
 
 6. Community section (id="community"):
    - Social links container with class "social-links" (MUST be HORIZONTAL row layout)
@@ -596,13 +424,34 @@ ${hasTokenomics ? `5. Tokenomics section (id="tokenomics"):
 8. Footer:
    - Logo (small)
    - Quick download links for marketing assets (smaller buttons)
-   - Copyright text`;
+   - Copyright text
+
+**CRITICAL RULES:**
+1. Hero background (heroBackgroundUrl) MUST be visible as full-section background, NOT as a small image
+2. Community scene (communitySceneUrl) MUST be displayed prominently in About section
+3. Feature icon (featureIconUrl) MUST be SMALL (max 64-80px), used as decorative element in cards
+4. All images MUST have: loading="lazy" (except hero bg), decoding="async", alt text
+5. All images MUST be responsive: max-width: 100%; height: auto;
+6. ${hasTokenomics ? 'Tokenomics MUST have visual representation (pie chart or progress bars)' : 'DO NOT include Tokenomics section'}
+7. Navigation links MUST have data-section attributes for scroll-spy functionality
+8. ${hasCA ? 'Contract Address MUST be copyable with visual feedback' : 'No contract address to display'}
+9. Use Font Awesome for social icons (CDN will be added in head)
+10. Text style MUST match the brand personality: ${input.brandStrategy.personality}
+
+Return ONLY semantic HTML5 with proper tags, IDs, classes, and data attributes. No inline styles.`;
+
+  return await callClaude([{ role: "user", content: prompt }], {
+    model: "claude-opus-4-5-20251101",
+    temperature: 0.5,
+    maxTokens: 8192,
+    apiKey: opusApiKey,
+  });
 }
 
 /**
  * Generate CSS styles (Step 2 of 3)
  */
-async function generateCSS(input: any, htmlStructure: string, opusApiKey: string, template?: import('../layoutTemplates').LayoutTemplate): Promise<string> {
+async function generateCSS(input: any, htmlStructure: string, opusApiKey: string): Promise<string> {
   const prompt = `Generate ONLY the CSS for this HTML structure:
 
 ${htmlStructure.substring(0, 4000)}...
@@ -620,18 +469,6 @@ ${htmlStructure.substring(0, 4000)}...
 - Modern typography matching visual style
 - High-conversion CTAs with hover effects
 - Text colors MUST have good contrast against backgrounds
-
-**LAYOUT SYMMETRY AND GRID SYSTEM (CRITICAL):**
-- Use a 12-column grid system for consistent alignment
-- All sections MUST be horizontally centered with max-width: 1200px; margin: 0 auto;
-- Content within sections MUST be symmetrically aligned
-- Use consistent padding: sections should have py-16 to py-24 (4rem to 6rem vertical padding)
-- Feature cards, team members, and other grid items MUST be evenly distributed
-- On desktop: use justify-content: space-evenly or space-between for balanced spacing
-- Avoid orphan elements (single item on last row) - use grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
-- All text blocks should have consistent max-width (e.g., max-width: 800px for paragraphs)
-- Headings and subheadings MUST be centered within their containers
-- Use gap instead of margin for consistent spacing between grid/flex items
 
 **CRITICAL CSS RULES:**
 
@@ -704,107 +541,10 @@ ${htmlStructure.substring(0, 4000)}...
    - Quick download links (smaller than main CTAs)
    - Copyright text
 
-12. IMAGE VISIBILITY (CRITICAL - DO NOT HIDE IMAGES):
-   - ALL images MUST be visible by default: img { opacity: 1; }
-   - DO NOT set img { opacity: 0; } as initial state
-   - For fade-in animations, use CSS that ensures images are ALWAYS visible:
-     img { opacity: 1; transition: opacity 0.3s ease-in-out; }
-   - If using lazy loading, the loaded class should NOT be required for visibility
-   - NEVER use animation that starts with opacity: 0 and requires JavaScript to become visible
-   - Images must be visible even if JavaScript fails or animations don't trigger
+12. LAZY LOADING TRANSITIONS:
+   - img { opacity: 0; transition: opacity 0.3s ease-in-out; }
+   - img.loaded { opacity: 1; }
 
-${template?.name === 'dark-cyberpunk' ? `
-**DARK CYBERPUNK SPECIAL EFFECTS (REQUIRED):**
-
-13. NEON GLOW EFFECTS:
-   - Headlines/titles: text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
-   - Buttons: box-shadow: 0 0 15px var(--primary), inset 0 0 15px rgba(255,255,255,0.1);
-   - On hover: increase glow intensity (0 0 25px, 0 0 50px)
-   - Use cyan (#00ffff), magenta (#ff00ff), or lime (#00ff00) as accent colors
-
-14. GLITCH ANIMATION:
-   - Add glitch effect to hero headline:
-     @keyframes glitch {
-       0%, 100% { transform: translate(0); }
-       20% { transform: translate(-2px, 2px); }
-       40% { transform: translate(-2px, -2px); }
-       60% { transform: translate(2px, 2px); }
-       80% { transform: translate(2px, -2px); }
-     }
-   - Apply: animation: glitch 0.3s infinite;
-   - Add chromatic aberration effect with ::before and ::after pseudo-elements
-   - Use clip-path for glitch slices effect
-
-15. CYBERPUNK COLOR SCHEME:
-   - Background: #0a0a0f or #0d0d1a (very dark blue-black)
-   - Primary text: #e0e0e0 or #f0f0f0
-   - Accent: neon cyan, magenta, or lime
-   - Grid lines: rgba(0, 255, 255, 0.1) for subtle tech grid background
-
-16. SCANLINE OVERLAY:
-   - Add subtle horizontal scanlines over hero section:
-     background: repeating-linear-gradient(
-       0deg,
-       transparent,
-       transparent 2px,
-       rgba(0, 0, 0, 0.1) 2px,
-       rgba(0, 0, 0, 0.1) 4px
-     );
-   - Use pointer-events: none; so it doesn't block clicks
-
-17. BORDER EFFECTS:
-   - Cards/containers: border: 1px solid rgba(0, 255, 255, 0.3);
-   - On hover: border-color transitions to full neon color
-   - Add corner accents with ::before/::after pseudo-elements
-` : ''}${template?.name === 'retro-pixel' ? `
-**RETRO PIXEL SPECIAL EFFECTS (REQUIRED):**
-
-13. PIXEL FONT:
-   - Import Google Font: @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-   - Headlines: font-family: 'Press Start 2P', cursive;
-   - Body text can use: 'VT323', 'Courier New', monospace;
-   - Adjust line-height for pixel fonts: line-height: 1.8;
-
-14. 8-BIT COLOR PALETTE:
-   - Use limited, saturated colors reminiscent of NES/SNES era
-   - Primary: #ff0000, #00ff00, #0000ff, #ffff00, #ff00ff, #00ffff
-   - Background: #1a1a2e or #16213e (dark retro blue)
-   - Avoid gradients - use solid colors or dithering patterns
-
-15. PIXEL BORDERS:
-   - Use box-shadow for pixelated border effect:
-     box-shadow: 
-       4px 0 0 0 currentColor,
-       -4px 0 0 0 currentColor,
-       0 4px 0 0 currentColor,
-       0 -4px 0 0 currentColor;
-   - Or use border-image with a pixel pattern
-
-16. CRT SCANLINE EFFECT:
-   - Add scanlines overlay to entire page or hero:
-     background: repeating-linear-gradient(
-       0deg,
-       rgba(0, 0, 0, 0.15),
-       rgba(0, 0, 0, 0.15) 1px,
-       transparent 1px,
-       transparent 2px
-     );
-   - Add slight screen curvature effect with border-radius on container
-
-17. BLINKING CURSOR ANIMATION:
-   - Add blinking cursor effect to headlines or CTA:
-     @keyframes blink {
-       0%, 50% { opacity: 1; }
-       51%, 100% { opacity: 0; }
-     }
-   - Use ::after with content: '_'; animation: blink 1s infinite;
-
-18. PIXEL ART BUTTONS:
-   - Buttons should look like game UI buttons
-   - No border-radius (sharp corners)
-   - Use transform: scale(1.1) on hover (no smooth transitions)
-   - Add "press" effect: transform: translateY(4px) on :active
-` : ''}
 Return ONLY the CSS code inside <style> tags.`;
 
   return await callClaude([{ role: "user", content: prompt }], {
@@ -885,20 +625,10 @@ async function generateJavaScript(opusApiKey: string): Promise<string> {
    - Add .visible class when element enters viewport
    - CSS handles the actual animation
 
-5. IMAGE VISIBILITY (CRITICAL - IMAGES MUST ALWAYS BE VISIBLE):
-   - DO NOT set opacity: 0 on images via JavaScript
-   - Images should be visible immediately, even before JavaScript loads
-   - If adding 'loaded' class for animations, ensure images are ALREADY visible without it
-   - The 'loaded' class should only enhance (e.g., remove blur), NOT make images visible
-   - Example safe pattern:
-     document.querySelectorAll('img').forEach(img => {
-       if (img.complete) {
-         img.classList.add('loaded');
-       } else {
-         img.addEventListener('load', () => img.classList.add('loaded'));
-       }
-     });
-   - CSS should be: img { opacity: 1; } img.loaded { filter: none; } (NOT opacity-based)
+5. IMAGE LAZY LOADING:
+   - Add 'loaded' class to images when they finish loading
+   - Use img.onload or img.complete check
+   - Smooth fade-in transition via CSS
 
 6. DOWNLOAD BUTTONS:
    - For download links, ensure proper download attribute
@@ -957,12 +687,6 @@ export async function generateWebsiteCode(input: {
   heroBackgroundUrl: string;
   featureIconUrl: string;
   communitySceneUrl?: string; // New: community scene image
-  // Project analysis for template selection
-  projectAnalysis?: {
-    vibe: 'friendly' | 'edgy' | 'mysterious' | 'energetic';
-    narrativeType: 'community' | 'tech' | 'culture' | 'gaming';
-    layoutStyle: 'minimal' | 'playful' | 'cyberpunk' | 'retro';
-  };
 }): Promise<string> {
   console.log("[generateWebsiteCode] Step 1: Generating HTML structure...");
   
@@ -971,22 +695,14 @@ export async function generateWebsiteCode(input: {
     throw new Error("CLAUDE_OPUS_API_KEY is not configured");
   }
 
-  // Select layout template based on project analysis
-  const { selectLayoutTemplate, generateSectionOrderInstruction } = await import('../layoutTemplates');
-  const vibe = input.projectAnalysis?.vibe || 'friendly';
-  const narrativeType = input.projectAnalysis?.narrativeType || 'community';
-  const layoutStyle = input.projectAnalysis?.layoutStyle || 'playful';
-  const selectedTemplate = selectLayoutTemplate(vibe, narrativeType, layoutStyle);
-  console.log(`[generateWebsiteCode] Selected layout template: ${selectedTemplate.name}`);
-
-  // Step 1: Generate HTML structure with template
-  let htmlStructure = await generateHTMLStructure(input, opusApiKey, selectedTemplate);
+  // Step 1: Generate HTML structure
+  let htmlStructure = await generateHTMLStructure(input, opusApiKey);
   htmlStructure = extractCode(htmlStructure, 'html');
   console.log("[generateWebsiteCode] HTML structure generated:", htmlStructure.length, "chars");
 
   // Step 2: Generate CSS
   console.log("[generateWebsiteCode] Step 2: Generating CSS...");
-  let cssCode = await generateCSS(input, htmlStructure, opusApiKey, selectedTemplate);
+  let cssCode = await generateCSS(input, htmlStructure, opusApiKey);
   cssCode = extractCode(cssCode, 'css');
   console.log("[generateWebsiteCode] CSS generated:", cssCode.length, "chars");
 

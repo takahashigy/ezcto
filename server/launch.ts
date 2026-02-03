@@ -1,7 +1,6 @@
 import * as db from "./db";
 import { broadcastProgress } from "./_core/progressStream";
-import { analyzeProjectInput, generateWebsiteCode, enhanceDescription } from "./_core/claude";
-import { analyzeProject, type ProjectAnalysis } from "./aiAnalyzer";
+import { analyzeProjectInput, generateWebsiteCode } from "./_core/claude";
 import { generateImage } from "./_core/imageGeneration";
 import { retryWithBackoff } from "./_core/retry";
 import { generateSubdomain, deployWebsite } from "./_core/deployment";
@@ -135,47 +134,6 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
     const progress = await getGenerationProgress(input.projectId);
     console.log(`[Launch] Current generation progress:`, progress);
 
-    // ========== MODULE 0: ENHANCE DESCRIPTION (Haiku) ==========
-    let enhancedDescription = input.description || "";
-    
-    // Only enhance if description is short (less than 200 characters)
-    if (enhancedDescription.length > 0 && enhancedDescription.length < 200) {
-      console.log(`[Launch] Starting ENHANCE_DESCRIPTION module (Haiku)...`);
-      broadcastProgress(input.projectId, { 
-        progress: 5, 
-        message: "Enhancing project description with AI...",
-        category: "analysis",
-        level: "info",
-        timestamp: new Date().toISOString()
-      });
-      
-      try {
-        enhancedDescription = await retryWithBackoff(
-          async () => {
-            return await enhanceDescription({
-              projectName: input.name,
-              ticker: input.ticker || "",
-              description: input.description || "",
-            });
-          },
-          {
-            maxRetries: 2,
-            initialDelayMs: 500,
-            onRetry: (error, attempt) => {
-              console.log(`[Launch] ENHANCE_DESCRIPTION retry ${attempt}/2: ${error.message}`);
-            },
-          }
-        );
-        console.log(`[Launch] Description enhanced: ${enhancedDescription.length} chars (was ${input.description?.length || 0} chars)`);
-      } catch (error) {
-        // If enhancement fails, continue with original description
-        console.log(`[Launch] ENHANCE_DESCRIPTION failed, using original: ${(error as Error).message}`);
-        enhancedDescription = input.description || "";
-      }
-    } else {
-      console.log(`[Launch] Skipping ENHANCE_DESCRIPTION (description already detailed: ${enhancedDescription.length} chars)`);
-    }
-
     // ========== MODULE 1: ANALYSIS ==========
     let analysisResult: AnalysisResult;
     
@@ -211,7 +169,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
             return await analyzeProjectInput({
               projectName: input.name,
               ticker: input.ticker || "",
-              description: enhancedDescription, // Use enhanced description
+              description: input.description || "",
               memeImageUrl: input.userImageUrl,
               tokenomics: input.tokenomics,
             });
@@ -575,22 +533,6 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
       
       // Retry module up to 3 times
       try {
-        // Analyze project for layout template selection
-        let projectAnalysisResult: ProjectAnalysis | undefined;
-        try {
-          if (input.userImageUrl) {
-            projectAnalysisResult = await analyzeProject(
-              input.userImageUrl,
-              input.name,
-              input.ticker || '',
-              input.description || ''
-            );
-            console.log(`[Launch] Project analysis: vibe=${projectAnalysisResult.vibe}, narrative=${projectAnalysisResult.narrativeType}, layout=${projectAnalysisResult.layoutStyle}`);
-          }
-        } catch (analysisError) {
-          console.log(`[Launch] Project analysis failed, using default template: ${(analysisError as Error).message}`);
-        }
-
         websiteHTML = await retryWithBackoff(
           async () => {
             return await generateWebsiteCode({
@@ -612,12 +554,6 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               heroBackgroundUrl: imageAssets.heroBackground.url,
               featureIconUrl: imageAssets.featureIcon.url,
               communitySceneUrl: imageAssets.communityScene?.url || '',
-              // Pass project analysis for template selection
-              projectAnalysis: projectAnalysisResult ? {
-                vibe: projectAnalysisResult.vibe,
-                narrativeType: projectAnalysisResult.narrativeType,
-                layoutStyle: projectAnalysisResult.layoutStyle,
-              } : undefined,
             });
           },
           {

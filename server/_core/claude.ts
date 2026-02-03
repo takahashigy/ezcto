@@ -141,6 +141,12 @@ export async function analyzeProjectInput(input: {
   logoPrompt: string;
   heroBackgroundPrompt: string;
   featureIconPrompt: string;
+  posterPrompt: string;
+  // Poster showcase section content
+  posterSectionContent: {
+    title: string;
+    description: string;
+  };
   // Website content
   websiteContent: {
     headline: string;
@@ -213,6 +219,11 @@ Please provide your analysis in the following JSON format:
   "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
   "featureIconPrompt": "Detailed prompt for 256x256 feature icon. CRITICAL: MUST have FULLY TRANSPARENT BACKGROUND with alpha channel. Requirements: 1) PNG format with transparency 2) NO solid background color 3) NO circular or rectangular background shape 4) Icon should float on transparent canvas 5) Simple flat or minimalist iconic design 6) Clean edges suitable for any background. Example: 'Minimalist [icon subject] icon, flat design, isolated on transparent background, no background elements, clean vector-style edges'",
   "communityScenePrompt": "Detailed prompt for 800x600 community scene image showing enthusiastic supporters, community gathering, or social atmosphere that matches the brand personality",
+  "posterPrompt": "Detailed prompt for 1080x1350 magazine-quality poster. CRITICAL REQUIREMENTS: 1) Must maintain EXACT same visual style as other generated images (match the visual style from brandStrategy) 2) Feature the project mascot/character prominently (occupying 50-60% of canvas) 3) Include ticker ${input.ticker} as stylized text element 4) Use brand color palette for cohesive look 5) Professional magazine cover quality with high visual impact 6) Suitable for both social media and print. The poster MUST feel like it belongs to the same visual universe as the hero background and community scene.",
+  "posterSectionContent": {
+    "title": "A compelling section title that introduces the brand story or vision (e.g., 'Our Vision', 'The Story', 'Join the Movement')",
+    "description": "2-3 sentences that tell the brand story, explain the project's mission, or inspire the community. This text will appear alongside the poster on the website."
+  },
   "websiteContent": {
     "headline": "Catchy main headline for hero section",
     "tagline": "Brief memorable tagline",
@@ -389,6 +400,7 @@ ${caInstruction}
 **IMAGES (use these exact URLs):**
 - Logo: ${input.logoUrl} (user's original uploaded image - use in navbar and footer)
 - Hero BG: ${input.heroBackgroundUrl} (MUST be the FULL BACKGROUND of hero section, prominently visible)
+- Poster: ${input.posterUrl || ''} (magazine-quality poster for Poster Showcase section)
 - Community Scene: ${input.communitySceneUrl || ''} (use as main visual in About section)
 - Feature Icon: ${input.featureIconUrl} (use as SMALL decorative icon, max 64px-80px, in feature cards)
 - PayDex Banner: ${input.paydexBannerUrl} (can be used for decoration, MUST be responsive)
@@ -397,7 +409,7 @@ ${caInstruction}
 **PAGE STRUCTURE:**
 1. Navigation bar (fixed at top):
    - Logo on left (use logoUrl, reasonable size ~40-50px height)
-   - Nav links: About, Features, ${hasTokenomics ? 'Tokenomics, ' : ''}Community
+   - Nav links: ${input.posterUrl ? 'Story, ' : ''}About, Features, ${hasTokenomics ? 'Tokenomics, ' : ''}Community
    - Each nav link should have data-section attribute matching section IDs
    - Add class "active" to current section's nav link (JS will handle this)
 
@@ -409,6 +421,18 @@ ${caInstruction}
      - "Learn More" button (scrolls to about section)
    ${hasCA ? `- Contract Address display: Show "${input.contractAddress}" with a Copy button (id="copy-ca-btn", data-ca="${input.contractAddress}")` : '- NO Contract Address display (user did not provide CA)'}
    - The hero background image MUST be clearly visible, not hidden by dark overlays
+
+${input.posterUrl ? `2.5. Poster Showcase section (id="story", IMMEDIATELY AFTER HERO):
+   - CRITICAL: This section appears RIGHT AFTER the Hero section
+   - Two-column layout: Poster image on LEFT (40-50% width), Text content on RIGHT
+   - Poster image: <img src="${input.posterUrl}" alt="${input.projectName} Poster" class="poster-image" loading="lazy" decoding="async">
+   - Poster should be displayed at max-width: 450px, with subtle shadow and rounded corners
+   - Text content on the right side:
+     - Section title: "${input.posterSectionContent?.title || 'Our Story'}" (use <h2> tag)
+     - Description: "${input.posterSectionContent?.description || input.websiteContent.about}" (use <p> tag)
+   - On mobile: stack vertically (poster on top, text below)
+   - Background: subtle gradient or solid color that complements the brand colors
+   - Add a "Learn More" or "Join Us" CTA button below the text` : '// No Poster Showcase section - posterUrl not provided'}
 
 3. About section (id="about"):
    - Use communitySceneUrl as the MAIN VISUAL (large, prominent, ~400-600px max-width)
@@ -571,14 +595,25 @@ ${htmlStructure.substring(0, 4000)}...
    - Example: .social-links { display: flex; flex-direction: row; gap: 1rem; }
    - Example: .social-links a { display: inline-flex; width: 48px; height: 48px; border-radius: 50%; }
 
-10. MARKETING BANNERS SECTION:
+10. POSTER SHOWCASE SECTION (if present):
+   - Two-column layout using flexbox: display: flex; align-items: center; gap: 3rem;
+   - .poster-image: max-width: 450px; width: 100%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+   - Text content: flex: 1; with proper typography hierarchy
+   - Section title (h2): large, bold, matching brand personality
+   - Description: readable line-height (1.6-1.8), appropriate font-size
+   - Background: subtle gradient or solid color that complements brand colors
+   - Padding: generous padding (4rem-6rem) for visual breathing room
+   - On mobile (< 768px): flex-direction: column; poster on top, text below
+   - CTA button: styled consistently with other buttons on the page
+
+11. MARKETING BANNERS SECTION:
    - .banner-preview: width: 100%; max-width: 800px; height: auto; margin: 0 auto; display: block;
    - Banners should be centered with margin: 2rem auto;
    - Add subtle shadow or border for visual separation
    - Download buttons below each banner, styled as secondary CTAs
    - Responsive: on mobile, banners stack vertically with full width
 
-11. FOOTER:
+12. FOOTER:
    - Clean layout with proper spacing
    - DO NOT include any logo image in footer
    - Quick download links (smaller than main CTAs)
@@ -724,10 +759,16 @@ export async function generateWebsiteCode(input: {
       distribution: string;
     };
   };
+  // Poster section content
+  posterSectionContent?: {
+    title: string;
+    description: string;
+  };
   // All generated image URLs
   paydexBannerUrl: string;
   xBannerUrl: string;
   logoUrl: string; // User's original uploaded image
+  posterUrl?: string; // Magazine-quality poster for Poster Showcase section
   heroBackgroundUrl: string;
   featureIconUrl: string;
   communitySceneUrl?: string; // New: community scene image

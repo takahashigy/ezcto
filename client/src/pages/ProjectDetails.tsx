@@ -82,6 +82,7 @@ export default function ProjectDetails() {
     logo: assets?.find(a => a.assetType === 'logo'),
     paydexBanner: assets?.find(a => a.assetType === 'paydex_banner'),
     xBanner: assets?.find(a => a.assetType === 'x_banner'),
+    poster: assets?.find(a => a.assetType === 'poster'),
     heroBackground: assets?.find(a => a.assetType === 'hero_background'),
     featureIcons: assets?.filter(a => a.assetType === 'feature_icon') || [],
     communityScene: assets?.find(a => a.assetType === 'community_scene'),
@@ -126,13 +127,14 @@ export default function ProjectDetails() {
 
     try {
       toast.loading("Preparing Marketing Kit...", {
-        description: "Collecting PayDex Banner, X Banner, and Logo",
+        description: "Collecting PayDex Banner, X Banner, Poster, and Logo",
       });
 
-      // 只打包营销素材（PayDex Banner、X Banner、Logo）
+      // 只打包营销素材（PayDex Banner、X Banner、Poster、Logo）
       const rawAssets = [
         groupedAssets.paydexBanner,
         groupedAssets.xBanner,
+        groupedAssets.poster,
         groupedAssets.logo,
       ];
       
@@ -389,6 +391,54 @@ export default function ProjectDetails() {
                             <a href={groupedAssets.logo.fileUrl} download target="_blank" rel="noopener noreferrer">
                               <Download className="mr-2 h-4 w-4" />
                               Download Logo (No Watermark)
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Poster */}
+              {groupedAssets.poster && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5" />
+                      Poster (1080×1350)
+                    </CardTitle>
+                    <CardDescription>
+                      Magazine-quality poster for social media and print
+                      {!isPaid && <span className="text-yellow-500 ml-2">⚠️ Watermarked</span>}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {groupedAssets.poster.fileUrl && (
+                      <div className="space-y-4">
+                        <div className="relative w-full max-w-xs mx-auto bg-muted rounded-lg overflow-hidden" style={{ aspectRatio: '1080/1350' }}>
+                          <img 
+                            src={groupedAssets.poster.fileUrl} 
+                            alt="Poster" 
+                            className="w-full h-full object-cover"
+                          />
+                          {!isPaid && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="text-white/30 text-5xl font-bold transform -rotate-45 select-none"
+                                style={{
+                                  textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                                  letterSpacing: '0.2em'
+                                }}>
+                                EZCTO
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        {isPaid && (
+                          <Button asChild className="w-full">
+                            <a href={groupedAssets.poster.fileUrl} download target="_blank" rel="noopener noreferrer">
+                              <Download className="mr-2 h-4 w-4" />
+                              Download Poster (No Watermark)
                             </a>
                           </Button>
                         )}

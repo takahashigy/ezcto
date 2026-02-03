@@ -1293,3 +1293,11 @@
 
 ## Bug修复 - Slug更改后图片透明背景丢失
 - [x] Fix: CopyObjectCommand 需要添加 MetadataDirective: "COPY" 保留原始 ContentType
+
+## 新增 Poster 资产和 Poster Showcase 区块
+- [x] 更新数据库 schema 添加 posterUrl 字段（已存在 poster 类型）
+- [x] 更新 Claude Haiku 分析逻辑添加 posterPrompt 和 posterSectionContent
+- [x] 更新图片生成流程添加 Poster 生成（1080x1350）
+- [x] 更新 Claude Opus 网站生成添加 Poster Showcase 区块（Hero 之后）
+- [x] 更新前端 ProjectDetails 页面展示 Poster 资产
+- [x] 测试完整生成流程（TypeScript 编译通过）

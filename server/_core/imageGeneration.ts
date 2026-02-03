@@ -25,7 +25,8 @@ export type ImageSize =
   | "1200x480"     // X/Twitter Banner
   | "1920x1080"    // Hero Background
   | "256x256"      // Feature Icons
-  | "800x600";     // Community Scene
+  | "800x600"      // Community Scene
+  | "1080x1350";   // Poster (4:5 ratio for social media)
 
 export type GenerateImageOptions = {
   prompt: string;

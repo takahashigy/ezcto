@@ -21,6 +21,10 @@ export interface ClaudeGeneratedAssets {
     url: string;
     key: string;
   };
+  poster: {
+    url: string;
+    key: string;
+  };
   // Website decoration assets
   heroBackground: {
     url: string;
@@ -32,6 +36,11 @@ export interface ClaudeGeneratedAssets {
   };
   // Website HTML
   websiteHTML: string;
+  // Poster section content
+  posterSectionContent: {
+    title: string;
+    description: string;
+  };
   // Brand strategy and content
   brandStrategy: {
     personality: string;
@@ -86,7 +95,7 @@ export async function generateAssetsWithClaude(
   console.log(`[ClaudeAssetGenerator] Claude Opus analysis complete:`, JSON.stringify(analysis, null, 2));
 
   // Step 2: Generate all images in parallel with Nanobanana using Claude's optimized prompts
-  console.log(`[ClaudeAssetGenerator] Generating 6 images in parallel with Nanobanana...`);
+  console.log(`[ClaudeAssetGenerator] Generating 7 images in parallel with Nanobanana...`);
   
   const imageGenerationPromises = [
     // Marketing assets
@@ -104,6 +113,12 @@ export async function generateAssetsWithClaude(
       prompt: analysis.logoPrompt,
       size: "512x512",
     }).then(result => ({ type: 'logo', result })),
+    
+    // Poster (magazine-quality, 1080x1350 for social media and print)
+    generateImage({
+      prompt: analysis.posterPrompt,
+      size: "1080x1350",
+    }).then(result => ({ type: 'poster', result })),
     
     // Website decoration assets
     generateImage({
@@ -148,6 +163,7 @@ export async function generateAssetsWithClaude(
   const paydexBanner = imageResults.find(r => r.type === 'paydexBanner')!.result;
   const xBanner = imageResults.find(r => r.type === 'xBanner')!.result;
   const logo = imageResults.find(r => r.type === 'logo')!.result;
+  const poster = imageResults.find(r => r.type === 'poster')!.result;
   const heroBackground = imageResults.find(r => r.type === 'heroBackground')!.result;
   const featureIcon = imageResults.find(r => r.type === 'featureIcon')!.result;
 
@@ -161,9 +177,11 @@ export async function generateAssetsWithClaude(
     brandStrategy: analysis.brandStrategy,
     colorScheme: analysis.colorScheme,
     websiteContent: analysis.websiteContent,
+    posterSectionContent: analysis.posterSectionContent, // Pass poster section content
     paydexBannerUrl: paydexBanner.url!,
     xBannerUrl: xBanner.url!,
     logoUrl: logo.url!,
+    posterUrl: poster.url!, // Pass poster URL for website
     heroBackgroundUrl: heroBackground.url!,
     featureIconUrl: featureIcon.url!,
   });
@@ -182,6 +200,10 @@ export async function generateAssetsWithClaude(
       url: logo.url!,
       key: `projects/${projectId}/logo.png`,
     },
+    poster: {
+      url: poster.url!,
+      key: `projects/${projectId}/poster.png`,
+    },
     heroBackground: {
       url: heroBackground.url!,
       key: `projects/${projectId}/hero_background.png`,
@@ -191,6 +213,7 @@ export async function generateAssetsWithClaude(
       key: `projects/${projectId}/feature_icon.png`,
     },
     websiteHTML,
+    posterSectionContent: analysis.posterSectionContent,
     brandStrategy: analysis.brandStrategy,
     colorScheme: analysis.colorScheme,
     websiteContent: analysis.websiteContent,

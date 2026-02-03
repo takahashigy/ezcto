@@ -822,6 +822,35 @@ function escapeRegExp(string: string): string {
 function validateAndFixHTML(html: string): string {
   let fixedHTML = html;
   
+  // Fix 0: CRITICAL - Fix unclosed attribute quotes before <script> tags
+  // Pattern: href="#something<script> or src="url<script> (missing closing quote)
+  // This causes the entire script content to be rendered as text
+  const unclosedAttrBeforeScriptPattern = /(href|src|class|id|data-[a-z-]+)="([^"]*?)(<script>)/gi;
+  fixedHTML = fixedHTML.replace(unclosedAttrBeforeScriptPattern, (match, attr, value, script) => {
+    console.log(`[Launch] CRITICAL FIX: Closed unclosed ${attr} attribute before script tag`);
+    // Close the attribute and the tag, then add the script
+    return `${attr}="${value}">${script}`;
+  });
+  
+  // Fix 0b: Fix unclosed attribute quotes in anchor tags before any tag
+  // Pattern: <a href="#about<anything> (missing closing quote and >)
+  const unclosedAnchorPattern = /<a\s+([^>]*?href="[^"]*?)(<[a-z])/gi;
+  fixedHTML = fixedHTML.replace(unclosedAnchorPattern, (match, anchorPart, nextTag) => {
+    // Check if the anchor part is missing the closing quote
+    if (!anchorPart.endsWith('"')) {
+      console.log(`[Launch] CRITICAL FIX: Closed unclosed anchor href attribute`);
+      return `<a ${anchorPart}">Link</a>\n    ${nextTag}`;
+    }
+    return match;
+  });
+  
+  // Fix 0c: General fix for any attribute missing closing quote before newline + <script>
+  const attrBeforeNewlineScriptPattern = /(="[^"\n]*?)\n\s*<script>/gi;
+  fixedHTML = fixedHTML.replace(attrBeforeNewlineScriptPattern, (match, attrPart) => {
+    console.log(`[Launch] CRITICAL FIX: Closed attribute before newline+script`);
+    return `${attrPart}">\n    <script>`;
+  });
+  
   // Fix 1: Find unclosed button tags (button tag without closing >)
   // Pattern: <button followed by attributes but no > before next tag
   const unclosedButtonPattern = /<button\s+[^>]*(?=\s*<(?!\/button))/gi;

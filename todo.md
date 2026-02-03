@@ -1311,3 +1311,8 @@
 - [x] 排查类型定义问题 - 发现 launch.ts 缺少 poster 支持
 - [x] 修复 launch.ts 添加 posterPrompt, posterSectionContent, poster 字段
 - [x] 验证 TypeScript 编译通过
+
+## 修复 HTML 属性引号未闭合导致的乱码问题
+- [x] 分析现有 validateAndFixHTML 函数
+- [x] 增强 HTML 验证逻辑，修复属性引号闭合问题
+- [x] 测试验证（TypeScript 编译通过，修复逻辑测试通过）

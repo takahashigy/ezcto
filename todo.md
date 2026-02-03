@@ -1301,3 +1301,8 @@
 - [x] 更新 Claude Opus 网站生成添加 Poster Showcase 区块（Hero 之后）
 - [x] 更新前端 ProjectDetails 页面展示 Poster 资产
 - [x] 测试完整生成流程（TypeScript 编译通过）
+
+## 优化 Poster 生成 Prompt - 风格一致性优先
+- [x] 更新 posterPrompt 模板，强调继承已锁定的 visualStyle
+- [x] 在已锁定风格基础上提升至杂志级编辑品质
+- [x] 测试验证（TypeScript 编译通过）

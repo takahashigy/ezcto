@@ -14,8 +14,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import { CryptoPaymentModalV2 } from "@/components/CryptoPaymentModalV2";
+import { PricingPreviewModal } from "@/components/PricingPreviewModal";
 import { useAccount } from "wagmi";
-import { Wallet } from "lucide-react";
+import { Wallet, DollarSign } from "lucide-react";
 
 export default function LaunchV2() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -48,6 +49,7 @@ export default function LaunchV2() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showPricingPreview, setShowPricingPreview] = useState(false);
   const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
   const [hasDiscount, setHasDiscount] = useState(false);
 
@@ -798,6 +800,18 @@ export default function LaunchV2() {
                   )}
                 </Button>
 
+                {/* View Pricing Link */}
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPricingPreview(true)}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    <DollarSign className="h-4 w-4" />
+                    {language === 'zh' ? '查看价格详情 →' : 'View Pricing Details →'}
+                  </button>
+                </div>
+
                 {/* Info Text */}
                 <div className="bg-[#2d3e2d]/5 border-2 border-border rounded-lg p-4">
                   <p className="text-sm text-foreground/80">
@@ -917,6 +931,12 @@ export default function LaunchV2() {
             toast.success(language === 'zh' ? '开始生成...' : 'Starting generation...');
           }}
         />
+
+      {/* Pricing Preview Modal */}
+      <PricingPreviewModal
+        open={showPricingPreview}
+        onClose={() => setShowPricingPreview(false)}
+      />
     </div>
   );
 }

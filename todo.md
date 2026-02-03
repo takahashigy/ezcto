@@ -1326,3 +1326,12 @@
   - 添加 handleShowPayment 函数先显示支付模态框
   - 添加 onBeforePayment 回调在支付前验证表单并创建项目
 - [x] 测试并保存 checkpoint
+
+## 价格预览功能 (2026-02-03)
+- [x] 创建 PricingPreviewModal 组件，内容与支付弹窗一致
+  - 显示 $199 标准价格
+  - 突出 $99 EZCTO 代币价格（50% OFF）
+  - 添加 PancakeSwap 购买链接按钮
+  - 包含服务内容清单
+- [x] 在 LaunchV2 页面发射按钮下方添加"查看价格详情"链接
+- [x] 测试并保存 checkpoint

@@ -1335,3 +1335,8 @@
   - 包含服务内容清单
 - [x] 在 LaunchV2 页面发射按钮下方添加"查看价格详情"链接
 - [x] 测试并保存 checkpoint
+
+## 白名单 API 修复 (2026-02-03)
+- [x] 将 checkWhitelistStatus 从 protectedProcedure 改为 publicProcedure
+  - 原因：用户只连接钱包没有 OAuth 登录时无法查询白名单状态
+  - 修复后：只连接钱包的用户也能正确查询白名单状态

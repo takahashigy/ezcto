@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { ENV } from "../_core/env";
 import {
@@ -136,7 +136,8 @@ export const adminRouter = router({
     }),
 
   // Check whitelist status for a wallet (public, for Launch page)
-  checkWhitelistStatus: protectedProcedure
+  // Changed to publicProcedure so wallet-only users can check whitelist status without OAuth login
+  checkWhitelistStatus: publicProcedure
     .input(z.object({
       walletAddress: z.string(),
     }))

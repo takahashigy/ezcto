@@ -14,6 +14,7 @@ interface CryptoPaymentModalV2Props {
   projectId: number;
   projectName?: string;
   onPaymentSuccess: () => void;
+  onBeforePayment?: () => Promise<{ success: boolean; projectId?: number; error?: string }>;
 }
 
 export function CryptoPaymentModalV2({ 
@@ -21,7 +22,8 @@ export function CryptoPaymentModalV2({
   onClose, 
   projectId, 
   projectName,
-  onPaymentSuccess 
+  onPaymentSuccess,
+  onBeforePayment
 }: CryptoPaymentModalV2Props) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -101,6 +103,7 @@ export function CryptoPaymentModalV2({
           <CryptoPayment 
             projectId={projectId}
             onPaymentSuccess={onPaymentSuccess}
+            onBeforePayment={onBeforePayment}
           />
 
           {/* Info Text */}

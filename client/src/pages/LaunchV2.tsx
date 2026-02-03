@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
-import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X, Check, AlertCircle } from "lucide-react";
+import { Rocket, Loader2, ArrowLeft, Sparkles, Upload, X, Check, AlertCircle, CheckCircle2 } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -110,6 +110,43 @@ export default function LaunchV2() {
     setImagePreview("");
     setUploadedImageUrl("");
     toast.info(language === 'zh' ? '图片已移除' : 'Image removed');
+  };
+
+  // Handle showing payment modal first (for non-admin/non-whitelist users)
+  const handleShowPayment = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check for duplicate submission - if user has a project currently generating
+    if (generatingProject) {
+      toast.error(
+        language === 'zh' 
+          ? `您已有一个项目正在生成中 (${generatingProject.name})，请等待完成后再创建新项目` 
+          : `You already have a project generating (${generatingProject.name}). Please wait for it to complete.`
+      );
+      // Redirect to the generating project's preview page
+      setLocation(`/launch/preview?projectId=${generatingProject.id}`);
+      return;
+    }
+
+    // Check wallet connection (required for non-admin users)
+    if (user?.role !== 'admin' && !isWalletConnected) {
+      toast.error(
+        language === 'zh'
+          ? '请先连接钱包'
+          : 'Please connect your wallet first'
+      );
+      return;
+    }
+
+    // Admin or whitelist users: proceed directly with full validation
+    const canSkipPayment = user?.role === 'admin' || hasWhitelistAccess;
+    if (canSkipPayment) {
+      handleSubmit(e);
+      return;
+    }
+
+    // Regular users: show payment modal first, validate form later
+    setShowPaymentModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -348,7 +385,7 @@ export default function LaunchV2() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleShowPayment} className="space-y-6">
                 {/* Project Name */}
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-foreground font-semibold">
@@ -704,13 +741,13 @@ export default function LaunchV2() {
                             </div>
                           </div>
                         ) : (
-                          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2">
-                            <div className="flex items-center gap-2 text-yellow-600">
-                              <AlertCircle className="w-4 h-4" />
+                          <div className="bg-primary/10 border border-primary/30 rounded p-2">
+                            <div className="flex items-center gap-2 text-primary">
+                              <CheckCircle2 className="w-4 h-4" />
                               <span className="text-sm">
                                 {language === 'zh' 
-                                  ? '需要支付 $199 才能生成'
-                                  : 'Payment of $199 required to generate'
+                                  ? '钱包已连接，可以开始生成'
+                                  : 'Wallet connected, ready to generate'
                                 }
                               </span>
                             </div>
@@ -783,13 +820,75 @@ export default function LaunchV2() {
       </div>
 
       {/* Crypto Payment Modal V2 - Supports EZCTO Token */}
-      {currentProjectId && (
-        <CryptoPaymentModalV2
-          open={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-          projectId={currentProjectId}
-          projectName={formData.projectName}
-          onPaymentSuccess={() => {
+      <CryptoPaymentModalV2
+        open={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        projectId={currentProjectId || 0}
+        projectName={formData.projectName}
+        onBeforePayment={async () => {
+          // Validate form before payment
+          if (!formData.projectName || !formData.ticker || !formData.description) {
+            toast.error(language === 'zh' ? '请填写项目名称、Ticker和描述' : 'Please fill in Project Name, Ticker, and Description');
+            return { success: false, error: language === 'zh' ? '请填写项目名称、Ticker和描述' : 'Please fill in Project Name, Ticker, and Description' };
+          }
+
+          if (formData.description.length < 20) {
+            toast.error(language === 'zh' ? '描述至少需要20个字符' : 'Description must be at least 20 characters');
+            return { success: false, error: language === 'zh' ? '描述至少需要20个字符' : 'Description must be at least 20 characters' };
+          }
+
+          if (!uploadedImage || !imagePreview) {
+            toast.error(language === 'zh' ? '请上传项目角色图片' : 'Please upload a character image for your project');
+            return { success: false, error: language === 'zh' ? '请上传项目角色图片' : 'Please upload a character image for your project' };
+          }
+
+          if (!imagePreview.startsWith('data:image/')) {
+            toast.error(language === 'zh' ? '图片数据无效，请重新上传' : 'Invalid image data, please re-upload');
+            return { success: false, error: language === 'zh' ? '图片数据无效，请重新上传' : 'Invalid image data, please re-upload' };
+          }
+
+          try {
+            // Upload image first
+            let characterImageUrl = "";
+            if (uploadedImage && imagePreview) {
+              toast.info(language === 'zh' ? '正在上传图片...' : 'Uploading image...');
+              const uploadResult = await uploadImageMutation.mutateAsync({
+                fileName: uploadedImage.name,
+                fileType: uploadedImage.type,
+                base64Data: imagePreview,
+                removeBackground: false,
+              });
+              if (!uploadResult.success) {
+                throw new Error('Failed to upload image');
+              }
+              characterImageUrl = uploadResult.url;
+              setUploadedImageUrl(characterImageUrl);
+            }
+
+            // Create project
+            const projectData = await createProjectMutation.mutateAsync({
+              name: formData.projectName,
+              ticker: formData.ticker,
+              description: formData.description,
+            });
+
+            setCurrentProjectId(projectData.projectId);
+
+            // Store image data for later use
+            if (characterImageUrl) {
+              localStorage.setItem(`project_${projectData.projectId}_imageUrl`, characterImageUrl);
+            }
+            if (imagePreview) {
+              localStorage.setItem(`project_${projectData.projectId}_imageBase64`, imagePreview);
+            }
+
+            return { success: true, projectId: projectData.projectId };
+          } catch (error) {
+            console.error('[LaunchV2] onBeforePayment error:', error);
+            return { success: false, error: error instanceof Error ? error.message : 'Failed to create project' };
+          }
+        }}
+        onPaymentSuccess={() => {
             toast.success(language === 'zh' ? '支付成功！' : 'Payment successful!');
             setShowPaymentModal(false);
 
@@ -809,7 +908,7 @@ export default function LaunchV2() {
 
             // Trigger generation with both URL and base64 data
             launchTriggerMutation.mutate({
-              projectId: currentProjectId,
+              projectId: currentProjectId!,
               characterImageUrl: storedImageUrl || undefined,
               // Pass base64 data directly to avoid 403 on CloudFront URLs
               characterImageBase64: storedImageBase64 || undefined,
@@ -818,7 +917,6 @@ export default function LaunchV2() {
             toast.success(language === 'zh' ? '开始生成...' : 'Starting generation...');
           }}
         />
-      )}
     </div>
   );
 }

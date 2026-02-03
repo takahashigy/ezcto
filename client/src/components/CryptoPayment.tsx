@@ -25,6 +25,7 @@ import {
 interface CryptoPaymentProps {
   projectId: number;
   onPaymentSuccess: () => void;
+  onBeforePayment?: () => Promise<{ success: boolean; projectId?: number; error?: string }>;
 }
 
 type ChainType = 'ETH' | 'BSC' | 'POLYGON' | 'SOLANA';
@@ -43,7 +44,7 @@ const BALANCE_OF_ABI = [
   }
 ] as const;
 
-export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProps) {
+export function CryptoPayment({ projectId, onPaymentSuccess, onBeforePayment }: CryptoPaymentProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [selectedChain, setSelectedChain] = useState<ChainType>('BSC');
@@ -174,6 +175,9 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     }
   };
 
+  // State to track the actual project ID (may be updated by onBeforePayment)
+  const [actualProjectId, setActualProjectId] = useState<number>(projectId);
+
   const handlePayment = async () => {
     setIsProcessing(true);
 
@@ -191,6 +195,19 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
         await refreshAuth();
       }
 
+      // Call onBeforePayment to validate form and create project
+      let currentProjectId = projectId;
+      if (onBeforePayment) {
+        const result = await onBeforePayment();
+        if (!result.success) {
+          throw new Error(result.error || 'Please complete the form before payment');
+        }
+        if (result.projectId) {
+          currentProjectId = result.projectId;
+          setActualProjectId(result.projectId);
+        }
+      }
+
       const amount = getTokenAmount();
       const token = availableTokens.find(t => t.key === selectedToken);
       
@@ -199,7 +216,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
       }
 
       const payment = await createPaymentMutation.mutateAsync({
-        projectId,
+        projectId: currentProjectId,
         chain: selectedChain as 'ETH' | 'BSC' | 'POLYGON' | 'SOLANA',
         tokenSymbol: selectedToken,
         tokenAddress: token.address === 'native' ? null : token.address,

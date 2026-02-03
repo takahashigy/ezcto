@@ -1346,3 +1346,16 @@
 - [x] 生成对应的 GMGN 跳转链接
   - BSC (0x开头): https://gmgn.ai/bsc/token/{CA}
   - Solana (Base58): https://gmgn.ai/sol/token/{CA}
+
+## Slug 更改时图片迁移 (2026-02-03)
+- [x] 在 deployment.ts 中添加 migrateSlugAssets 函数，复制图片到新 slug 目录
+- [x] 在 publishWebsite API 中检测 subdomain 变更并调用 migrateSlugAssets
+- [x] 更新 KV 中的 slug 占用记录（释放旧 slug，保留新 slug）
+
+## 色调提取作为 AI 参考 (2026-02-03)
+- [x] 在 analyzeProjectInput 提示词中添加 COLOR INSPIRATION FROM USER IMAGE 说明
+- [x] 色调作为灵感参考，不强制要求，保留 AI 创意自由度
+
+## Feature Icon 显示问题 (2026-02-03)
+- [x] 加强 HTML 生成提示词，明确要求每个 feature 卡片必须包含 <img> 标签使用 featureIconUrl
+- [x] 提供具体的 HTML 结构示例供 AI 参考

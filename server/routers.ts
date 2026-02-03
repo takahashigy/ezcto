@@ -19,7 +19,7 @@ import { cryptoRouter } from "./routers/crypto";
 import { adminRouter } from "./routers/admin";
 import { walletRouter } from "./routers/wallet";
 import { enhanceDescription } from "./_core/claude";
-import { checkSlugAvailability } from "./_core/deployment";
+import { checkSlugAvailability, migrateSlugAssets } from "./_core/deployment";
 import { verifyBSCPayment, verifySolanaPayment, pollPaymentConfirmation } from "./_core/paymentVerification";
 import { calculatePrice } from "../shared/paymentConfig";
 
@@ -699,6 +699,17 @@ export const appRouter = router({
             deploymentStatus: "deploying",
             subdomain: input.subdomain,
           });
+
+          // 5. If subdomain is changing, migrate assets first
+          if (isEdit && oldSubdomain) {
+            console.log(`[PublishWebsite] Subdomain changing from ${oldSubdomain} to ${input.subdomain}, migrating assets...`);
+            const migrationResult = await migrateSlugAssets(oldSubdomain, input.subdomain);
+            if (!migrationResult.success) {
+              console.error(`[PublishWebsite] Asset migration failed:`, migrationResult.error);
+              throw new Error(`Failed to migrate assets: ${migrationResult.error}`);
+            }
+            console.log(`[PublishWebsite] Successfully migrated ${migrationResult.copiedFiles.length} files`);
+          }
 
           // 6. Upload to Cloudflare R2
           const deploymentUrl = await uploadToR2(input.subdomain, htmlContent);

@@ -3,7 +3,7 @@
  * Deploys generated website to Cloudflare R2 with custom subdomain
  * Uses Cloudflare KV to track slug availability
  */
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, ListObjectsV2Command, CopyObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const CLOUDFLARE_R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
 const CLOUDFLARE_R2_SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
@@ -250,6 +250,102 @@ export async function deployWebsite(
 /**
  * Update deployment (re-deploy with new content)
  */
+/**
+ * Release a slug from KV (delete the key)
+ */
+async function releaseSlug(slug: string): Promise<void> {
+  try {
+    console.log(`[Deployment] Releasing slug from KV: ${slug}`);
+    
+    const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+    if (!apiToken || !CLOUDFLARE_ACCOUNT_ID) {
+      console.warn("[Deployment] Cloudflare API token not configured, skipping KV delete");
+      return;
+    }
+    
+    const kvKey = `slug:${slug}`;
+    const kvUrl = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/storage/kv/namespaces/${KV_NAMESPACE_ID}/values/${kvKey}`;
+    
+    const response = await fetch(kvUrl, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+      },
+    });
+    
+    if (!response.ok) {
+      console.error(`[Deployment] Failed to release slug from KV: ${response.statusText}`);
+    } else {
+      console.log(`[Deployment] Successfully released slug: ${slug}`);
+    }
+  } catch (error) {
+    console.error(`[Deployment] Error releasing slug:`, error);
+  }
+}
+
+/**
+ * Migrate all assets from old slug to new slug
+ * Copies index.html and all files in /assets/ folder
+ */
+export async function migrateSlugAssets(
+  oldSlug: string,
+  newSlug: string
+): Promise<{ success: boolean; copiedFiles: string[]; error?: string }> {
+  try {
+    console.log(`[Deployment] Migrating assets from ${oldSlug} to ${newSlug}`);
+    
+    const copiedFiles: string[] = [];
+    
+    // List all objects with the old slug prefix
+    const listCommand = new ListObjectsV2Command({
+      Bucket: CLOUDFLARE_R2_BUCKET_NAME,
+      Prefix: `${oldSlug}/`,
+    });
+    
+    const listResult = await r2Client.send(listCommand);
+    const objects = listResult.Contents || [];
+    
+    console.log(`[Deployment] Found ${objects.length} objects to migrate`);
+    
+    // Copy each object to the new slug location
+    for (const obj of objects) {
+      if (!obj.Key) continue;
+      
+      const oldKey = obj.Key;
+      const newKey = oldKey.replace(`${oldSlug}/`, `${newSlug}/`);
+      
+      console.log(`[Deployment] Copying ${oldKey} -> ${newKey}`);
+      
+      const copyCommand = new CopyObjectCommand({
+        Bucket: CLOUDFLARE_R2_BUCKET_NAME,
+        CopySource: `${CLOUDFLARE_R2_BUCKET_NAME}/${oldKey}`,
+        Key: newKey,
+      });
+      
+      await r2Client.send(copyCommand);
+      copiedFiles.push(newKey);
+    }
+    
+    // Update KV: reserve new slug and release old slug
+    await reserveSlug(newSlug);
+    await releaseSlug(oldSlug);
+    
+    console.log(`[Deployment] Successfully migrated ${copiedFiles.length} files from ${oldSlug} to ${newSlug}`);
+    
+    return {
+      success: true,
+      copiedFiles,
+    };
+  } catch (error) {
+    console.error(`[Deployment] Failed to migrate assets:`, error);
+    return {
+      success: false,
+      copiedFiles: [],
+      error: (error as Error).message,
+    };
+  }
+}
+
 export async function updateDeployment(
   subdomain: string,
   htmlContent: string

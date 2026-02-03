@@ -164,6 +164,12 @@ ${input.tokenomics ? `- Tokenomics: ${input.tokenomics}` : ""}
 
 Your task is to provide a complete brand strategy and image generation prompts. Focus on creating a cohesive visual identity that will drive conversions.
 
+**COLOR INSPIRATION FROM USER IMAGE (OPTIONAL REFERENCE):**
+${input.memeImageUrl ? `- The user has provided a meme image. Analyze its dominant colors and visual style as INSPIRATION for the color scheme.
+- You may use similar colors or complementary colors that harmonize with the image.
+- This is a REFERENCE, not a strict requirement. Prioritize aesthetic appeal and creative design over exact color matching.
+- If the image has a specific art style (cartoon, pixel art, realistic, etc.), consider matching the website's visual style to it.` : "- No meme image provided. Use your creative judgment for the color scheme."}
+
 **LANGUAGE DETECTION AND CONTENT GENERATION:**
 - Detect the primary language of the project description
 - If description contains ANY Chinese characters (中文), even mixed with English, generate ALL websiteContent fields in Chinese
@@ -411,8 +417,15 @@ ${caInstruction}
 
 4. Features section (id="features"):
    - 3 feature cards in a row (grid or flexbox)
-   - Each card has: small icon (featureIconUrl, MAX 64px), title, description
-   - The feature icon should be SMALL and decorative, NOT full-width
+   - CRITICAL: Each feature card MUST include an <img> tag with the feature icon:
+     <div class="feature-card">
+       <img src="${input.featureIconUrl}" alt="Feature Icon" class="feature-icon" loading="lazy" decoding="async">
+       <h3>Feature Title</h3>
+       <p>Feature description</p>
+     </div>
+   - The feature icon MUST be SMALL (max 64-80px width/height), NOT full-width
+   - DO NOT skip the feature icon image - it is REQUIRED in every card
+   - Use the SAME icon URL for all 3 cards (they share the same decorative icon)
 
 ${tokenomicsInstruction}
 

@@ -1306,3 +1306,8 @@
 - [x] 更新 posterPrompt 模板，强调继承已锁定的 visualStyle
 - [x] 在已锁定风格基础上提升至杂志级编辑品质
 - [x] 测试验证（TypeScript 编译通过）
+
+## 修复 Poster 功能 - 确保正确生效
+- [x] 排查类型定义问题 - 发现 launch.ts 缺少 poster 支持
+- [x] 修复 launch.ts 添加 posterPrompt, posterSectionContent, poster 字段
+- [x] 验证 TypeScript 编译通过

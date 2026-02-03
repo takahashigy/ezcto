@@ -65,6 +65,11 @@ interface AnalysisResult {
   heroBackgroundPrompt: string;
   featureIconPrompt: string;
   communityScenePrompt?: string; // New: prompt for community scene image
+  posterPrompt: string; // Magazine-quality poster prompt
+  posterSectionContent: { // Content for Poster Showcase section
+    title: string;
+    description: string;
+  };
 }
 
 // Image asset with both URL (for DB storage) and Buffer (for R2 upload)
@@ -81,6 +86,7 @@ interface ImageAssets {
   heroBackground: ImageAssetWithBuffer;
   featureIcon: ImageAssetWithBuffer;
   communityScene: ImageAssetWithBuffer; // New: 800x600 community scene image
+  poster: ImageAssetWithBuffer; // Magazine-quality poster (1080x1350)
 }
 
 /**
@@ -247,6 +253,10 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
           url: existingAssets.find(a => a.assetType === 'community_scene')?.fileUrl ?? '',
           key: existingAssets.find(a => a.assetType === 'community_scene')?.fileKey ?? '',
         },
+        poster: {
+          url: existingAssets.find(a => a.assetType === 'poster')?.fileUrl ?? '',
+          key: existingAssets.find(a => a.assetType === 'poster')?.fileKey ?? '',
+        },
       };
     } else {
       console.log(`[Launch] Starting IMAGES module...`);
@@ -281,6 +291,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               { type: 'heroBackground', prompt: analysisResult.heroBackgroundPrompt, size: "1920x1080" },
               { type: 'featureIcon', prompt: analysisResult.featureIconPrompt, size: "256x256" },
               { type: 'communityScene', prompt: analysisResult.communityScenePrompt || `A vibrant community scene for ${input.name}, showing enthusiastic supporters and community members in the style of ${analysisResult.brandStrategy?.visualStyle || 'modern digital art'}, 800x600 aspect ratio`, size: "800x600" },
+              { type: 'poster', prompt: analysisResult.posterPrompt, size: "1080x1350" },
             ];
 
             const results: ImageAssets = {
@@ -290,6 +301,7 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               heroBackground: { url: '', key: '' },
               featureIcon: { url: '', key: '' },
               communityScene: { url: '', key: '' },
+              poster: { url: '', key: '' },
             };
             
             // Get user logo buffer - prefer base64 data over URL download
@@ -554,6 +566,8 @@ export async function executeLaunch(input: LaunchInput): Promise<LaunchOutput> {
               heroBackgroundUrl: imageAssets.heroBackground.url,
               featureIconUrl: imageAssets.featureIcon.url,
               communitySceneUrl: imageAssets.communityScene?.url || '',
+              posterUrl: imageAssets.poster?.url || '',
+              posterSectionContent: analysisResult.posterSectionContent,
             });
           },
           {

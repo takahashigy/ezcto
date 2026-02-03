@@ -257,34 +257,34 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-10">
             {/* Module 1: Launch Engine */}
-            <div className="module-card group">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Rocket className="w-8 h-8 text-primary" />
+            <div className="module-card group p-8">
+              <div className="flex items-start gap-5 mb-8">
+                <div className="w-20 h-20 border-2 border-primary bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Rocket className="w-10 h-10 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">{t('modules.launch.title')}</h3>
-                  <div className="text-sm text-primary font-mono">{t('modules.launch.tag')}</div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('modules.launch.title')}</h3>
+                  <div className="text-sm md:text-base text-primary font-mono">{t('modules.launch.tag')}</div>
                 </div>
               </div>
               
-              <p className="text-muted-foreground mb-6">
+              <p className="text-base md:text-lg text-muted-foreground mb-8">
                 {t('modules.launch.description')}
               </p>
               
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1 h-1 bg-primary"></div>
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center gap-3 text-base">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   <span>{t('modules.launch.features.assets')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1 h-1 bg-primary"></div>
+                <div className="flex items-center gap-3 text-base">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   <span>{t('modules.launch.features.website')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1 h-1 bg-primary"></div>
+                <div className="flex items-center gap-3 text-base">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   <span>{t('modules.launch.features.core')}</span>
                 </div>
               </div>
@@ -307,32 +307,32 @@ export default function Home() {
             </div>
 
             {/* Module 2: IP Merchandise Supply Chain */}
-            <div className="module-card opacity-75">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                  <Package className="w-8 h-8 text-muted-foreground" />
+            <div className="module-card opacity-75 p-8">
+              <div className="flex items-start gap-5 mb-8">
+                <div className="w-20 h-20 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <Package className="w-10 h-10 text-muted-foreground" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">{t('modules.supply.title')}</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('modules.supply.title')}</h3>
                     <span className="coming-soon-badge">{t('modules.supply.tag')}</span>
                   </div>
                 </div>
                 
-                <p className="text-muted-foreground mb-6">
+                <p className="text-base md:text-lg text-muted-foreground mb-8">
                   {t('modules.supply.description')}
                 </p>
                 
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center gap-3 text-base text-muted-foreground">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                     <span>{t('modules.supply.features.c2m')}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <div className="flex items-center gap-3 text-base text-muted-foreground">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                     <span>{t('modules.supply.features.ai')}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <div className="flex items-center gap-3 text-base text-muted-foreground">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                     <span>{t('modules.supply.features.global')}</span>
                   </div>
                 </div>
@@ -343,32 +343,32 @@ export default function Home() {
               </div>
 
             {/* Module 3: Official Meme Marketplace */}
-            <div className="module-card opacity-75">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-8 h-8 text-muted-foreground" />
+            <div className="module-card opacity-75 p-8">
+              <div className="flex items-start gap-5 mb-8">
+                <div className="w-20 h-20 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-10 h-10 text-muted-foreground" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">{t('modules.store.title')}</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('modules.store.title')}</h3>
                     <span className="coming-soon-badge">{t('modules.store.tag')}</span>
                   </div>
                 </div>
                 
-                <p className="text-muted-foreground mb-6">
+                <p className="text-base md:text-lg text-muted-foreground mb-8">
                   {t('modules.store.description')}
                 </p>
                 
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center gap-3 text-base text-muted-foreground">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                     <span>{t('modules.store.features.aggregation')}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <div className="flex items-center gap-3 text-base text-muted-foreground">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                     <span>{t('modules.store.features.hotlist')}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-1 h-1 bg-muted-foreground"></div>
+                  <div className="flex items-center gap-3 text-base text-muted-foreground">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                     <span>{t('modules.store.features.value')}</span>
                   </div>
                 </div>
@@ -379,32 +379,32 @@ export default function Home() {
               </div>
 
             {/* Module 4: Social Distribution Network */}
-            <div className="module-card opacity-75">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-8 h-8 text-muted-foreground" />
+            <div className="module-card opacity-75 p-8">
+              <div className="flex items-start gap-5 mb-8">
+                <div className="w-20 h-20 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-10 h-10 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">{t('modules.sdn.title')}</h3>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('modules.sdn.title')}</h3>
                   <span className="coming-soon-badge">{t('modules.sdn.tag')}</span>
                 </div>
               </div>
               
-              <p className="text-muted-foreground mb-6">
+              <p className="text-base md:text-lg text-muted-foreground mb-8">
                 {t('modules.sdn.description')}
               </p>
               
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.sdn.features.ai')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.sdn.features.tiktok')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.sdn.features.data')}</span>
                 </div>
               </div>
@@ -415,32 +415,32 @@ export default function Home() {
             </div>
 
             {/* Module 5: Alchemy Plan - Meme-Specific AI Model */}
-            <div className="module-card opacity-75">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-8 h-8 text-muted-foreground" />
+            <div className="module-card opacity-75 p-8">
+              <div className="flex items-start gap-5 mb-8">
+                <div className="w-20 h-20 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-10 h-10 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">{t('modules.alchemy.title')}</h3>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('modules.alchemy.title')}</h3>
                   <span className="coming-soon-badge">{t('modules.alchemy.tag')}</span>
                 </div>
               </div>
               
-              <p className="text-muted-foreground mb-6">
+              <p className="text-base md:text-lg text-muted-foreground mb-8">
                 {t('modules.alchemy.description')}
               </p>
               
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.alchemy.features.sd')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.alchemy.features.meme')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.alchemy.features.quality')}</span>
                 </div>
               </div>
@@ -451,32 +451,32 @@ export default function Home() {
             </div>
 
             {/* Module 6: Lora Forge - Custom Character Training */}
-            <div className="module-card opacity-75">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
-                  <Wand2 className="w-8 h-8 text-muted-foreground" />
+            <div className="module-card opacity-75 p-8">
+              <div className="flex items-start gap-5 mb-8">
+                <div className="w-20 h-20 border-2 border-border bg-muted flex items-center justify-center flex-shrink-0">
+                  <Wand2 className="w-10 h-10 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">{t('modules.lora.title')}</h3>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('modules.lora.title')}</h3>
                   <span className="coming-soon-badge">{t('modules.lora.tag')}</span>
                 </div>
               </div>
               
-              <p className="text-muted-foreground mb-6">
+              <p className="text-base md:text-lg text-muted-foreground mb-8">
                 {t('modules.lora.description')}
               </p>
               
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.lora.features.exclusive')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.lora.features.consistency')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 bg-muted-foreground"></div>
+                <div className="flex items-center gap-3 text-base text-muted-foreground">
+                  <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                   <span>{t('modules.lora.features.lifecycle')}</span>
                 </div>
               </div>

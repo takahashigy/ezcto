@@ -1250,3 +1250,13 @@
 - [x] 更新支付界面突出代币支付优惠（50% off）
 - [x] 更新测试文件的预期值
 - [x] 测试并保存 checkpoint
+
+## Feature 区块大小调整 (2026-02-03)
+- [x] 调整 Feature 区块的大小，让它更大更突出
+  - 图标从 16x16/8x8 增大到 20x20/10x10
+  - 标题从 text-2xl 增大到 text-2xl md:text-3xl
+  - 描述文字从 text-sm 增大到 text-base md:text-lg
+  - 特性列表从 text-sm 增大到 text-base
+  - 卡片间距从 gap-8 增大到 gap-10
+  - 卡片内边距添加 p-8
+- [x] 测试并保存 checkpoint

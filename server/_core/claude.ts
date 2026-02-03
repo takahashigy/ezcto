@@ -449,8 +449,9 @@ ${tokenomicsInstruction}
    - Add download attribute to links: <a href="${input.paydexBannerUrl}" download>Download PayDex Banner</a>
 
 8. Footer:
-   - Logo (small)
+   - DO NOT include Logo in footer (to avoid sizing issues)
    - Quick download links for marketing assets (smaller buttons)
+   - Social media icons (same as community section)
    - Copyright text
 
 **CRITICAL RULES:**
@@ -579,7 +580,9 @@ ${htmlStructure.substring(0, 4000)}...
 
 11. FOOTER:
    - Clean layout with proper spacing
+   - DO NOT include any logo image in footer
    - Quick download links (smaller than main CTAs)
+   - Social media icons (horizontal row)
    - Copyright text
 
 12. LAZY LOADING TRANSITIONS:

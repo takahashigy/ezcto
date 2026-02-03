@@ -134,6 +134,13 @@
       "when": 1770111475226,
       "tag": "0018_old_nick_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1770113450939,
+      "tag": "0019_good_vector",
+      "breakpoints": true
     }
   ]
 }

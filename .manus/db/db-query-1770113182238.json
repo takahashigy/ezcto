@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE projects MODIFY COLUMN status ENUM('draft', 'generating', 'completed', 'failed', 'superseded') NOT NULL DEFAULT 'draft';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute ALTER TABLE projects MODIFY COLUMN status ENUM('draft', 'generating', 'completed', 'failed', 'superseded') NOT NULL DEFAULT 'draft';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1935
+}

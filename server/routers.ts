@@ -141,15 +141,25 @@ export const appRouter = router({
           throw new Error("User not found");
         }
         
-        // Check if user has unpaid projects (skip for admins)
-        if (user.role !== 'admin') {
-          const unpaidProjects = await db.getUnpaidProjectsByUserId(ctx.user.id);
-          if (unpaidProjects.length > 0 && user.freeGenerationsUsed >= 1) {
-            throw new Error("FREE_QUOTA_EXCEEDED: Please unlock your previous project before creating a new one.");
+        // "Latest First" Strategy: Check for incomplete projects and supersede them
+        const isAdmin = user.role === 'admin';
+        let inheritedPayment = false;
+        
+        if (!isAdmin) {
+          // Check for incomplete paid projects (can be superseded)
+          const incompleteProjects = await db.getIncompleteProjectsByUserId(ctx.user.id);
+          if (incompleteProjects.length > 0) {
+            // Will supersede the most recent incomplete project after creating new one
+            console.log(`[Create] Found ${incompleteProjects.length} incomplete project(s), will supersede`);
+            inheritedPayment = true;
+          } else {
+            // Check for unpaid projects (old logic for free quota)
+            const unpaidProjects = await db.getUnpaidProjectsByUserId(ctx.user.id);
+            if (unpaidProjects.length > 0 && user.freeGenerationsUsed >= 1) {
+              throw new Error("FREE_QUOTA_EXCEEDED: Please unlock your previous project before creating a new one.");
+            }
           }
         }
-        // Admin projects are automatically marked as paid for testing
-        const isAdmin = user.role === 'admin';
         const project = await db.createProject({
           userId: ctx.user.id,
           name: input.name,
@@ -173,8 +183,19 @@ export const appRouter = router({
         });
         const projectId = project.id;
         
-        // Increment free generations counter
-        if (user.freeGenerationsUsed < 1) {
+        // Supersede incomplete projects and transfer payment
+        if (inheritedPayment && !isAdmin) {
+          const incompleteProjects = await db.getIncompleteProjectsByUserId(ctx.user.id);
+          for (const oldProject of incompleteProjects) {
+            if (oldProject.id !== projectId) {
+              await db.supersedeProject(oldProject.id, projectId);
+              console.log(`[Create] Superseded project ${oldProject.id} with new project ${projectId}`);
+            }
+          }
+        }
+        
+        // Increment free generations counter (only if not inheriting payment)
+        if (!inheritedPayment && user.freeGenerationsUsed < 1) {
           await db.updateUserFreeGenerations(ctx.user.id, 1);
         }
         

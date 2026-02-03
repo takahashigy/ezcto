@@ -1,4 +1,4 @@
-import { eq, desc, and, lt } from "drizzle-orm";
+import { eq, desc, and, lt, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, customOrders, whitelist, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory, InsertCustomOrder, InsertWhitelist } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -282,6 +282,71 @@ export async function getUnpaidProjectsByUserId(userId: number) {
   return await db.select().from(projects)
     .where(and(eq(projects.userId, userId), eq(projects.paymentStatus, "unpaid")))
     .orderBy(desc(projects.createdAt));
+}
+
+/**
+ * Get incomplete projects (paid but not completed) for a user
+ * These are projects that can be superseded by a new submission
+ */
+export async function getIncompleteProjectsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(projects)
+    .where(and(
+      eq(projects.userId, userId),
+      eq(projects.paymentStatus, "paid"),
+      or(
+        eq(projects.status, "draft"),
+        eq(projects.status, "generating"),
+        eq(projects.status, "failed")
+      )
+    ))
+    .orderBy(desc(projects.createdAt));
+}
+
+/**
+ * Mark a project as superseded (replaced by a new project)
+ * Transfers payment info to the new project
+ */
+export async function supersedeProject(oldProjectId: number, newProjectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const oldProject = await getProjectById(oldProjectId);
+  if (!oldProject) throw new Error("Old project not found");
+
+  // Mark old project as superseded
+  await db.update(projects)
+    .set({ 
+      status: "superseded",
+      metadata: {
+        ...(oldProject.metadata as Record<string, unknown> || {}),
+        supersededBy: newProjectId,
+        supersededAt: new Date().toISOString()
+      }
+    })
+    .where(eq(projects.id, oldProjectId));
+
+  // Transfer payment info to new project if old project was paid
+  if (oldProject.paymentStatus === "paid") {
+    await db.update(projects)
+      .set({
+        paymentStatus: "paid",
+        paymentAmount: oldProject.paymentAmount,
+        paymentCurrency: oldProject.paymentCurrency,
+        paymentTxHash: oldProject.paymentTxHash,
+        paymentWalletAddress: oldProject.paymentWalletAddress,
+        paidAt: oldProject.paidAt,
+        metadata: {
+          supersededFrom: oldProjectId,
+          originalPaymentAt: oldProject.paidAt?.toISOString()
+        }
+      })
+      .where(eq(projects.id, newProjectId));
+  }
+
+  return { success: true };
 }
 
 export async function updateUserFreeGenerations(userId: number, increment: number = 1) {

@@ -37,7 +37,7 @@ export const projects = mysqlTable("projects", {
   twitterUrl: varchar("twitterUrl", { length: 500 }),
   telegramUrl: varchar("telegramUrl", { length: 500 }),
   discordUrl: varchar("discordUrl", { length: 500 }),
-  status: mysqlEnum("status", ["draft", "generating", "completed", "failed"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "generating", "completed", "failed", "superseded"]).default("draft").notNull(),
   styleTemplate: varchar("styleTemplate", { length: 100 }),
   userImageUrl: varchar("userImageUrl", { length: 1000 }),
   userImageKey: varchar("userImageKey", { length: 500 }),

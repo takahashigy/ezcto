@@ -1278,3 +1278,11 @@
 ## 移除 Footer Logo (2026-02-03)
 - [x] 修改 HTML 生成提示词，Footer 不再包含 Logo
 - [x] 修改 CSS 生成提示词，移除 footer-logo 相关样式说明
+
+## 全平台免费倒计时功能 (2026-02-03)
+- [ ] 数据库：创建 site_settings 表存储免费期设置
+- [ ] API：admin.setFreePeriod 设置免费期
+- [ ] API：system.getFreePeriodStatus 获取免费期状态（公开）
+- [ ] Admin 后台：添加免费活动设置界面（开关、结束时间、标题）
+- [ ] 首页：Hero 上方添加醒目的倒计时横幅组件
+- [ ] Launch 页面：免费期内跳过支付流程

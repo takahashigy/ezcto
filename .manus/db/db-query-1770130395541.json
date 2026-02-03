@@ -1,0 +1,18 @@
+{
+  "query": "SELECT * FROM siteSettings;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute SELECT * FROM siteSettings;",
+  "rows": [
+    {
+      "id": "1",
+      "settingKey": "free_period",
+      "settingValue": "{\"enabled\": true, \"endTime\": 1738771199000, \"subtitle\": \"全平台免费生成网站\", \"title\": \"限时免费活动\"}",
+      "updatedBy": "NULL",
+      "createdAt": "2026-02-03 14:50:41",
+      "updatedAt": "2026-02-03 14:50:41"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsettingKey\tsettingValue\tupdatedBy\tcreatedAt\tupdatedAt\n1\tfree_period\t{\"enabled\": true, \"endTime\": 1738771199000, \"subtitle\": \"全平台免费生成网站\", \"title\": \"限时免费活动\"}\tNULL\t2026-02-03 14:50:41\t2026-02-03 14:50:41\n",
+  "stderr": "",
+  "execution_time_ms": 1535
+}

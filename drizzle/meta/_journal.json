@@ -141,6 +141,13 @@
       "when": 1770113450939,
       "tag": "0019_good_vector",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1770129648774,
+      "tag": "0020_wild_pyro",
+      "breakpoints": true
     }
   ]
 }

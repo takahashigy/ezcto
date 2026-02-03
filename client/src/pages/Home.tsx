@@ -7,6 +7,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import { trpc } from "@/lib/trpc";
+import FreePeriodCountdown from "@/components/FreePeriodCountdown";
 
 // Admin navigation link - only visible to admins
 function AdminNavLink() {
@@ -65,6 +66,9 @@ export default function Home() {
           </div>
         </div>
       </nav>
+
+      {/* Free Period Countdown - Shows above Hero when active */}
+      <FreePeriodCountdown />
 
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 overflow-hidden">

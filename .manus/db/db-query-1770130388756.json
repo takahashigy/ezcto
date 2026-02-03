@@ -1,0 +1,9 @@
+{
+  "query": "\nINSERT INTO siteSettings (settingKey, settingValue, createdAt, updatedAt)\nSELECT setting_key, CAST(setting_value AS JSON), updated_at, updated_at\nFROM site_settings;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute \nINSERT INTO siteSettings (settingKey, settingValue, createdAt, updatedAt)\nSELECT setting_key, CAST(setting_value AS JSON), updated_at, updated_at\nFROM site_settings;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1541
+}

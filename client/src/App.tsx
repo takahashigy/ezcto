@@ -11,6 +11,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import LaunchV2Preview from "./pages/LaunchV2Preview";
 import PaymentHistory from "./pages/PaymentHistory";
 import AdminWhitelist from "./pages/AdminWhitelist";
+import AdminFreePeriod from "./pages/AdminFreePeriod";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -68,6 +69,7 @@ function Router() {
       <Route path={"/project/:id"} component={ProjectDetails} />
       <Route path={"/payment-history"} component={PaymentHistory} />
       <Route path={"/admin/whitelist"} component={AdminWhitelist} />
+      <Route path={"/admin/free-period"} component={AdminFreePeriod} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -64,6 +64,10 @@ export default function LaunchV2() {
     { enabled: isWalletConnected && !!walletAddress }
   );
 
+  // Free period check
+  const { data: freePeriodStatus } = trpc.admin.getFreePeriodStatus.useQuery();
+  const isInFreePeriod = freePeriodStatus?.active === true;
+
   const hasWhitelistAccess = whitelistStatus?.isWhitelisted && (whitelistStatus?.remainingGenerations || 0) > 0;
 
   const createProjectMutation = trpc.projects.create.useMutation();
@@ -140,8 +144,8 @@ export default function LaunchV2() {
       return;
     }
 
-    // Admin or whitelist users: proceed directly with full validation
-    const canSkipPayment = user?.role === 'admin' || hasWhitelistAccess;
+    // Admin, whitelist users, or during free period: proceed directly with full validation
+    const canSkipPayment = user?.role === 'admin' || hasWhitelistAccess || isInFreePeriod;
     if (canSkipPayment) {
       handleSubmit(e);
       return;
@@ -249,14 +253,19 @@ export default function LaunchV2() {
       toast.success("Project created!");
       setCurrentProjectId(projectData.projectId);
 
-      // Step 3: Check if user is admin or has whitelist access
-      const canSkipPayment = user?.role === 'admin' || hasWhitelistAccess;
+      // Step 3: Check if user is admin, has whitelist access, or is in free period
+      const canSkipPayment = user?.role === 'admin' || hasWhitelistAccess || isInFreePeriod;
       
       if (canSkipPayment) {
-        // Admin or whitelisted users skip payment and start generation immediately
-        const skipReason = user?.role === 'admin' 
-          ? (language === 'zh' ? '🔑 Admin权限：跳过支付，直接开始生成...' : '🔑 Admin privilege: Skipping payment, starting generation...')
-          : (language === 'zh' ? `🎁 白名单用户：使用免费生成次数 (剩余 ${whitelistStatus?.remainingGenerations} 次)` : `🎁 Whitelist: Using free generation (${whitelistStatus?.remainingGenerations} remaining)`);
+        // Admin, whitelisted users, or free period: skip payment and start generation immediately
+        let skipReason: string;
+        if (user?.role === 'admin') {
+          skipReason = language === 'zh' ? '🔑 Admin权限：跳过支付，直接开始生成...' : '🔑 Admin privilege: Skipping payment, starting generation...';
+        } else if (isInFreePeriod) {
+          skipReason = language === 'zh' ? '🎉 限时免费活动：免费生成中...' : '🎉 Free Period: Generating for free...';
+        } else {
+          skipReason = language === 'zh' ? `🎁 白名单用户：使用免费生成次数 (剩余 ${whitelistStatus?.remainingGenerations} 次)` : `🎁 Whitelist: Using free generation (${whitelistStatus?.remainingGenerations} remaining)`;
+        }
         toast.info(skipReason);
         
         // Store image data for retry (in case generation fails)
@@ -729,6 +738,18 @@ export default function LaunchV2() {
                             <span className="text-sm">
                               {language === 'zh' ? '检查白名单...' : 'Checking whitelist...'}
                             </span>
+                          </div>
+                        ) : isInFreePeriod ? (
+                          <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded p-2">
+                            <div className="flex items-center gap-2 text-green-600">
+                              <Sparkles className="w-4 h-4 animate-pulse" />
+                              <span className="text-sm font-semibold">
+                                {language === 'zh' 
+                                  ? `🎉 限时免费活动进行中 - 免费生成！`
+                                  : `🎉 Free Period Active - Generate for FREE!`
+                                }
+                              </span>
+                            </div>
                           </div>
                         ) : hasWhitelistAccess ? (
                           <div className="bg-green-500/10 border border-green-500/30 rounded p-2">

@@ -1,0 +1,9 @@
+{
+  "query": "\nUPDATE siteSettings \nSET settingValue = JSON_SET(settingValue, '$.endTime', 1770735254817)\nWHERE settingKey = 'free_period';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute \nUPDATE siteSettings \nSET settingValue = JSON_SET(settingValue, '$.endTime', 1770735254817)\nWHERE settingKey = 'free_period';\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1677
+}

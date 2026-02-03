@@ -10,7 +10,11 @@ import {
   deleteWhitelistEntry,
   getWhitelistCount,
   checkWhitelistStatus,
+  getFreePeriodSetting,
+  setFreePeriodSetting,
+  isInFreePeriod,
 } from "../db";
+import { FreePeriodSetting } from "../../drizzle/schema";
 
 // Helper to check if user is admin (either by role or by being owner)
 function isAdmin(user: { openId: string; role: string }) {
@@ -144,4 +148,49 @@ export const adminRouter = router({
     .query(async ({ input }) => {
       return await checkWhitelistStatus(input.walletAddress);
     }),
+
+  // ============ Free Period Settings ============
+
+  // Get free period settings (admin only)
+  getFreePeriodSetting: adminProcedure.query(async () => {
+    const setting = await getFreePeriodSetting();
+    return setting || {
+      enabled: false,
+      endTime: Date.now(),
+      title: "限时免费活动",
+      subtitle: "全平台免费生成网站",
+    };
+  }),
+
+  // Set free period settings (admin only)
+  setFreePeriodSetting: adminProcedure
+    .input(z.object({
+      enabled: z.boolean(),
+      endTime: z.number(), // UTC timestamp in milliseconds
+      title: z.string().min(1),
+      subtitle: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await setFreePeriodSetting(input as FreePeriodSetting, ctx.user.id);
+      return { success: true };
+    }),
+
+  // Get free period status (public, for homepage countdown)
+  getFreePeriodStatus: publicProcedure.query(async () => {
+    const setting = await getFreePeriodSetting();
+    if (!setting || !setting.enabled) {
+      return { active: false };
+    }
+    
+    const now = Date.now();
+    const active = now < setting.endTime;
+    
+    return {
+      active,
+      endTime: setting.endTime,
+      title: setting.title,
+      subtitle: setting.subtitle,
+      remainingMs: active ? setting.endTime - now : 0,
+    };
+  }),
 });

@@ -288,3 +288,28 @@ export const whitelist = mysqlTable("whitelist", {
 
 export type Whitelist = typeof whitelist.$inferSelect;
 export type InsertWhitelist = typeof whitelist.$inferInsert;
+
+
+/**
+ * Site-wide settings for admin configuration
+ * Stores global settings like free period countdown
+ */
+export const siteSettings = mysqlTable("siteSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  settingKey: varchar("settingKey", { length: 100 }).notNull().unique(),
+  settingValue: json("settingValue").$type<Record<string, unknown>>().notNull(),
+  updatedBy: int("updatedBy"), // Admin user ID who last updated
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteSetting = typeof siteSettings.$inferSelect;
+export type InsertSiteSetting = typeof siteSettings.$inferInsert;
+
+// Type for free period setting value
+export type FreePeriodSetting = {
+  enabled: boolean;
+  endTime: number; // UTC timestamp in milliseconds
+  title: string;
+  subtitle?: string;
+};

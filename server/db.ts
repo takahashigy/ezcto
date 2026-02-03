@@ -1,6 +1,6 @@
 import { eq, desc, and, lt, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, customOrders, whitelist, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory, InsertCustomOrder, InsertWhitelist } from "../drizzle/schema";
+import { InsertUser, users, projects, assets, orders, payments, subscriptions, generationHistory, customOrders, whitelist, siteSettings, InsertProject, InsertAsset, InsertOrder, InsertPayment, InsertSubscription, InsertGenerationHistory, InsertCustomOrder, InsertWhitelist, FreePeriodSetting } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -763,4 +763,54 @@ export async function getWhitelistCount() {
 
   const result = await db.select().from(whitelist);
   return result.length;
+}
+
+
+// ============ Site Settings Management ============
+
+export async function getSiteSetting<T = unknown>(key: string): Promise<T | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.select().from(siteSettings).where(eq(siteSettings.settingKey, key)).limit(1);
+  if (result.length === 0) return null;
+  
+  return result[0].settingValue as T;
+}
+
+export async function setSiteSetting<T = unknown>(key: string, value: T, updatedBy?: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db.select().from(siteSettings).where(eq(siteSettings.settingKey, key)).limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(siteSettings)
+      .set({ settingValue: value as Record<string, unknown>, updatedBy })
+      .where(eq(siteSettings.settingKey, key));
+  } else {
+    await db.insert(siteSettings).values({
+      settingKey: key,
+      settingValue: value as Record<string, unknown>,
+      updatedBy,
+    });
+  }
+}
+
+// Free Period specific helpers
+export const FREE_PERIOD_KEY = "free_period";
+
+export async function getFreePeriodSetting(): Promise<FreePeriodSetting | null> {
+  return await getSiteSetting<FreePeriodSetting>(FREE_PERIOD_KEY);
+}
+
+export async function setFreePeriodSetting(setting: FreePeriodSetting, updatedBy?: number): Promise<void> {
+  await setSiteSetting(FREE_PERIOD_KEY, setting, updatedBy);
+}
+
+export async function isInFreePeriod(): Promise<boolean> {
+  const setting = await getFreePeriodSetting();
+  if (!setting || !setting.enabled) return false;
+  
+  return Date.now() < setting.endTime;
 }

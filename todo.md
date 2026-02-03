@@ -1340,3 +1340,9 @@
 - [x] 将 checkWhitelistStatus 从 protectedProcedure 改为 publicProcedure
   - 原因：用户只连接钱包没有 OAuth 登录时无法查询白名单状态
   - 修复后：只连接钱包的用户也能正确查询白名单状态
+
+## 购买按钮多链支持 (2026-02-03)
+- [x] 根据合约地址格式自动识别链类型（BSC/Solana）
+- [x] 生成对应的 GMGN 跳转链接
+  - BSC (0x开头): https://gmgn.ai/bsc/token/{CA}
+  - Solana (Base58): https://gmgn.ai/sol/token/{CA}

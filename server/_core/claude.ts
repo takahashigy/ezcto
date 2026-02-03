@@ -309,6 +309,15 @@ async function generateHTMLStructure(input: any, opusApiKey: string): Promise<st
 
   // Build CA instruction based on whether contract address exists
   const hasCA = input.contractAddress && input.contractAddress.trim();
+  
+  // Determine chain type based on contract address format
+  // BSC/ETH addresses start with 0x, Solana addresses are Base58 encoded
+  const getChainPath = (address: string): string => {
+    if (!address) return 'bsc';
+    return address.trim().startsWith('0x') ? 'bsc' : 'sol';
+  };
+  const chainPath = hasCA ? getChainPath(input.contractAddress!) : 'bsc';
+  const gmgnUrl = hasCA ? `https://gmgn.ai/${chainPath}/token/${input.contractAddress}` : '';
   const caInstruction = hasCA
     ? `**CONTRACT ADDRESS (CA) - CRITICAL:**
 - CA: ${input.contractAddress}
@@ -390,7 +399,7 @@ ${caInstruction}
    - Use heroBackgroundUrl as the FULL SECTION BACKGROUND (background-image style)
    - Overlay text: Headline, Tagline
    - CTA buttons:
-     ${hasCA ? `- "Buy Now" button: <a href="https://gmgn.ai/bsc/token/${input.contractAddress}" target="_blank" class="buy-btn">Buy Now</a>` : '- NO Buy Now button (no contract address provided)'}
+     ${hasCA ? `- "Buy Now" button: <a href="${gmgnUrl}" target="_blank" class="buy-btn">Buy Now</a>` : '- NO Buy Now button (no contract address provided)'}
      - "Learn More" button (scrolls to about section)
    ${hasCA ? `- Contract Address display: Show "${input.contractAddress}" with a Copy button (id="copy-ca-btn", data-ca="${input.contractAddress}")` : '- NO Contract Address display (user did not provide CA)'}
    - The hero background image MUST be clearly visible, not hidden by dark overlays

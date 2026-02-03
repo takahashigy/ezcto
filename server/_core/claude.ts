@@ -185,6 +185,9 @@ Your task is to provide a complete brand strategy and image generation prompts. 
 - Text must be bold, highly readable, with strong contrast against background
 - Use simple backgrounds that don't compete with text visibility
 - Specify exact text placement: "Large bold text '${input.ticker}' centered in the composition"
+- NEVER include hex color codes (like #FFD700, #FF0000, etc.) as visible text in the banner
+- The ONLY text that should appear in banners is the ticker symbol "${input.ticker}" - no color codes, no hashtags with numbers
+- Color information should describe the visual style, NOT be rendered as text
 
 Please provide your analysis in the following JSON format:
 {
@@ -199,7 +202,7 @@ Please provide your analysis in the following JSON format:
     "secondary": "#hex color for secondary elements",
     "accent": "#hex color for CTAs and highlights"
   },
-  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'",
+  "paydexBannerPrompt": "Detailed prompt for 1500x500 PayDex banner. MUST include: 'Large bold text showing ONLY the ticker ${input.ticker} centered prominently, professional trading platform banner style, high contrast for text readability, [visual style details]'. IMPORTANT: The ONLY text visible in the banner should be '${input.ticker}' - do NOT include any hex color codes like #FFD700 as text.",
   "xBannerPrompt": "Detailed prompt for 1200x480 X/Twitter banner. CRITICAL: Content MUST fill the ENTIRE canvas from edge to edge. Requirements: 1) Large bold text ${input.ticker} centered prominently 2) Design spans FULL WIDTH 1200px with NO empty margins 3) NO blank space on left or right sides 4) Background and design elements cover the entire banner area 5) High contrast for text visibility 6) Social media header style. DO NOT leave empty space for profile picture - fill the entire canvas.",
   "heroBackgroundPrompt": "Detailed prompt for 1920x1080 hero background (atmospheric, not too busy, leaves space for text overlay)",
   "featureIconPrompt": "Detailed prompt for 256x256 feature icon. CRITICAL: MUST have FULLY TRANSPARENT BACKGROUND with alpha channel. Requirements: 1) PNG format with transparency 2) NO solid background color 3) NO circular or rectangular background shape 4) Icon should float on transparent canvas 5) Simple flat or minimalist iconic design 6) Clean edges suitable for any background. Example: 'Minimalist [icon subject] icon, flat design, isolated on transparent background, no background elements, clean vector-style edges'",
@@ -220,7 +223,9 @@ Please provide your analysis in the following JSON format:
   }
 }
 
-Remember: The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts. This is non-negotiable for marketing effectiveness.`;
+Remember: The ticker text "${input.ticker}" (without $) MUST be clearly visible and centered in both banner prompts. This is non-negotiable for marketing effectiveness.
+
+CRITICAL: NEVER include hex color codes (e.g., #FFD700, #00FF00) as visible text in any banner prompt. The ONLY text that should appear in banners is the project ticker "${input.ticker}". Color descriptions should be used to describe the visual style, not rendered as text content.`;
 
   const opusApiKey = process.env.CLAUDE_OPUS_API_KEY;
   
@@ -469,6 +474,20 @@ ${htmlStructure.substring(0, 4000)}...
 - Modern typography matching visual style
 - High-conversion CTAs with hover effects
 - Text colors MUST have good contrast against backgrounds
+
+**TYPOGRAPHY AND TEXT WRAPPING (CRITICAL FOR CJK LANGUAGES):**
+- For hero headlines and section titles: use word-break: keep-all; to prevent single character orphans
+- Chinese/Japanese/Korean text should NOT break in the middle of words
+- Hero headline CSS example:
+  .hero-title, h1, .headline {
+    word-break: keep-all;      /* Prevents breaking CJK words */
+    overflow-wrap: break-word; /* Allows breaking at word boundaries if needed */
+    hyphens: none;             /* No hyphenation for CJK */
+  }
+- For long titles, use responsive font-size with clamp() or vw units to prevent overflow
+- Example: font-size: clamp(1.5rem, 5vw, 3rem);
+- Avoid fixed widths on text containers that might cause single-character line breaks
+- Use min-width: 0 on flex children to allow proper text wrapping
 
 **CRITICAL CSS RULES:**
 

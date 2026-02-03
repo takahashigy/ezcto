@@ -1232,3 +1232,14 @@
 - [x] 更新 CryptoPayment 组件使用国际化文案
 - [x] 测试中英文切换效果
 - [x] 保存 checkpoint
+
+## 生成质量问题修复 (2026-02-03)
+### 问题1：首页 Title 单字换行
+- [x] 分析 CSS 生成 Prompt 中的文字换行规则
+- [x] 添加 word-break: keep-all 规则防止单字换行
+- [x] 添加 CJK 语言排版规则到 CSS 生成 Prompt
+
+### 问题2：Banner 显示颜色代码而非项目名称
+- [x] 分析 Banner 生成 Prompt，找出 #FFD700 的来源
+- [x] 修复 Prompt 明确禁止在 Banner 中显示颜色代码
+- [x] 强调 Banner 中唯一应显示的文字是 Ticker 符号

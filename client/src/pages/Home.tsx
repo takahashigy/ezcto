@@ -2,26 +2,49 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
-import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2, Receipt, Shield } from "lucide-react";
+import { ArrowRight, Rocket, TrendingUp, Package, ShoppingCart, Sparkles, Wand2, Receipt, Shield, ChevronDown, Users, Clock } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import { trpc } from "@/lib/trpc";
 import FreePeriodCountdown from "@/components/FreePeriodCountdown";
 
-// Admin navigation link - only visible to admins
+// Admin navigation dropdown - only visible to admins
 function AdminNavLink() {
   const { data: adminCheck } = trpc.admin.isAdmin.useQuery();
   
   if (!adminCheck?.isAdmin) return null;
   
   return (
-    <Link href="/admin/whitelist">
-      <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
-        <Shield className="mr-2 h-4 w-4" />
-        Admin
-      </Button>
-    </Link>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
+          <Shield className="mr-2 h-4 w-4" />
+          Admin
+          <ChevronDown className="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <Link href="/admin/whitelist">
+          <DropdownMenuItem className="cursor-pointer font-mono">
+            <Users className="mr-2 h-4 w-4" />
+            白名单管理
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/admin/free-period">
+          <DropdownMenuItem className="cursor-pointer font-mono">
+            <Clock className="mr-2 h-4 w-4" />
+            免费活动设置
+          </DropdownMenuItem>
+        </Link>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

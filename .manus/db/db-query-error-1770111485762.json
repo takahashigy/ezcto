@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE users ADD COLUMN walletAddress varchar(100) UNIQUE AFTER openId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute ALTER TABLE users ADD COLUMN walletAddress varchar(100) UNIQUE AFTER openId;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 8200 (HY000) at line 1: unsupported add column 'walletaddress' constraint UNIQUE KEY when altering 'dbJdJ5EHfrFG7yZAKfVatd.users'"
+  ]
+}

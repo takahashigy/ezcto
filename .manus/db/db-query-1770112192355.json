@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET walletAddress = '0x77ce18b35ef4bb33fc3b139240b0d17893a858c1' WHERE role = 'admin';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute UPDATE users SET walletAddress = '0x77ce18b35ef4bb33fc3b139240b0d17893a858c1' WHERE role = 'admin';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1507
+}

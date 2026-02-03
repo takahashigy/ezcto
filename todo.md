@@ -1282,3 +1282,24 @@
 - [x] 添加 PancakeSwap 购买 EZCTO 链接
 - [x] 添加中英文翻译支持
 - [x] 测试并保存 checkpoint
+
+## 钱包登录 (SIWE) 实施 (2026-02-03)
+### 数据库更新
+- [x] 在 user 表添加 walletAddress 字段
+- [x] 运行数据库迁移
+
+### 后端实现
+- [x] 安装 siwe 依赖
+- [x] 创建 SIWE 签名验证 API (wallet.verify)
+- [x] 创建钱包登录/注册 API (wallet.getNonce, wallet.checkAddress)
+- [x] 添加数据库函数 (getUserByWalletAddress, createUserByWallet)
+
+### 前端实现
+- [x] 创建 useWalletAuth hook 支持钱包登录
+- [x] 在 CryptoPayment 组件中添加自动登录逻辑
+- [x] 支付前自动签名登录（如果未登录）
+
+### Admin 配置
+- [x] 绑定 Admin 钱包地址 (0x77ce18b35ef4bb33fc3b139240b0d17893a858c1)
+
+- [x] 测试并保存 checkpoint

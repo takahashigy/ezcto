@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAccount, useBalance, useSendTransaction, useChainId, useSwitchChain, useReadContract } from 'wagmi';
 import { parseEther, parseUnits, formatUnits } from 'viem';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
@@ -11,6 +11,8 @@ import { Card } from './ui/card';
 import { AlertCircle, CheckCircle2, Loader2, ExternalLink, ChevronDown, Sparkles, ShoppingCart, Star, Wallet, AlertTriangle } from 'lucide-react';
 import { trpc } from '../lib/trpc';
 import { useToast } from '../hooks/use-toast';
+import { useWalletAuth } from '../hooks/useWalletAuth';
+import { useAuth } from '@/_core/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Select,
@@ -48,6 +50,10 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
   const [selectedToken, setSelectedToken] = useState<string>('EZCTO');
   const [txHash, setTxHash] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Wallet auth hooks
+  const { signInWithWallet, isSigningIn } = useWalletAuth();
+  const { isAuthenticated, refresh: refreshAuth } = useAuth();
 
   // EVM hooks
   const { address: evmAddress, isConnected: evmConnected } = useAccount();
@@ -172,6 +178,19 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
     setIsProcessing(true);
 
     try {
+      // Auto sign-in with wallet if not authenticated
+      if (!isAuthenticated && evmConnected) {
+        toast({
+          title: 'Signing in with wallet...',
+          description: 'Please sign the message in your wallet',
+        });
+        const signInSuccess = await signInWithWallet();
+        if (!signInSuccess) {
+          throw new Error('Failed to sign in with wallet. Please try again.');
+        }
+        await refreshAuth();
+      }
+
       const amount = getTokenAmount();
       const token = availableTokens.find(t => t.key === selectedToken);
       

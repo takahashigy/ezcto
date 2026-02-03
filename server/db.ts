@@ -99,6 +99,52 @@ export async function getUserById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getUserByWalletAddress(walletAddress: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(users).where(eq(users.walletAddress, walletAddress.toLowerCase())).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUserByWallet(walletAddress: string, name?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const normalizedAddress = walletAddress.toLowerCase();
+  // Generate a unique openId based on wallet address
+  const openId = `wallet_${normalizedAddress}`;
+  
+  const values: InsertUser = {
+    openId,
+    walletAddress: normalizedAddress,
+    name: name || `User ${normalizedAddress.slice(0, 6)}...${normalizedAddress.slice(-4)}`,
+    loginMethod: 'wallet',
+    lastSignedIn: new Date(),
+  };
+
+  await db.insert(users).values(values);
+  return await getUserByWalletAddress(normalizedAddress);
+}
+
+export async function updateUserWalletAddress(userId: number, walletAddress: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(users)
+    .set({ walletAddress: walletAddress.toLowerCase() })
+    .where(eq(users.id, userId));
+}
+
+export async function updateUserLastSignedIn(userId: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.update(users)
+    .set({ lastSignedIn: new Date() })
+    .where(eq(users.id, userId));
+}
+
 // ============ Project Management ============
 
 export async function createProject(project: InsertProject) {

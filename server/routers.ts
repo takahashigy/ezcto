@@ -17,6 +17,7 @@ import { notifyOwner } from "./_core/notification";
 import { uploadToR2, uploadPreviewToR2 } from "./cloudflareR2";
 import { cryptoRouter } from "./routers/crypto";
 import { adminRouter } from "./routers/admin";
+import { walletRouter } from "./routers/wallet";
 import { enhanceDescription } from "./_core/claude";
 import { checkSlugAvailability } from "./_core/deployment";
 import { verifyBSCPayment, verifySolanaPayment, pollPaymentConfirmation } from "./_core/paymentVerification";
@@ -26,6 +27,7 @@ export const appRouter = router({
   system: systemRouter,
   crypto: cryptoRouter,
   admin: adminRouter,
+  wallet: walletRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

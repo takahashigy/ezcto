@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, openId, name, role, walletAddress FROM users WHERE role = 'admin' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2fWcLebK3YEHxKz.root --database dbJdJ5EHfrFG7yZAKfVatd --execute SELECT id, openId, name, role, walletAddress FROM users WHERE role = 'admin' LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "TScjeXzuJGM5GP2uo7zjA8",
+      "name": "Yang",
+      "role": "admin",
+      "walletAddress": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\trole\twalletAddress\n1\tTScjeXzuJGM5GP2uo7zjA8\tYang\tadmin\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1568
+}

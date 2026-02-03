@@ -49,10 +49,10 @@ export function CryptoPaymentModalV2({
               </div>
               <div>
                 <p className="font-bold text-green-800 dark:text-green-300 text-lg">
-                  Save $99 with EZCTO Token!
+                  Save ${PAYMENT_CONFIG.priceUSD - PAYMENT_CONFIG.ezctoPaymentUSD} with EZCTO Token - 50% OFF!
                 </p>
                 <p className="text-sm text-green-700 dark:text-green-400 mt-1">
-                  Pay with EZCTO token on BSC and get 33% off - only ${PAYMENT_CONFIG.ezctoPaymentUSD} instead of ${PAYMENT_CONFIG.priceUSD}
+                  Pay with EZCTO token on BSC and get <span className="font-bold">50% off</span> - only <span className="font-bold text-green-600">${PAYMENT_CONFIG.ezctoPaymentUSD}</span> instead of <span className="line-through">${PAYMENT_CONFIG.priceUSD}</span>
                 </p>
               </div>
             </div>

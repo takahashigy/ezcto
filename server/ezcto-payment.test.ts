@@ -9,17 +9,17 @@ describe('EZCTO Token Payment Configuration', () => {
     expect(TOKENS.BSC.EZCTO.decimals).toBe(18);
   });
 
-  it('should have special EZCTO payment price of $200', () => {
-    expect(PAYMENT_CONFIG.ezctoPaymentUSD).toBe(200);
+  it('should have special EZCTO payment price of $99', () => {
+    expect(PAYMENT_CONFIG.ezctoPaymentUSD).toBe(99);
   });
 
-  it('should have standard price of $299 for other tokens', () => {
-    expect(PAYMENT_CONFIG.priceUSD).toBe(299);
+  it('should have standard price of $199 for other tokens', () => {
+    expect(PAYMENT_CONFIG.priceUSD).toBe(199);
   });
 
-  it('should offer $99 discount for EZCTO payment', () => {
+  it('should offer $100 discount (50% off) for EZCTO payment', () => {
     const discount = PAYMENT_CONFIG.priceUSD - PAYMENT_CONFIG.ezctoPaymentUSD;
-    expect(discount).toBe(99);
+    expect(discount).toBe(100);
   });
 
   it('should have EZCTO in BSC token list', () => {
@@ -29,11 +29,11 @@ describe('EZCTO Token Payment Configuration', () => {
 });
 
 describe('EZCTO Price Calculation', () => {
-  it('should calculate correct EZCTO amount for $200 payment', () => {
-    // Example: if EZCTO price is $0.001, need 200000 EZCTO
+  it('should calculate correct EZCTO amount for $99 payment', () => {
+    // Example: if EZCTO price is $0.001, need 99000 EZCTO
     const mockPriceUsd = 0.001;
     const ezctoNeeded = PAYMENT_CONFIG.ezctoPaymentUSD / mockPriceUsd;
-    expect(ezctoNeeded).toBe(200000);
+    expect(ezctoNeeded).toBe(99000);
   });
 
   it('should round up EZCTO amount to 2 decimals', () => {

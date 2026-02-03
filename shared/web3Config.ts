@@ -75,10 +75,10 @@ export const TOKENS = {
 // Payment configuration
 export const PAYMENT_CONFIG = {
   // Price in USD for standard payment
-  priceUSD: 299,
+  priceUSD: 199,
   
   // Special price for EZCTO token payment (in USD equivalent)
-  ezctoPaymentUSD: 200,
+  ezctoPaymentUSD: 99,
   
   // Receiver addresses
   receivers: {

@@ -71,7 +71,7 @@ describe("Web3 Configuration", () => {
 
   describe("PAYMENT_CONFIG", () => {
     it("should have correct price in USD", () => {
-      expect(PAYMENT_CONFIG.priceUSD).toBe(299);
+      expect(PAYMENT_CONFIG.priceUSD).toBe(199);
     });
 
     it("should have EVM receiver address", () => {
@@ -96,7 +96,7 @@ describe("Payment Amount Calculations", () => {
   it("should calculate correct token amounts for stablecoins", () => {
     const priceUSD = PAYMENT_CONFIG.priceUSD;
     // Stablecoins should equal USD price
-    expect(priceUSD).toBe(299);
+    expect(priceUSD).toBe(199);
   });
 
   it("should have valid ERC20 ABI", () => {

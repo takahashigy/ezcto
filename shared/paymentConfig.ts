@@ -5,7 +5,7 @@
 
 export const PAYMENT_CONFIG = {
   // Base price in USD
-  basePrice: 299,
+  basePrice: 199,
   
   // Discount configuration
   discount: {

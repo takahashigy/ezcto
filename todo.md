@@ -1321,3 +1321,7 @@
 - [x] 更新 Claude Haiku 分析逻辑添加 posterSlogan 字段
 - [x] 更新 posterPrompt 模板强调使用 posterSlogan
 - [x] 测试验证（TypeScript 编译通过）
+
+## 修复 CA 合约地址展示框宽度过长问题
+- [x] 在 Claude Opus CSS 指南中添加 CA 容器样式规范（自适应宽度 + 居中）
+- [x] 测试验证

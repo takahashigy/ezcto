@@ -577,11 +577,17 @@ ${htmlStructure.substring(0, 4000)}...
    - Banners MUST NOT overflow viewport
    - Use object-fit: cover for background images
 
-7. CONTRACT ADDRESS (CA) STYLING:
-   - .ca-container: prominent display, centered or left-aligned
-   - .ca-text: monospace font, truncate on mobile if needed
-   - .copy-btn: clear button styling with hover effect
+7. CONTRACT ADDRESS (CA) STYLING (CRITICAL - MUST FOLLOW):
+   - .ca-container MUST use width: fit-content (NOT 100% or fixed large width)
+   - .ca-container MUST be centered: margin: 0 auto; or margin-left: auto; margin-right: auto;
+   - .ca-container layout: display: inline-flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
+   - .ca-container background: semi-transparent with backdrop-blur for glassmorphism effect
+   - .ca-container border-radius: 12px or rounded-full for pill shape
+   - .ca-text: monospace font (font-family: monospace), font-size: 0.9rem to 1rem
+   - .ca-text on mobile: use text-overflow: ellipsis; overflow: hidden; max-width: 200px;
+   - .copy-btn: compact button, padding: 0.5rem 1rem; border-radius: 8px;
    - .copy-success: visual feedback class (green color, checkmark)
+   - NEVER set .ca-container to width: 100% or max-width: 100% - it should only be as wide as its content
 
 8. TOKENOMICS VISUALIZATION (if present):
    - Pie chart: use CSS conic-gradient or SVG

@@ -233,8 +233,8 @@ export default function LaunchV2Preview() {
       <div className="min-h-screen flex items-center justify-center bg-[#e8dcc4]">
         <Card>
           <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please login to view this page</CardDescription>
+            <CardTitle>Connect Wallet</CardTitle>
+            <CardDescription>Please connect your wallet to view project progress</CardDescription>
           </CardHeader>
         </Card>
       </div>

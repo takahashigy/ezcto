@@ -286,23 +286,8 @@ export default function LaunchV2() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="max-w-md w-full mx-4">
-          <CardHeader>
-            <CardTitle>Login Required</CardTitle>
-            <CardDescription>Please login to launch your project</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full">
-              <a href={getLoginUrl()}>Login with Manus</a>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Removed OAuth login requirement - users can browse freely
+  // Wallet connection will be required only at payment step
 
   return (
     <div className="min-h-screen bg-background">

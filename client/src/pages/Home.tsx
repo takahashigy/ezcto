@@ -40,44 +40,26 @@ export default function Home() {
           </Link>
           
           <div className="flex items-center gap-6">
-            {/* Temporarily hidden: Templates, Supply, Store */}
-            {isAuthenticated ? (
-              <>
-                <Link href="/dashboard">
-                  <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
-                    {t('nav.dashboard')}
-                  </Button>
-                </Link>
-                <Link href="/payment-history">
-                  <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
-                    <Receipt className="mr-2 h-4 w-4" />
-                    Payments
-                  </Button>
-                </Link>
-                <AdminNavLink />
-                <Link href="/launch">
-                  <Button className="font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Launch
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <>
-                <a href={getLoginUrl()}>
-                  <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
-                    Sign In
-                  </Button>
-                </a>
-                <a href={getLoginUrl()}>
-                  <Button className="font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
-              </>
-            )}
+            {/* Navigation - always visible, no login required */}
+            <Link href="/dashboard">
+              <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
+                {t('nav.dashboard')}
+              </Button>
+            </Link>
+            <Link href="/payment-history">
+              <Button variant="ghost" className="font-mono font-semibold text-[#2d3e2d] hover:bg-[#2d3e2d]/5">
+                <Receipt className="mr-2 h-4 w-4" />
+                Payments
+              </Button>
+            </Link>
+            <AdminNavLink />
+            <Link href="/launch">
+              <Button className="font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Launch
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
             <WalletConnectButton />
             <LanguageSwitcher />
           </div>
@@ -108,21 +90,12 @@ export default function Home() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                {isAuthenticated ? (
-                  <Link href="/launch">
-                    <Button size="lg" className="font-mono font-semibold text-lg retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] w-full sm:w-auto px-8 py-6">
-                      <Rocket className="mr-2 h-5 w-5" />
-                      Launch Your Project
-                    </Button>
-                  </Link>
-                ) : (
-                  <a href={getLoginUrl()}>
-                    <Button size="lg" className="font-mono font-semibold text-lg retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] w-full sm:w-auto px-8 py-6">
-                      <Rocket className="mr-2 h-5 w-5" />
-                      Start Building
-                    </Button>
-                  </a>
-                )}
+                <Link href="/launch">
+                  <Button size="lg" className="font-mono font-semibold text-lg retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] w-full sm:w-auto px-8 py-6">
+                    <Rocket className="mr-2 h-5 w-5" />
+                    Launch Your Project
+                  </Button>
+                </Link>
               </div>
               
               <div className="flex items-center gap-8 pt-4">
@@ -289,21 +262,12 @@ export default function Home() {
                 </div>
               </div>
               
-              {isAuthenticated ? (
-                <Link href="/launch">
-                  <Button className="w-full font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
-                    {t('modules.launch.button')}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              ) : (
-                <a href={getLoginUrl()} className="block">
-                  <Button className="w-full font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
-                    {t('modules.launch.button')}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
-              )}
+              <Link href="/launch">
+                <Button className="w-full font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
+                  {t('modules.launch.button')}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
 
             {/* Module 2: IP Merchandise Supply Chain */}
@@ -551,21 +515,12 @@ export default function Home() {
             <p className="text-xl text-muted-foreground mb-8">
               成为下一个百万级IP，从EZCTO开始
             </p>
-            {isAuthenticated ? (
-              <Link href="/launch">
-                <Button size="lg" className="font-mono font-semibold text-lg retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] px-8 py-6">
-                  <Rocket className="mr-2 h-5 w-5" />
-                  Launch Your Project Now
-                </Button>
-              </Link>
-            ) : (
-              <a href={getLoginUrl()}>
-                <Button size="lg" className="font-mono font-semibold text-lg retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] px-8 py-6">
-                  <Rocket className="mr-2 h-5 w-5" />
-                  Get Started for Free
-                </Button>
-              </a>
-            )}
+            <Link href="/launch">
+              <Button size="lg" className="font-mono font-semibold text-lg retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_20px_rgba(0,255,65,0.8)] px-8 py-6">
+                <Rocket className="mr-2 h-5 w-5" />
+                Launch Your Project Now
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

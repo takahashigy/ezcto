@@ -44,9 +44,22 @@ export default function ProjectDetails() {
     );
   }
 
+  // Removed OAuth login requirement - show project not found for unauthenticated users
   if (!isAuthenticated) {
-    window.location.href = getLoginUrl();
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-2xl font-bold">Please Connect Wallet</p>
+          <p className="text-muted-foreground">Connect your wallet to view project details</p>
+          <Link href="/">
+            <Button>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if (!project) {

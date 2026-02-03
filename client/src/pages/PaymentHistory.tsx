@@ -28,8 +28,8 @@ export default function PaymentHistory() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to view your payment history</CardDescription>
+            <CardTitle>Connect Wallet</CardTitle>
+            <CardDescription>Please connect your wallet to view your payment history</CardDescription>
           </CardHeader>
         </Card>
       </div>

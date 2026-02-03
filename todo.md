@@ -1146,7 +1146,7 @@
 ## 修复 HTML 生成复制按钮格式问题
 - [x] 修改 HTML Prompt 中的复制按钮格式要求，强调标签必须完整闭合
 - [x] 添加 validateAndFixHTML 函数，自动修复未闭合的 button 标签
-- [ ] 测试并保存 checkpoint
+- [x] 测试并保存 checkpoint
 
 
 ## WalletConnect 多链支付集成
@@ -1259,4 +1259,14 @@
   - 特性列表从 text-sm 增大到 text-base
   - 卡片间距从 gap-8 增大到 gap-10
   - 卡片内边距添加 p-8
+- [x] 测试并保存 checkpoint
+
+## 移除 OAuth 强制登录 (2026-02-03)
+- [x] 移除 main.tsx 中的自动登录重定向逻辑
+- [x] 移除 Home.tsx 中的登录检查，所有按钮直接链接到目标页面
+- [x] 修改 LaunchV2.tsx 移除登录强制检查
+- [x] 修改 Dashboard.tsx 显示空状态而非重定向
+- [x] 修改 ProjectDetails.tsx 显示连接钱包提示
+- [x] 修改 PaymentHistory.tsx 更新未登录提示
+- [x] 修改 LaunchV2Preview.tsx 更新未登录提示
 - [x] 测试并保存 checkpoint

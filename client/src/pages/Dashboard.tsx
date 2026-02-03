@@ -109,9 +109,38 @@ export default function Dashboard() {
     );
   }
 
+  // Show empty state if not authenticated instead of redirecting
   if (!isAuthenticated) {
-    window.location.href = getLoginUrl();
-    return null;
+    return (
+      <div className="min-h-screen bg-background">
+        <nav className="border-b-2 border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container py-4 flex items-center justify-between">
+            <Link href="/">
+              <div className="flex items-center gap-3 cursor-pointer">
+                <img src="/EZ.png" alt="EZCTO" className="h-10" />
+              </div>
+            </Link>
+            <div className="flex items-center gap-4">
+              <WalletConnectButton />
+              <LanguageSwitcher />
+            </div>
+          </div>
+        </nav>
+        <div className="container py-12">
+          <div className="text-center py-20">
+            <Rocket className="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
+            <h2 className="text-2xl font-bold mb-4">No Projects Yet</h2>
+            <p className="text-muted-foreground mb-8">Connect your wallet and launch your first project to see it here.</p>
+            <Link href="/launch">
+              <Button className="font-mono">
+                <Plus className="mr-2 h-4 w-4" />
+                Launch Your First Project
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

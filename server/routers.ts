@@ -709,6 +709,10 @@ export const appRouter = router({
               throw new Error(`Failed to migrate assets: ${migrationResult.error}`);
             }
             console.log(`[PublishWebsite] Successfully migrated ${migrationResult.copiedFiles.length} files`);
+            
+            // Update asset URLs in database to point to new slug
+            await db.updateAssetsSlug(input.projectId, oldSubdomain, input.subdomain);
+            console.log(`[PublishWebsite] Updated asset URLs in database from ${oldSubdomain} to ${input.subdomain}`);
           }
 
           // 6. Upload to Cloudflare R2

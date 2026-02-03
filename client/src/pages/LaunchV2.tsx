@@ -709,8 +709,8 @@ export default function LaunchV2() {
                               <AlertCircle className="w-4 h-4" />
                               <span className="text-sm">
                                 {language === 'zh' 
-                                  ? '需要支付 $299 才能生成'
-                                  : 'Payment of $299 required to generate'
+                                  ? '需要支付 $199 才能生成'
+                                  : 'Payment of $199 required to generate'
                                 }
                               </span>
                             </div>

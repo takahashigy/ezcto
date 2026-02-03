@@ -619,7 +619,7 @@ export function CryptoPayment({ projectId, onPaymentSuccess }: CryptoPaymentProp
           <p className="text-xs text-muted-foreground">
             {selectedChain === 'BSC' && selectedToken === 'EZCTO' 
               ? `🔥 ${t('cryptoPayment.bestDeal')}`
-              : `${t('cryptoPayment.otherAccepted')} $299`
+              : `${t('cryptoPayment.otherAccepted')} $199`
             }
           </p>
           {selectedChain === 'BSC' && (

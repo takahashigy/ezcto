@@ -1270,3 +1270,8 @@
 - [x] 修改 PaymentHistory.tsx 更新未登录提示
 - [x] 修改 LaunchV2Preview.tsx 更新未登录提示
 - [x] 测试并保存 checkpoint
+
+## Dashboard 价格显示修复 (2026-02-03)
+- [x] 修复 CryptoPayment.tsx 中的价格显示从 $299 更新为 $199
+- [x] 修复 LaunchV2.tsx 中的价格显示从 $299 更新为 $199
+- [x] 测试并保存 checkpoint

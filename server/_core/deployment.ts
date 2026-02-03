@@ -320,6 +320,7 @@ export async function migrateSlugAssets(
         Bucket: CLOUDFLARE_R2_BUCKET_NAME,
         CopySource: `${CLOUDFLARE_R2_BUCKET_NAME}/${oldKey}`,
         Key: newKey,
+        MetadataDirective: "COPY",
       });
       
       await r2Client.send(copyCommand);

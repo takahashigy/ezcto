@@ -1290,3 +1290,6 @@
 ## Admin 导航下拉菜单 (2026-02-03)
 - [x] 将顶部导航栏 Admin 按钮改为下拉菜单
 - [x] 下拉菜单包含：白名单管理、免费活动设置
+
+## Bug修复 - Slug更改后图片透明背景丢失
+- [x] Fix: CopyObjectCommand 需要添加 MetadataDirective: "COPY" 保留原始 ContentType

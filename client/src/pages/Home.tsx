@@ -505,6 +505,109 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section className="py-20 bg-gradient-to-b from-background to-card/30">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              {t('pricing.title') || 'Simple Pricing'}
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              {t('pricing.subtitle') || 'Pay with EZCTO token and save 50%'}
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Standard Price Card */}
+            <div className="retro-border p-8 bg-card/50 relative">
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-2 text-muted-foreground">{t('pricing.standard') || 'Standard'}</h3>
+                <div className="text-5xl font-black mb-4">$199</div>
+                <p className="text-muted-foreground mb-6">{t('pricing.standardDesc') || 'Pay with any crypto'}</p>
+                <ul className="text-left space-y-3 mb-8">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
+                    <span className="text-muted-foreground">{t('pricing.feature1') || 'Full website generation'}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
+                    <span className="text-muted-foreground">{t('pricing.feature2') || 'All banner images'}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
+                    <span className="text-muted-foreground">{t('pricing.feature3') || 'Custom domain support'}</span>
+                  </li>
+                </ul>
+                <Link href="/launch">
+                  <Button variant="outline" className="w-full font-mono font-semibold">
+                    {t('pricing.getStarted') || 'Get Started'}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            
+            {/* EZCTO Token Price Card - Highlighted */}
+            <div className="retro-border p-8 bg-gradient-to-br from-[#2d3e2d]/10 to-[#4a5f4a]/10 relative overflow-hidden border-2 border-primary">
+              {/* Best Value Badge */}
+              <div className="absolute -top-1 -right-1">
+                <div className="bg-gradient-to-r from-primary to-[#4a5f4a] text-[#e8dcc4] text-xs font-bold px-4 py-1.5 rounded-bl-lg flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  {t('pricing.bestValue') || 'BEST VALUE'}
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-2 text-primary">{t('pricing.ezctoToken') || 'EZCTO Token'}</h3>
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <span className="text-2xl text-muted-foreground line-through">$199</span>
+                  <span className="text-5xl font-black text-primary">$99</span>
+                </div>
+                <div className="inline-block bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full mb-4 animate-pulse">
+                  50% OFF
+                </div>
+                <p className="text-muted-foreground mb-6">{t('pricing.ezctoDesc') || 'Pay with EZCTO on BSC'}</p>
+                <ul className="text-left space-y-3 mb-8">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                    <span>{t('pricing.feature1') || 'Full website generation'}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                    <span>{t('pricing.feature2') || 'All banner images'}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                    <span>{t('pricing.feature3') || 'Custom domain support'}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                    <span className="font-semibold text-primary">{t('pricing.saveExtra') || 'Save $100!'}</span>
+                  </li>
+                </ul>
+                <Link href="/launch">
+                  <Button className="w-full font-mono font-semibold retro-border bg-gradient-to-r from-[#2d3e2d] to-[#4a5f4a] text-[#e8dcc4] hover:shadow-[0_0_15px_rgba(0,255,65,0.6)]">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {t('pricing.launchWithEzcto') || 'Launch with EZCTO'}
+                  </Button>
+                </Link>
+                
+                {/* Buy EZCTO Link */}
+                <a
+                  href="https://pancakeswap.finance/swap?outputCurrency=0xf036693f699d36e7fb3df3822918b325e1db7777&chain=bsc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  {t('pricing.buyEzcto') || 'Buy EZCTO on PancakeSwap'}
+                  <ArrowRight className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20">
         <div className="container">

@@ -1275,3 +1275,10 @@
 - [x] 修复 CryptoPayment.tsx 中的价格显示从 $299 更新为 $199
 - [x] 修复 LaunchV2.tsx 中的价格显示从 $299 更新为 $199
 - [x] 测试并保存 checkpoint
+
+## 首页价格对比卡片 (2026-02-03)
+- [x] 在首页添加价格对比卡片
+- [x] 突出显示 EZCTO 代币支付的 50% 优惠
+- [x] 添加 PancakeSwap 购买 EZCTO 链接
+- [x] 添加中英文翻译支持
+- [x] 测试并保存 checkpoint

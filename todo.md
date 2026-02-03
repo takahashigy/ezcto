@@ -1316,3 +1316,8 @@
 - [x] 分析现有 validateAndFixHTML 函数
 - [x] 增强 HTML 验证逻辑，修复属性引号闭合问题
 - [x] 测试验证（TypeScript 编译通过，修复逻辑测试通过）
+
+## 优化海报生成逻辑 - 添加 posterSlogan
+- [x] 更新 Claude Haiku 分析逻辑添加 posterSlogan 字段
+- [x] 更新 posterPrompt 模板强调使用 posterSlogan
+- [x] 测试验证（TypeScript 编译通过）

@@ -654,9 +654,16 @@ export const appRouter = router({
           throw new Error("Unauthorized");
         }
         
-        // 2. Check payment status
-        if (project.paymentStatus !== "paid") {
+        // 2. Check payment status (skip if in free period or admin)
+        const inFreePeriod = await isInFreePeriod();
+        const isAdmin = ctx.user.role === 'admin';
+        
+        if (project.paymentStatus !== "paid" && !inFreePeriod && !isAdmin) {
           throw new Error("PAYMENT_REQUIRED: Please unlock this project to publish the website.");
+        }
+        
+        if (inFreePeriod && project.paymentStatus !== 'paid') {
+          console.log('[PublishWebsite] Free period active - allowing publish without payment for project:', input.projectId);
         }
 
         // Track if this is an edit (subdomain change)

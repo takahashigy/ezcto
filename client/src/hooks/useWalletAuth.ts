@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useAccount, useSignMessage } from 'wagmi';
 import { trpc } from '@/lib/trpc';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function useWalletAuth() {
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -8,6 +9,7 @@ export function useWalletAuth() {
   
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
+  const { language } = useLanguage();
   
   const utils = trpc.useUtils();
   const getNonceMutation = trpc.wallet.getNonce.useMutation();
@@ -35,10 +37,17 @@ export function useWalletAuth() {
       const uri = window.location.origin;
       const issuedAt = new Date().toISOString();
       
+      // Create bilingual SIWE message for better user understanding
+      const statementEn = 'Sign in to EZCTO with your wallet';
+      const statementZh = '使用钱包登录 EZCTO';
+      const noteEn = 'This signature is only for identity verification and will NOT transfer any assets or authorize any transactions.';
+      const noteZh = '此签名仅用于身份验证，不会转移任何资产或授权任何交易。';
+      
       const message = `${domain} wants you to sign in with your Ethereum account:
 ${address}
 
-Sign in to EZCTO with your wallet
+${language === 'zh' ? statementZh : statementEn}
+${language === 'zh' ? noteZh : noteEn}
 
 URI: ${uri}
 Version: 1

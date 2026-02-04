@@ -18,6 +18,7 @@ import { bsc, mainnet, polygon } from 'wagmi/chains';
 import { toast } from 'sonner';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type WalletMode = 'evm' | 'solana';
 
@@ -60,6 +61,32 @@ export function WalletConnectButton() {
   // Auth hooks
   const { signInWithWallet, isSigningIn } = useWalletAuth();
   const { isAuthenticated, refresh: refreshAuth } = useAuth();
+  const { language } = useLanguage();
+
+  // Bilingual text
+  const texts = {
+    signingIn: language === 'zh' ? '登录中...' : 'Signing in...',
+    loggedIn: language === 'zh' ? '已登录' : 'Logged in',
+    notLoggedIn: language === 'zh' ? '未登录' : 'Not logged in',
+    signInWithWallet: language === 'zh' ? '使用钱包登录' : 'Sign in with Wallet',
+    viewOnExplorer: language === 'zh' ? '在浏览器中查看' : 'View on Explorer',
+    switchNetwork: language === 'zh' ? '切换网络' : 'Switch Network',
+    changeNetwork: language === 'zh' ? '更改网络' : 'Change Network',
+    disconnect: language === 'zh' ? '断开连接' : 'Disconnect',
+    connectWallet: language === 'zh' ? '连接钱包' : 'Connect Wallet',
+    connectAndSignIn: language === 'zh' ? '连接并登录您的钱包' : 'Connect and sign in with your wallet',
+    selectEvmWallet: language === 'zh' ? '选择 EVM 钱包' : 'Select EVM Wallet',
+    supportsWallets: language === 'zh' ? '支持 Binance, OKX, Trust, TokenPocket, MetaMask' : 'Supports Binance, OKX, Trust, TokenPocket, MetaMask',
+    signToLogin: language === 'zh' ? '连接后需签名完成登录（不涉及资产转移）' : "You'll sign a message to login (no asset transfer)",
+    supportsSolana: language === 'zh' ? '支持 Phantom, Solflare' : 'Supports Phantom, Solflare',
+    walletDisconnected: language === 'zh' ? '钱包已断开' : 'Wallet disconnected',
+    addressCopied: language === 'zh' ? '地址已复制' : 'Address copied to clipboard',
+    pleaseSignMessage: language === 'zh' ? '请在钱包中签名以完成登录\n（仅验证身份，不涉及资产）' : 'Please sign the message in your wallet to complete login\n(Identity verification only, no asset transfer)',
+    walletConnectedSuccess: language === 'zh' ? '钱包连接并登录成功！' : 'Wallet connected and logged in successfully!',
+    signInFailed: language === 'zh' ? '登录失败，请重新连接钱包重试' : 'Failed to sign in. You can try again by reconnecting your wallet.',
+    signInError: language === 'zh' ? '登录失败，请重试' : 'Sign-in failed. Please try again.',
+    loggedInSuccess: language === 'zh' ? '登录成功！' : 'Logged in successfully!',
+  };
 
   // Auto sign-in when wallet connects (EVM only)
   useEffect(() => {
@@ -88,7 +115,7 @@ export function WalletConnectButton() {
       
       const performAutoSignIn = async () => {
         setIsAutoSigningIn(true);
-        toast.info('Please sign the message in your wallet to complete login', {
+        toast.info(texts.pleaseSignMessage, {
           duration: 5000,
         });
         
@@ -96,13 +123,13 @@ export function WalletConnectButton() {
           const success = await signInWithWallet();
           if (success) {
             await refreshAuth();
-            toast.success('Wallet connected and logged in successfully!');
+            toast.success(texts.walletConnectedSuccess);
           } else {
-            toast.error('Failed to sign in. You can try again by reconnecting your wallet.');
+            toast.error(texts.signInFailed);
           }
         } catch (error) {
           console.error('[WalletConnectButton] Auto sign-in error:', error);
-          toast.error('Sign-in failed. Please try reconnecting your wallet.');
+          toast.error(texts.signInError);
         } finally {
           setIsAutoSigningIn(false);
         }
@@ -130,7 +157,7 @@ export function WalletConnectButton() {
     }
     // Reset the auto sign-in flag when disconnecting
     hasAttemptedAutoSignIn.current = false;
-    toast.success('Wallet disconnected');
+    toast.success(texts.walletDisconnected);
   };
 
   const chainInfo = chainId ? CHAIN_INFO[chainId] : null;
@@ -152,7 +179,7 @@ export function WalletConnectButton() {
             {showSigningInState ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Signing in...</span>
+                <span className="text-sm">{texts.signingIn}</span>
               </>
             ) : (
               <>
@@ -219,11 +246,11 @@ export function WalletConnectButton() {
                   {/* Login status indicator */}
                   {isAuthenticated ? (
                     <span className="text-xs px-1.5 py-0.5 rounded bg-green-500/20 text-green-600">
-                      Logged in
+                      {texts.loggedIn}
                     </span>
                   ) : (
                     <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-600">
-                      Not logged in
+                      {texts.notLoggedIn}
                     </span>
                   )}
                 </div>
@@ -240,24 +267,24 @@ export function WalletConnectButton() {
                   className="gap-2 cursor-pointer text-primary"
                   onClick={async () => {
                     setIsAutoSigningIn(true);
-                    toast.info('Please sign the message in your wallet');
+                    toast.info(texts.pleaseSignMessage);
                     try {
                       const success = await signInWithWallet();
                       if (success) {
                         await refreshAuth();
-                        toast.success('Logged in successfully!');
+                        toast.success(texts.loggedInSuccess);
                       } else {
-                        toast.error('Sign-in failed. Please try again.');
+                        toast.error(texts.signInError);
                       }
                     } catch (error) {
-                      toast.error('Sign-in failed. Please try again.');
+                      toast.error(texts.signInError);
                     } finally {
                       setIsAutoSigningIn(false);
                     }
                   }}
                 >
                   <Wallet className="h-4 w-4" />
-                  <span>Sign in with Wallet</span>
+                  <span>{texts.signInWithWallet}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </>
@@ -268,14 +295,14 @@ export function WalletConnectButton() {
               onClick={() => window.open(`https://bscscan.com/address/${address}`, '_blank')}
             >
               <ExternalLink className="h-4 w-4" />
-              <span>View on Explorer</span>
+              <span>{texts.viewOnExplorer}</span>
             </DropdownMenuItem>
             
             <DropdownMenuSeparator />
             
             {/* Switch Network - using RainbowKit's built-in */}
             <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-              Switch Network
+              {texts.switchNetwork}
             </DropdownMenuLabel>
             <div className="px-2 pb-2">
               <ConnectButton.Custom>
@@ -285,7 +312,7 @@ export function WalletConnectButton() {
                     className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent transition-colors"
                   >
                     <Zap className="h-4 w-4" />
-                    <span>Change Network</span>
+                    <span>{texts.changeNetwork}</span>
                     {chain && (
                       <span className="ml-auto text-xs text-muted-foreground">
                         {chain.name}
@@ -303,7 +330,7 @@ export function WalletConnectButton() {
               onClick={handleDisconnect}
             >
               <LogOut className="h-4 w-4" />
-              <span>Disconnect</span>
+              <span>{texts.disconnect}</span>
             </DropdownMenuItem>
           </div>
         </DropdownMenuContent>
@@ -392,16 +419,16 @@ export function WalletConnectButton() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Wallet className="h-4 w-4" />
-          <span className="hidden sm:inline">Connect Wallet</span>
+          <span className="hidden sm:inline">{texts.connectWallet}</span>
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-0 overflow-hidden">
         {/* Header */}
         <div className="bg-primary/5 p-4 border-b border-border">
-          <h3 className="font-semibold text-sm">Connect Wallet</h3>
+          <h3 className="font-semibold text-sm">{texts.connectWallet}</h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Connect and sign in with your wallet
+            {texts.connectAndSignIn}
           </p>
         </div>
         
@@ -442,15 +469,15 @@ export function WalletConnectButton() {
                     disabled={connectModalOpen}
                   >
                     <Wallet className="h-4 w-4" />
-                    Select EVM Wallet
+                    {texts.selectEvmWallet}
                   </Button>
                 )}
               </ConnectButton.Custom>
               <p className="text-xs text-muted-foreground text-center">
-                Supports Binance, OKX, Trust, TokenPocket, MetaMask
+                {texts.supportsWallets}
               </p>
               <p className="text-xs text-center text-primary/80">
-                You'll be asked to sign a message to complete login
+                {texts.signToLogin}
               </p>
             </div>
           ) : (
@@ -459,7 +486,7 @@ export function WalletConnectButton() {
                 <WalletMultiButton className="!bg-purple-600 hover:!bg-purple-700 !rounded-md !h-9 !text-sm" />
               </div>
               <p className="text-xs text-muted-foreground text-center">
-                Supports Phantom, Solflare
+                {texts.supportsSolana}
               </p>
             </div>
           )}

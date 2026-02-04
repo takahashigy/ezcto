@@ -3,7 +3,7 @@
  * Deploys generated website to Cloudflare R2 with custom subdomain
  * Uses Cloudflare KV to track slug availability
  */
-import { S3Client, PutObjectCommand, ListObjectsV2Command, CopyObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, ListObjectsV2Command, CopyObjectCommand, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 
 const CLOUDFLARE_R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
 const CLOUDFLARE_R2_SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
@@ -290,11 +290,12 @@ async function releaseSlug(slug: string): Promise<void> {
 export async function migrateSlugAssets(
   oldSlug: string,
   newSlug: string
-): Promise<{ success: boolean; copiedFiles: string[]; error?: string }> {
+): Promise<{ success: boolean; copiedFiles: string[]; error?: string; updatedHtml?: string }> {
   try {
     console.log(`[Deployment] Migrating assets from ${oldSlug} to ${newSlug}`);
     
     const copiedFiles: string[] = [];
+    const localAssetFiles: string[] = []; // Track local asset filenames for URL replacement
     
     // List all objects with the old slug prefix
     const listCommand = new ListObjectsV2Command({
@@ -325,6 +326,14 @@ export async function migrateSlugAssets(
       
       await r2Client.send(copyCommand);
       copiedFiles.push(newKey);
+      
+      // Track asset files for URL replacement
+      if (newKey.includes('/assets/')) {
+        const filename = newKey.split('/').pop();
+        if (filename) {
+          localAssetFiles.push(filename);
+        }
+      }
     }
     
     // Update KV: reserve new slug and release old slug
@@ -332,10 +341,74 @@ export async function migrateSlugAssets(
     await releaseSlug(oldSlug);
     
     console.log(`[Deployment] Successfully migrated ${copiedFiles.length} files from ${oldSlug} to ${newSlug}`);
+    console.log(`[Deployment] Local asset files: ${localAssetFiles.join(', ')}`);
+    
+    // Read the new index.html and replace external CDN URLs with local asset paths
+    let updatedHtml: string | undefined;
+    try {
+      const getCommand = new GetObjectCommand({
+        Bucket: CLOUDFLARE_R2_BUCKET_NAME,
+        Key: `${newSlug}/index.html`,
+      });
+      const getResult = await r2Client.send(getCommand);
+      const htmlContent = await getResult.Body?.transformToString();
+      
+      if (htmlContent && localAssetFiles.length > 0) {
+        updatedHtml = htmlContent;
+        
+        // Pattern to match external CDN URLs (CloudFront, Google Cloud Storage, etc.)
+        const cdnPatterns = [
+          /https:\/\/d2xsxph8kpxj0f\.cloudfront\.net\/[^"'\s]+/g,
+          /https:\/\/storage\.googleapis\.com\/[^"'\s]+/g,
+        ];
+        
+        // Find all CDN URLs in the HTML
+        for (const pattern of cdnPatterns) {
+          const matches: string[] = updatedHtml.match(pattern) || [];
+          for (const cdnUrl of matches) {
+            // Try to find a matching local asset based on keywords
+            let localPath: string | undefined = undefined;
+            
+            // Match based on asset type keywords
+            if (cdnUrl.toLowerCase().includes('feature') || cdnUrl.includes('icon')) {
+              localPath = localAssetFiles.find(f => f.includes('feature-icon'));
+            } else if (cdnUrl.toLowerCase().includes('hero') || cdnUrl.toLowerCase().includes('background')) {
+              localPath = localAssetFiles.find(f => f.includes('hero-background'));
+            } else if (cdnUrl.toLowerCase().includes('logo')) {
+              localPath = localAssetFiles.find(f => f.includes('logo'));
+            } else if (cdnUrl.toLowerCase().includes('banner') || cdnUrl.toLowerCase().includes('paydex')) {
+              localPath = localAssetFiles.find(f => f.includes('paydex-banner'));
+            } else if (cdnUrl.toLowerCase().includes('x-banner') || cdnUrl.toLowerCase().includes('twitter')) {
+              localPath = localAssetFiles.find(f => f.includes('x-banner'));
+            } else if (cdnUrl.toLowerCase().includes('community') || cdnUrl.toLowerCase().includes('scene')) {
+              localPath = localAssetFiles.find(f => f.includes('community-scene'));
+            } else if (cdnUrl.toLowerCase().includes('poster')) {
+              localPath = localAssetFiles.find(f => f.includes('poster'));
+            }
+            
+            if (localPath) {
+              console.log(`[Deployment] Replacing CDN URL: ${cdnUrl.substring(0, 50)}... -> /assets/${localPath}`);
+              updatedHtml = updatedHtml.split(cdnUrl).join(`/assets/${localPath}`);
+            } else {
+              console.log(`[Deployment] No local match for CDN URL: ${cdnUrl.substring(0, 80)}...`);
+            }
+          }
+        }
+        
+        // Also replace any old slug references with new slug
+        const oldSlugPattern = new RegExp(`https://assets\.ezcto\.fun/${oldSlug}/`, 'g');
+        updatedHtml = updatedHtml.replace(oldSlugPattern, `/assets/`);
+        
+        console.log(`[Deployment] HTML URL replacement complete`);
+      }
+    } catch (htmlError) {
+      console.log(`[Deployment] Could not read/update HTML: ${(htmlError as Error).message}`);
+    }
     
     return {
       success: true,
       copiedFiles,
+      updatedHtml,
     };
   } catch (error) {
     console.error(`[Deployment] Failed to migrate assets:`, error);

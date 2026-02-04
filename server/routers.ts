@@ -709,6 +709,12 @@ export const appRouter = router({
               throw new Error(`Failed to migrate assets: ${migrationResult.error}`);
             }
             console.log(`[PublishWebsite] Successfully migrated ${migrationResult.copiedFiles.length} files`);
+            
+            // Use the updated HTML from migration if available (with corrected asset URLs)
+            if (migrationResult.updatedHtml) {
+              htmlContent = migrationResult.updatedHtml;
+              console.log(`[PublishWebsite] Using updated HTML from migration with corrected asset URLs`);
+            }
           }
 
           // 6. Upload to Cloudflare R2

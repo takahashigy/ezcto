@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
+import { isInFreePeriod } from "./db";
 import { executeLaunch } from "./launch";
 import { analyzeProject } from "./aiAnalyzer";
 import { generateProjectAssets } from "./assetGenerator";
@@ -1078,9 +1079,16 @@ export const appRouter = router({
           throw new Error("Unauthorized");
         }
 
-        // Check payment status
-        if (project.paymentStatus !== 'paid') {
+        // Check payment status (skip if in free period or admin)
+        const inFreePeriod = await isInFreePeriod();
+        const isAdmin = ctx.user.role === 'admin';
+        
+        if (project.paymentStatus !== 'paid' && !inFreePeriod && !isAdmin) {
           throw new Error("Payment required. Please complete payment before starting generation.");
+        }
+        
+        if (inFreePeriod && project.paymentStatus !== 'paid') {
+          console.log('[Launch Trigger] Free period active - allowing generation without payment for project:', input.projectId);
         }
 
         // Check if there's already a generation in progress for this project

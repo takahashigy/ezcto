@@ -134,8 +134,11 @@ export default function LaunchV2() {
       return;
     }
 
-    // Check wallet connection (required for non-admin users)
-    if (user?.role !== 'admin' && !isWalletConnected) {
+    // Check if user can skip payment (admin, whitelist, or free period)
+    const canSkipPayment = user?.role === 'admin' || hasWhitelistAccess || isInFreePeriod;
+
+    // Check wallet connection (required for non-admin users, unless in free period)
+    if (!canSkipPayment && !isWalletConnected) {
       toast.error(
         language === 'zh'
           ? '请先连接钱包'
@@ -143,9 +146,6 @@ export default function LaunchV2() {
       );
       return;
     }
-
-    // Admin, whitelist users, or during free period: proceed directly with full validation
-    const canSkipPayment = user?.role === 'admin' || hasWhitelistAccess || isInFreePeriod;
     if (canSkipPayment) {
       handleSubmit(e);
       return;

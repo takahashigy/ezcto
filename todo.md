@@ -1325,14 +1325,3 @@
 ## 修复 CA 合约地址展示框宽度过长问题
 - [x] 在 Claude Opus CSS 指南中添加 CA 容器样式规范（自适应宽度 + 居中）
 - [x] 测试验证
-
-## 创建统一的 R2 复制工具函数 - 一劳永逸解决透明背景丢失
-- [ ] 搜索所有 CopyObjectCommand 使用点
-- [ ] 创建统一的 copyR2Object 工具函数（强制 MetadataDirective: "COPY"）
-- [ ] 替换所有 CopyObjectCommand 调用为新工具函数
-- [ ] 测试验证
-
-
-## 修复 slug 更换后 assets fileUrl 未更新问题
-- [x] 在 publishWebsite 中 migrateSlugAssets 成功后，批量更新 assets 表中的 fileUrl
-- [x] 测试验证（TypeScript 编译通过）

@@ -402,29 +402,6 @@ export async function updateAssetFileUrl(
     ));
 }
 
-// Update all asset fileUrls when slug changes (replace old slug with new slug)
-export async function updateAssetsSlug(
-  projectId: number,
-  oldSlug: string,
-  newSlug: string
-) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  // Get all assets for this project
-  const projectAssets = await db.select().from(assets).where(eq(assets.projectId, projectId));
-  
-  // Update each asset's fileUrl by replacing old slug with new slug
-  for (const asset of projectAssets) {
-    if (asset.fileUrl && asset.fileUrl.includes(`/${oldSlug}/`)) {
-      const newFileUrl = asset.fileUrl.replace(`/${oldSlug}/`, `/${newSlug}/`);
-      await db.update(assets)
-        .set({ fileUrl: newFileUrl })
-        .where(eq(assets.id, asset.id));
-    }
-  }
-}
-
 // ============ Order Management ============
 
 export async function createOrder(order: InsertOrder) {

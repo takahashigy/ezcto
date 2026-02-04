@@ -1336,3 +1336,11 @@
 
 ## 功能修复 - 免费期间发布网站
 - [x] 修改 publishWebsite 添加免费期间检查，与生成功能保持一致
+
+
+## 钱包连接自动登录功能
+- [x] 修改 WalletConnectButton 组件，在钱包连接成功后自动触发 SIWE 签名登录
+- [x] 添加签名登录状态指示器（Signing in...）
+- [x] 在钱包下拉菜单中显示登录状态（Logged in / Not logged in）
+- [x] 添加手动"Sign in with Wallet"选项（如果自动签名失败）
+- [x] 更新连接钱包提示文案，告知用户需要签名完成登录

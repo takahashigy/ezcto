@@ -1364,3 +1364,14 @@
 - [x] 在 HTML 生成 prompt 中添加布局结构约束（分栏、导航、卡片网格、CTA按钮、内容容器）
 - [x] 在 CSS 生成 prompt 中添加间距、图片比例、对称性、导航展开、卡片边界约束
 - [x] 确保约束是底线标准而非死板模板，保留设计创意空间
+
+## 依赖包清理和服务器稳定性优化
+- [x] 移除未使用的依赖包（@web3modal/wagmi, @hookform/resolvers, framer-motion, add, recharts, date-fns 等14个包）
+- [x] 删除废弃的 ComponentShowcase.tsx 及7个未使用的 UI 组件（calendar, carousel, chart, form, input-otp, navigation-menu, resizable）
+- [x] 重新安装依赖（node_modules 从 128,378 文件/1.3GB 减少到 110,160 文件/1.1GB）
+- [x] 配置 Vite watch 排除 node_modules 等目录，防止 EMFILE 错误
+- [x] 清除 TypeScript 增量编译缓存
+- [x] 重新安装 @types/qrcode 和 @types/file-saver（仍在使用）
+- [x] 验证 TypeScript 编译零错误
+- [x] 验证开发服务器正常运行
+- [x] 验证现有测试通过（136/147 passed，11个失败为预存问题）

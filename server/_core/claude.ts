@@ -502,6 +502,33 @@ ${tokenomicsInstruction}
 9. Use Font Awesome for social icons (CDN will be added in head)
 10. Text style MUST match the brand personality: ${input.brandStrategy.personality}
 
+**LAYOUT QUALITY BASELINE (MANDATORY - DO NOT VIOLATE):**
+These are minimum layout quality standards. You have creative freedom in colors, fonts, and visual style, but the structural layout MUST meet these requirements:
+
+1. MULTI-COLUMN LAYOUTS: At least 2 sections on desktop MUST use multi-column layout (side-by-side, grid, or split layout). Single-column-only pages are NOT acceptable. Examples:
+   - About section: image on one side, text on the other
+   - Features section: 3 cards in a row (grid)
+   - Poster Showcase: poster left, text right
+   NEVER make all sections full-width single-column stacked blocks.
+
+2. DESKTOP NAVIGATION: On desktop (>768px), navigation links MUST be displayed as a horizontal row of visible text links. Hamburger menus are ONLY for mobile (<768px). The navbar MUST show all nav links inline on desktop.
+
+3. IMAGES MUST COEXIST WITH TEXT: No image should occupy the entire viewport alone without accompanying text or context. Images must be proportionally sized within their containers:
+   - Community Scene: max-width 500px, alongside text
+   - Feature Icons: max 64-80px
+   - Banners: max-width 800px, centered
+   - Poster: max-width 450px, alongside text
+
+4. CONSISTENT SPACING: All sections MUST have consistent vertical padding (4rem-6rem). There should be NO large empty gaps (>200px of blank space) between content blocks. Spacing between sections should be uniform.
+
+5. CARD/GRID LAYOUTS FOR LISTS: Any list of 3+ items (features, benefits, stats) MUST use card-based or grid layout, NOT a plain vertical list. Cards should have visual boundaries (border, shadow, or background difference).
+
+6. VISUAL SYMMETRY AND BALANCE: Content should be visually balanced within each section. Text and images should complement each other, not leave large unbalanced empty areas on one side.
+
+7. CTA BUTTONS: Hero section MUST have at least 2 CTA buttons (${hasCA ? 'Buy Now + Learn More' : 'Learn More + Join Community'}). Buttons must be clearly visible and properly sized.
+
+8. CONTENT ALIGNMENT: All section content MUST be contained within a max-width container (1200px-1400px) and centered. Content should NOT stretch edge-to-edge on wide screens.
+
 Return ONLY semantic HTML5 with proper tags, IDs, classes, and data attributes. No inline styles.`;
 
   return await callClaude([{ role: "user", content: prompt }], {
@@ -641,6 +668,49 @@ ${htmlStructure.substring(0, 4000)}...
 12. LAZY LOADING TRANSITIONS:
    - img { opacity: 0; transition: opacity 0.3s ease-in-out; }
    - img.loaded { opacity: 1; }
+
+**LAYOUT QUALITY BASELINE (MANDATORY CSS RULES):**
+These ensure the page looks professional regardless of model or creative choices:
+
+13. MULTI-COLUMN ENFORCEMENT:
+   - About section: display: flex; gap: 2rem-3rem; align-items: center; (image + text side by side)
+   - Features section: display: grid; grid-template-columns: repeat(3, 1fr); or display: flex; flex-wrap: wrap; justify-content: center;
+   - On mobile (<768px): flex-direction: column; or grid-template-columns: 1fr;
+   - NEVER leave all sections as single-column stacked blocks on desktop
+
+14. DESKTOP NAVIGATION (CRITICAL):
+   - Nav links container: display: flex; flex-direction: row; gap: 1.5rem-2rem; align-items: center;
+   - Nav links MUST be visible on desktop (>768px): display: flex !important;
+   - Hamburger menu icon: display: none; on desktop, display: block; on mobile only
+   - Mobile nav: use @media (max-width: 768px) to show hamburger and hide inline links
+   - Example:
+     @media (min-width: 769px) {
+       .nav-links { display: flex !important; flex-direction: row; }
+       .hamburger, .menu-toggle { display: none !important; }
+     }
+
+15. CONSISTENT SECTION SPACING:
+   - All sections: padding: 4rem 0; or padding: 5rem 0; (uniform vertical rhythm)
+   - Section containers: max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;
+   - NO sections with excessive padding (>8rem) or no padding at all
+   - Maintain visual rhythm: equal spacing between all sections
+
+16. CARD VISUAL BOUNDARIES:
+   - Feature cards MUST have visual distinction: background color, border, or box-shadow
+   - Example: background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2rem;
+   - Cards should feel like distinct, contained units
+
+17. IMAGE PROPORTIONAL SIZING:
+   - No image should stretch to 100vw on desktop
+   - Community scene: max-width: 500px; within a flex container alongside text
+   - Poster: max-width: 450px; within a flex container alongside text
+   - Banners: max-width: 800px; margin: 0 auto;
+   - Feature icons: max-width: 64px; max-height: 64px;
+
+18. CONTENT CONTAINER:
+   - All section content MUST be wrapped in a container: max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;
+   - Content should NOT touch screen edges on wide monitors
+   - Use .container or section > div pattern for consistent containment
 
 Return ONLY the CSS code inside <style> tags.`;
 

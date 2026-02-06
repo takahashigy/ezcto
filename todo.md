@@ -1359,3 +1359,8 @@
 - [x] 修改 callClaudeInternal 响应解析，使用 find 查找 text 类型内容块
 - [x] 更新 ClaudeResponse 类型定义，支持 thinking 类型
 - [x] 测试验证 API 调用正常
+
+## 排版质量底线约束
+- [x] 在 HTML 生成 prompt 中添加布局结构约束（分栏、导航、卡片网格、CTA按钮、内容容器）
+- [x] 在 CSS 生成 prompt 中添加间距、图片比例、对称性、导航展开、卡片边界约束
+- [x] 确保约束是底线标准而非死板模板，保留设计创意空间

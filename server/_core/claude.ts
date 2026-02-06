@@ -13,11 +13,12 @@ export type ClaudeMessage = {
   content: string;
 };
 
+export type ClaudeContentBlock = 
+  | { type: "text"; text: string }
+  | { type: "thinking"; thinking: string; signature?: string };
+
 export type ClaudeResponse = {
-  content: Array<{
-    type: "text";
-    text: string;
-  }>;
+  content: ClaudeContentBlock[];
   usage?: {
     input_tokens: number;
     output_tokens: number;
@@ -106,7 +107,15 @@ async function callClaudeInternal(
     throw new Error("No content returned from Claude API");
   }
 
-  return result.content[0].text;
+  // Find the text content block, skipping thinking blocks (Extended Thinking)
+  const textBlock = result.content.find((block): block is { type: "text"; text: string } => block.type === "text");
+  
+  if (!textBlock || !textBlock.text) {
+    console.error("[Claude] No text block found in response. Content types:", result.content.map(b => b.type));
+    throw new Error("No text content found in Claude API response");
+  }
+
+  return textBlock.text;
 }
 
 /**

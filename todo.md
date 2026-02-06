@@ -1354,3 +1354,8 @@
 ## SIWE 消息格式修复
 - [x] 修复 SIWE 消息格式，将双行中文合并为单行 statement
 - [x] 确保签名验证能正常通过
+
+## Claude API Extended Thinking 兼容修复
+- [x] 修改 callClaudeInternal 响应解析，使用 find 查找 text 类型内容块
+- [x] 更新 ClaudeResponse 类型定义，支持 thinking 类型
+- [x] 测试验证 API 调用正常
